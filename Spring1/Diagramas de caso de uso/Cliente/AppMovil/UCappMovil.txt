@@ -1,6 +1,5 @@
 @startuml
 left to right direction
-title Sistema de Biblioteca Digital
 
 ' Definición de actores
 actor "Usuari" as usuari
