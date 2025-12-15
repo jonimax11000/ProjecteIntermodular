@@ -2,27 +2,48 @@
 left to right direction
 
 ' Definición de actores
-actor "Usuari" as usuari
+actor "WEBODOO" as webodoo
+actor "SPRING" as spring
+actor "EXPRESS" as express
 
 ' Definición de casos de uso principales
-usecase "Crear Compte" as UC1
-usecase "Iniciar Sessió" as UC2
-usecase "Consultar tipus de subscripcions" as UC3
-usecase "Contractar subscripció" as UC4
-usecase "Introduir mètode de pagament" as UC5
-usecase "Consultar estat de subscripció" as UC6
-usecase "Modificar métode de pagament" as UC7
-usecase "Cancel·lar subscripció" as UC8
+usecase "Cancel·lar sub" as UC1
+usecase "Canviar mètode de pago" as UC2
+usecase "Introduir mètode de pago" as UC3
+usecase "Crear com/usr" as UC4
+usecase "Consultar tipus sub" as UC5
+usecase "Contractar sub" as UC6
+usecase "Manar notificacions" as UC7
 
+' Definición de casos de uso incluidos
+usecase "Autenticar" as UC8
+usecase "Consultar rol" as UC9
 
+' Relaciones entre WEBODOO y casos de uso
+webodoo --> UC1
+webodoo --> UC2
+webodoo --> UC3
+webodoo --> UC4
+webodoo --> UC5
+webodoo --> UC6
+webodoo --> UC7
+webodoo --> UC8
 
-' Relaciones entre actores y casos de uso principales
-usuari --> UC1
-usuari --> UC2
-usuari --> UC3
-usuari --> UC4
-usuari --> UC5
-usuari --> UC6
-usuari --> UC7
-usuari --> UC8
+' Relaciones entre actores de sistema y Autenticar
+spring --> UC8
+express --> UC8
+
+' Posicionamiento oculto para alinear casos de uso incluidos
+UC1 -[hidden]-> UC8
+UC2 -[hidden]-> UC8
+UC3 -[hidden]-> UC8
+UC4 -[hidden]-> UC8
+UC5 -[hidden]-> UC8
+UC6 -[hidden]-> UC8
+
+UC8 -[hidden]-> UC9
+
+' Relaciones de inclusión (include)
+UC8 .> UC9 : include
+
 @enduml
