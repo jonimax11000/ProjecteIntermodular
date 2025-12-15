@@ -3,6 +3,7 @@ left to right direction
 
 ' Definición de actores
 actor "Usuari" as usuari
+actor "Administrador" as admin
 
 ' Definición de casos de uso principales
 usecase "Crear Compte" as UC1
@@ -13,6 +14,8 @@ usecase "Introduir mètode de pagament" as UC5
 usecase "Consultar estat de subscripció" as UC6
 usecase "Modificar métode de pagament" as UC7
 usecase "Cancel·lar subscripció" as UC8
+usecase "CRUD subscripcions" as UC9
+usecase "CRUD mètodes de pagament" as UC10
 
 
 
@@ -25,4 +28,7 @@ usuari --> UC5
 usuari --> UC6
 usuari --> UC7
 usuari --> UC8
+admin --> UC9
+admin --> UC10
+admin --> UC2
 @enduml
