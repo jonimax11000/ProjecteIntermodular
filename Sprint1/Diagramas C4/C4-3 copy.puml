@@ -1,58 +1,176 @@
 @startuml
 !include <C4/C4_Component>
 
-title Nivel 3 - Diagrama de Components - API Catàleg (Spring Boot - Port 9090)
+title Nivel 3 - API Catàleg (Spring Boot) - Estructura Interna Basada en Diagrama de Classes
 
-Container_Boundary(api_cataleg, "API Catàleg", "Spring Boot", "Servei de catàleg i metadades")
+Container_Boundary(api_cataleg, "API Catàleg", "Spring Boot", "Servei de catàleg i metadades\nPort: 9090")
 
-' === COMPONENTS PRINCIPALS ===
-Component(cataleg_controller, "CatàlegController", "REST API", "Controlador REST /api/catalog")
-Component(auth_interceptor, "AuthInterceptor", "JWT Interceptor", "Validació tokens JWT")
-Component(rate_limiter, "RateLimiter", "Control de trànsit", "Limitació de requests")
+' === CONTROLADORES (REST) ===
+Component(video_controller, "VideoController", "@RestController", "Controlador REST per a vídeos\n/api/videos")
+Component(visualitzacio_controller, "VisualitzacioController", "@RestController", "Controlador per a visualitzacions\n/api/visualitzacions")
+Component(serie_controller, "SerieController", "@RestController", "Controlador per a sèries\n/api/series")
+Component(metadades_controller, "MetadadesController", "@RestController", "Controlador per a metadades\n/api/metadades")
+Component(auth_controller, "AuthController", "@RestController", "Controlador d'autenticació\n/api/auth")
 
-Component(cataleg_service, "CatàlegService", "Spring Service", "Lògica de negoci del catàleg")
-Component(recomanacions_service, "RecomanacionsService", "Algorítmic", "Genera recomanacions basades en historial")
-Component(metadades_service, "MetadadesService", "Processament", "Extreu i gestiona metadades de vídeos")
+' === FILTRES I SECURITY ===
+Component(odoo_auth_filter, "OdooAuthenticationFilter", "OncePerRequestFilter", "Filtre d'autenticació amb Odoo")
+Component(authentication_header, "AuthenticationHeader", "Utility Class", "Extreu tokens dels headers")
 
-Component(cataleg_repository, "CatàlegRepository", "Spring Data JPA", "Accés a dades del catàleg")
-Component(categories_repository, "CategoriesRepository", "Spring Data JPA", "Gestió de categories i etiquetes")
-Component(historial_repository, "HistorialRepository", "MongoRepository", "Accés a historial de visualització")
+' === SERVEIS (BUSINESS LOGIC) ===
+Component(video_service, "VideoService", "@Service", "Lògica de negoci per a vídeos")
+Component(visualitzacio_service, "VisualitzacioService", "@Service", "Lògica per a visualitzacions")
+Component(serie_service, "SerieService", "@Service", "Lògica per a sèries seguides")
+Component(metadades_service, "MetadadesService", "@Service", "Lògica per a metadades")
+Component(odoo_auth_service, "OdooAuthService", "@Service", "Servei d'autenticació amb Odoo")
 
-Component(validacio_component, "ValidacióComponent", "Utility", "Validació de dades d'entrada")
-Component(cache_component, "CacheComponent", "Caching Layer", "Redis per a caché del catàleg")
-Component(logging_component, "LoggingComponent", "Auditoria", "Registre d'accions i errors")
+' === REPOSITORIS MYSQL (JPA) ===
+Component(video_repository, "VideoRepository", "JpaRepository", "Repositori per a entitat Video")
+Component(serie_repository, "SerieRepository", "JpaRepository", "Repositori per a entitat Serie")
+Component(categoria_repository, "CategoriaRepository", "JpaRepository", "Repositori per a entitat Categoria")
+Component(edat_repository, "EdatRepository", "JpaRepository", "Repositori per a entitat Edat")
+
+' === REPOSITORIS MONGODB ===
+Component(video_vist_repository, "VideoVistRepository", "MongoRepository", "Repositori per a 'videos vistos'")
+Component(metadades_video_repository, "MetadadesVideoRepository", "MongoRepository", "Repositori per a 'metadatos'")
+Component(serie_seguida_repository, "SerieSeguidaRepository", "MongoRepository", "Repositori per a 'series seguidas'")
+
+' === CONFIGURACIÓ ===
+Component(odoo_config, "OdooConfig", "@Configuration", "Configuració connexió Odoo")
+Component(database_config, "DatabaseConfig", "@Configuration", "Configuració bases de dades duals")
+Component(security_config, "SecurityConfig", "@Configuration", "Configuració de seguretat")
+
+' === DTOs ===
+Component(video_dto, "VideoDTO", "DTO", "Transferència de dades de Video")
+Component(video_request_dto, "VideoRequestDTO", "DTO", "Request per crear/actualitzar Video")
+Component(visualitzacio_dto, "VisualitzacioDTO", "DTO", "DTO per a visualitzacions")
+Component(serie_seguida_dto, "SerieSeguidaDTO", "DTO", "DTO per a sèries seguides")
+Component(odoo_verify_request, "OdooVerifyRequest", "DTO", "Request per verificar token Odoo")
+Component(odoo_verify_response, "OdooVerifyResponse", "DTO", "Response de verificació Odoo")
+Component(usuari_sessio, "UsuariSessio", "DTO", "Dades d'usuari de sessió")
+
+' === MODELS MYSQL ===
+Component(video_model, "Video", "JPA Entity", "Model MySQL: id, nom, descripcio, durada, direccion, thumbnail")
+Component(serie_model, "Serie", "JPA Entity", "Model MySQL: nom, temporada")
+Component(categoria_model, "Categoria", "JPA Entity", "Model MySQL: categoria")
+Component(edat_model, "Edat", "JPA Entity", "Model MySQL: edat")
+
+' === MODELS MONGODB ===
+Component(videos_vistos_model, "videos vistos", "Mongo Document", "JSON 1: videoId, usuariId, dataVisualitzacio, minutActual, completat")
+Component(metadatos_model, "metadatos", "Mongo Document", "JSON 2: videoId, metadata, dataProcessament, format, qualitat, mida")
+Component(series_seguidas_model, "series seguidas", "Mongo Document", "JSON 3: serieId, usuariId, dataInici, dataUltimAcces, episodisVistos, notificacions")
 
 ' === BASES DE DADES ===
-ContainerDb(mysql_db, "Base de Dades Catàleg", "MySQL", "Emmagatzema el catàleg de continguts")
-ContainerDb(mongodb_db, "Base de Dades Historial", "MongoDB", "Vídeos vists, metadades i sèries seguides")
+ContainerDb(mysql_db, "Base de Dades Catàleg", "MySQL", "Emmagatzema el catàleg de continguts\nPort: 3306")
+ContainerDb(mongodb_db, "Base de Dades Historial", "MongoDB", "Vídeos vists, metadades i sèries seguides\nPort: 27017")
+System_Ext(odoo_server, "Odoo Server", "Sistema extern", "Autenticació d'usuaris\nlocalhost:8069/verify")
 
-' === RELACIONS INTERNES ===
-cataleg_controller --> auth_interceptor : "Validació obligatòria"\n//<size:10>[preHandle]</size>//
-cataleg_controller --> rate_limiter : "Control de trànsit"
-cataleg_controller --> cataleg_service : "Crida mètodes de negoci"\n//<size:10>[@Autowired]</size>//
-cataleg_controller --> validacio_component : "Valida request body"\n//<size:10>[@Valid]</size>//
+' === RELACIONS PRINCIPALS ===
 
-cataleg_service --> cataleg_repository : "CRUD catàleg"\n//<size:10>[Spring Data]</size>//
-cataleg_service --> categories_repository : "Gestiona categories"\n//<size:10>[Spring Data]</size>//
-cataleg_service --> historial_repository : "Registra visualitzacions"\n//<size:10>[MongoTemplate]</size>//
-cataleg_service --> cache_component : "Guarda en caché"\n//<size:10>[@Cacheable]</size>//
-cataleg_service --> logging_component : "Registra accions"\n//<size:10>[AOP]</size>//
+' Controladors -> Serveis
+video_controller --> video_service : "Invoca mètodes de negoci"
+video_controller --> odoo_auth_service : "Verifica autenticació"
+visualitzacio_controller --> visualitzacio_service : "Gestiona visualitzacions"
+serie_controller --> serie_service : "Gestiona sèries seguides"
+metadades_controller --> metadades_service : "Gestiona metadades"
+auth_controller --> odoo_auth_service : "Verifica tokens"
 
-cataleg_service --> recomanacions_service : "Sol·licita recomanacions"
-recomanacions_service --> historial_repository : "Analitza historial"\n//<size:10>[Aggregation]</size>//
-metadades_service --> cataleg_repository : "Actualitza metadades"
+' Serveis -> Repositoris
+video_service --> video_repository : "CRUD vídeos"
+video_service --> serie_repository : "Consulta sèries"
+video_service --> categoria_repository : "Consulta categories"
+video_service --> edat_repository : "Consulta edats"
 
-cataleg_repository --> mysql_db : "Persisteix catàleg"\n//<size:10>[JDBC/Hibernate (3306)]</size>//
-categories_repository --> mysql_db : "Persisteix categories"\n//<size:10>[JDBC/Hibernate (3306)]</size>//
-historial_repository --> mongodb_db : "Emmagatzema historial"\n//<size:10>[Mongo Driver (27017)]</size>//
+visualitzacio_service --> video_vist_repository : "Registra visualitzacions"
+visualitzacio_service --> video_repository : "Consulta vídeos"
+
+serie_service --> serie_seguida_repository : "Gestiona sèries seguides"
+serie_service --> serie_repository : "Consulta sèries"
+
+metadades_service --> metadades_video_repository : "Guarda/recupera metadades"
+
+' Serveis -> DTOs
+video_service ..> video_dto : "Retorna"
+video_service ..> video_request_dto : "Rebut"
+visualitzacio_service ..> visualitzacio_dto : "Utilitza"
+serie_service ..> serie_seguida_dto : "Utilitza"
+odoo_auth_service ..> odoo_verify_request : "Envia"
+odoo_auth_service ..> odoo_verify_response : "Rebut"
+odoo_auth_service ..> usuari_sessio : "Retorna"
+
+' Repositoris -> Models -> Bases de dades
+video_repository --> video_model : "Gestiona"
+serie_repository --> serie_model : "Gestiona"
+categoria_repository --> categoria_model : "Gestiona"
+edat_repository --> edat_model : "Gestiona"
+
+video_vist_repository --> videos_vistos_model : "Gestiona"
+metadades_video_repository --> metadatos_model : "Gestiona"
+serie_seguida_repository --> series_seguidas_model : "Gestiona"
+
+video_model --> mysql_db : "Persisteix"
+serie_model --> mysql_db : "Persisteix"
+categoria_model --> mysql_db : "Persisteix"
+edat_model --> mysql_db : "Persisteix"
+
+videos_vistos_model --> mongodb_db : "Documenta"
+metadatos_model --> mongodb_db : "Documenta"
+series_seguidas_model --> mongodb_db : "Documenta"
+
+' Configuració
+odoo_config --> odoo_auth_service : "Proporciona URL"
+database_config --> mysql_db : "Configura connexió"
+database_config --> mongodb_db : "Configura connexió"
+security_config --> odoo_auth_filter : "Configura filtre"
+
+' Filtre Security
+odoo_auth_filter --> odoo_auth_service : "Verifica tokens"
+odoo_auth_filter --> authentication_header : "Extreu tokens"
+
+' Connexió externa Odoo
+odoo_auth_service --> odoo_server : "POST verify token\nHTTP :8069"
 
 ' === CONNEXIONS EXTERNES ===
-cataleg_controller -[#blue]u-> "REST Endpoints" : "HTTPS/JWT"\n//<size:10>[Port: 9090]</size>//
-api_cataleg -[#green]d-> mysql_db : "Connexió BD Catàleg"\n//<size:10>[JDBC (3306)]</size>//
-api_cataleg -[#green]d-> mongodb_db : "Connexió BD Historial"\n//<size:10>[MongoDB (27017)]</size>//
+video_controller -[#blue]u-> "REST Endpoints" : "HTTPS/JWT\nPort: 9090"
+visualitzacio_controller -[#blue]u-> "REST Endpoints" : "HTTPS/JWT\nPort: 9090"
+serie_controller -[#blue]u-> "REST Endpoints" : "HTTPS/JWT\nPort: 9090"
+metadades_controller -[#blue]u-> "REST Endpoints" : "HTTPS/JWT\nPort: 9090"
+auth_controller -[#blue]u-> "REST Endpoints" : "HTTPS\nPort: 9090"
 
-' === CONNEXIONS AMB ALTRES SISTEMES ===
-api_cataleg -[#orange]r-> "API Subscripcions" : "Verifica permisos"\n//<size:10>[HTTP]</size>//
-api_cataleg -[#orange]r-> "API Continguts" : "Notifica nous continguts"\n//<size:10>[HTTP]</size>//
+' === NOTES I ANOTACIONS ===
+note top of api_cataleg
+    <b>Arquitectura Spring Boot basada en diagrama de classes</b>
+    • Configuració dual MySQL + MongoDB
+    • Autenticació externa amb Odoo
+    • Separació clara de capes
+    • Models exactes segons especificació
+end note
+
+note right of video_model
+    <b>Entitat MySQL exacte:</b>
+    • id, nom, descripcio
+    • durada, direccion, thumbnail
+    • Relacions: Serie, Edat, Categoria
+end note
+
+note left of videos_vistos_model
+    <b>JSON 1 - videos vistos:</b>
+    • videoId, usuariId
+    • dataVisualitzacio
+    • minutActual, completat
+end note
+
+note right of metadatos_model
+    <b>JSON 2 - metadatos:</b>
+    • videoId, metadata (Map)
+    • dataProcessament
+    • format, qualitat, mida
+end note
+
+note left of series_seguidas_model
+    <b>JSON 3 - series seguidas:</b>
+    • serieId, usuariId
+    • dataInici, dataUltimAcces
+    • episodisVistos, notificacions
+end note
 
 @enduml
