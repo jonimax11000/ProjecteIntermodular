@@ -1,0 +1,88 @@
+@startuml
+title Flux Complet del Sistema
+
+box "Clients"
+actor "Usuari"
+actor "Administrador"
+end box
+
+box "Frontends"
+participant "App mòbil"
+participant "Portal Web Odoo"
+participant "Escriptori Admin"
+end box
+
+box "Serveis"
+participant "Spring"
+participant "Express"
+participant "Odoo"
+end box
+
+box "Emmagatzematge"
+participant "MySQL"
+participant "MongoDB"
+participant "PostgreSQL"
+participant "Vídeos"
+end box
+
+== USUARI ==
+
+Usuari -> "App mòbil": Utilitza aplicació
+"App mòbil" -> Odoo: Login / Token
+Odoo -> PostgreSQL: Valida usuari
+Odoo --> "App mòbil": Token JWT
+
+"App mòbil" -> Spring: Consulta catàleg
+Spring -> MySQL: Obté contingut
+MySQL --> Spring: Dades del catàleg
+Spring -> MongoDB: Metadades extres
+MongoDB --> Spring: Informació addicional
+Spring --> "App mòbil": Contingut mostrat
+
+"App mòbil" -> Express: Reprodueix vídeo
+Express -> "Vídeos": Stream HLS
+"Vídeos" --> Express: Contingut
+Express --> "App mòbil": Streaming de vídeo
+"App mòbil" -> MongoDB: Registra vist
+
+Usuari -> "Portal Web Odoo": Gestiona subscripció
+"Portal Web Odoo" -> Odoo: CRUD subscripció
+Odoo -> PostgreSQL: Actualitza dades
+PostgreSQL --> Odoo: Confirmació
+Odoo --> "Portal Web Odoo": Operació OK
+"Portal Web Odoo" --> Usuari: Subscripció actualitzada
+
+Usuari -> "Portal Web Odoo": Gestiona mètode de pagament
+"Portal Web Odoo" -> Odoo: Canvia mètode de pagament
+Odoo -> PostgreSQL: Actualitza dades
+PostgreSQL --> Odoo: Confirmació
+Odoo --> "Portal Web Odoo": Operació OK
+"Portal Web Odoo" --> Usuari: Mètode de pagament actualitzat
+
+== ADMINISTRADOR ==
+
+Administrador -> "Escriptori Admin": Gestiona contingut
+"Escriptori Admin" -> Express: Puja vídeo
+Express -> "Vídeos": Processa i emmagatzema
+"Vídeos" --> Express: Vídeo llest
+Express --> "Escriptori Admin": Processat
+"Escriptori Admin" -> Spring: Afegeix al catàleg
+Spring -> MySQL: Registra vídeo
+MySQL --> Spring: Confirmat
+Spring --> "Escriptori Admin": Al catàleg
+
+Administrador -> "Portal Web Odoo": Gestiona usuaris i subscripcions
+"Portal Web Odoo" -> Odoo: CRUD usuaris/subscripcions/mètodes de pagament
+Odoo -> PostgreSQL: Modifica dades
+PostgreSQL --> Odoo: Canvis fets
+Odoo --> "Portal Web Odoo": Operació completada
+"Portal Web Odoo" --> Administrador: Gestió completada
+
+== NOTIFICACIONS ==
+
+Odoo -> "App mòbil": Estat de la subscripció
+Odoo -> "Portal Web Odoo": Canvis en el pagament
+Spring -> "App mòbil": Capítol nou en sèrie seguida
+MongoDB -> Spring: Estadístiques d'ús
+Spring -> "Escriptori Admin": Informes
+@enduml
