@@ -1,0 +1,58 @@
+@startuml
+!include <C4/C4_Component>
+
+title Nivel 3 - Diagrama de Components - API Catàleg (Spring Boot - Port 9090)
+
+Container_Boundary(api_cataleg, "API Catàleg", "Spring Boot", "Servei de catàleg i metadades")
+
+' === COMPONENTS PRINCIPALS ===
+Component(cataleg_controller, "CatàlegController", "REST API", "Controlador REST /api/catalog")
+Component(auth_interceptor, "AuthInterceptor", "JWT Interceptor", "Validació tokens JWT")
+Component(rate_limiter, "RateLimiter", "Control de trànsit", "Limitació de requests")
+
+Component(cataleg_service, "CatàlegService", "Spring Service", "Lògica de negoci del catàleg")
+Component(recomanacions_service, "RecomanacionsService", "Algorítmic", "Genera recomanacions basades en historial")
+Component(metadades_service, "MetadadesService", "Processament", "Extreu i gestiona metadades de vídeos")
+
+Component(cataleg_repository, "CatàlegRepository", "Spring Data JPA", "Accés a dades del catàleg")
+Component(categories_repository, "CategoriesRepository", "Spring Data JPA", "Gestió de categories i etiquetes")
+Component(historial_repository, "HistorialRepository", "MongoRepository", "Accés a historial de visualització")
+
+Component(validacio_component, "ValidacióComponent", "Utility", "Validació de dades d'entrada")
+Component(cache_component, "CacheComponent", "Caching Layer", "Redis per a caché del catàleg")
+Component(logging_component, "LoggingComponent", "Auditoria", "Registre d'accions i errors")
+
+' === BASES DE DADES ===
+ContainerDb(mysql_db, "Base de Dades Catàleg", "MySQL", "Emmagatzema el catàleg de continguts")
+ContainerDb(mongodb_db, "Base de Dades Historial", "MongoDB", "Vídeos vists, metadades i sèries seguides")
+
+' === RELACIONS INTERNES ===
+cataleg_controller --> auth_interceptor : "Validació obligatòria"\n//<size:10>[preHandle]</size>//
+cataleg_controller --> rate_limiter : "Control de trànsit"
+cataleg_controller --> cataleg_service : "Crida mètodes de negoci"\n//<size:10>[@Autowired]</size>//
+cataleg_controller --> validacio_component : "Valida request body"\n//<size:10>[@Valid]</size>//
+
+cataleg_service --> cataleg_repository : "CRUD catàleg"\n//<size:10>[Spring Data]</size>//
+cataleg_service --> categories_repository : "Gestiona categories"\n//<size:10>[Spring Data]</size>//
+cataleg_service --> historial_repository : "Registra visualitzacions"\n//<size:10>[MongoTemplate]</size>//
+cataleg_service --> cache_component : "Guarda en caché"\n//<size:10>[@Cacheable]</size>//
+cataleg_service --> logging_component : "Registra accions"\n//<size:10>[AOP]</size>//
+
+cataleg_service --> recomanacions_service : "Sol·licita recomanacions"
+recomanacions_service --> historial_repository : "Analitza historial"\n//<size:10>[Aggregation]</size>//
+metadades_service --> cataleg_repository : "Actualitza metadades"
+
+cataleg_repository --> mysql_db : "Persisteix catàleg"\n//<size:10>[JDBC/Hibernate (3306)]</size>//
+categories_repository --> mysql_db : "Persisteix categories"\n//<size:10>[JDBC/Hibernate (3306)]</size>//
+historial_repository --> mongodb_db : "Emmagatzema historial"\n//<size:10>[Mongo Driver (27017)]</size>//
+
+' === CONNEXIONS EXTERNES ===
+cataleg_controller -[#blue]u-> "REST Endpoints" : "HTTPS/JWT"\n//<size:10>[Port: 9090]</size>//
+api_cataleg -[#green]d-> mysql_db : "Connexió BD Catàleg"\n//<size:10>[JDBC (3306)]</size>//
+api_cataleg -[#green]d-> mongodb_db : "Connexió BD Historial"\n//<size:10>[MongoDB (27017)]</size>//
+
+' === CONNEXIONS AMB ALTRES SISTEMES ===
+api_cataleg -[#orange]r-> "API Subscripcions" : "Verifica permisos"\n//<size:10>[HTTP]</size>//
+api_cataleg -[#orange]r-> "API Continguts" : "Notifica nous continguts"\n//<size:10>[HTTP]</size>//
+
+@enduml
