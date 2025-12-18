@@ -1,0 +1,361 @@
+@startuml
+' Diagrama de Classes - Quasar Frontend Administrador
+' Configuració d'estil
+skinparam class {
+    BackgroundColor<<Vue Component>> #ccffff
+    BackgroundColor<<Store>> #ffcccc
+    BackgroundColor<<Service>> #ccffcc
+    BackgroundColor<<Model>> #ffffff
+    BackgroundColor<<Util>> #ffcc99
+    BorderColor #333333
+    ArrowColor #333333
+}
+
+' ============================================
+' FRONTEND QUASAR - ADMINISTRADOR
+' ============================================
+
+package "Frontend Quasar Admin" {
+
+package "Components" <<Vue Component>> {
+
+class "VideoUploader" <<Vue Component>> {
+    -videoFile: File
+    -uploading: boolean
+    -progress: number
+    +handleFileUpload()
+    +submitVideo()
+    +isValidFile()
+}
+
+class "VideoList" <<Vue Component>> {
+    -videos: Array<VideoDTO>
+    -selectedVideos: Array<VideoDTO>
+    -pagination: Object
+    +loadVideos()
+    +editVideo(id)
+    +deleteVideo(id)
+    +confirmDelete()
+}
+
+class "VideoEditor" <<Vue Component>> {
+    -video: VideoDTO
+    -categories: Array<Categoria>
+    -edats: Array<Edat>
+    -series: Array<Serie>
+    -loading: boolean
+    +loadVideo(id)
+    +saveChanges()
+    +cancelEdit()
+    +validateForm()
+}
+
+class "SerieManager" <<Vue Component>> {
+    -series: Array<SerieDTO>
+    -newSerie: SerieDTO
+    -editingSerie: SerieDTO
+    +createSerie()
+    +editSerie(id)
+    +deleteSerie(id)
+    +updateSerie()
+}
+
+class "ProcessingStatus" <<Vue Component>> {
+    -processingJobs: Array<ProcessingJob>
+    -pollingInterval: any
+    +startPolling()
+    +stopPolling()
+    +getJobStatus(jobId)
+}
+
+class "LoginForm" <<Vue Component>> {
+    -username: string
+    -password: string
+    -loading: boolean
+    -error: string
+    +login()
+    +logout()
+    +clearError()
+}
+}
+
+package "Store (Vuex)" <<Store>> {
+
+class "AuthStore" <<Store>> {
+    __state__
+    -user: User|null
+    -token: string|null
+    -isAuthenticated: boolean
+    
+    __getters__
+    +isAuthenticated(): boolean
+    +user(): User|null
+    +token(): string|null
+    +userRole(): string
+    
+    __mutations__
+    +SET_USER(user)
+    +SET_TOKEN(token)
+    +CLEAR_AUTH()
+    
+    __actions__
+    +login(credentials)
+    +logout()
+    +checkAuth()
+}
+
+class "VideoStore" <<Store>> {
+    __state__
+    -videos: Array<VideoDTO>
+    -categories: Array<Categoria>
+    -edats: Array<Edat>
+    -series: Array<Serie>
+    
+    __getters__
+    +getVideoById(id): VideoDTO
+    +getVideosByCategory(categoryId)
+    +getVideosBySerie(serieId)
+    
+    __mutations__
+    +SET_VIDEOS(videos)
+    +ADD_VIDEO(video)
+    +UPDATE_VIDEO(video)
+    +DELETE_VIDEO(id)
+    +SET_CATEGORIES(categories)
+    +SET_SERIES(series)
+    
+    __actions__
+    +fetchVideos()
+    +fetchCategories()
+    +fetchSeries()
+    +createVideo(videoData)
+    +updateVideo(id, data)
+    +deleteVideo(id)
+}
+
+class "UploadStore" <<Store>> {
+    __state__
+    -uploadQueue: Array<UploadJob>
+    -activeUploads: Array<UploadJob>
+    -completedUploads: Array<UploadJob>
+    
+    __getters__
+    +pendingUploads()
+    +activeUploads()
+    +uploadProgress()
+    
+    __mutations__
+    +ADD_TO_QUEUE(job)
+    +UPDATE_PROGRESS(jobId, progress)
+    +SET_STATUS(jobId, status)
+    +REMOVE_FROM_QUEUE(jobId)
+    
+    __actions__
+    +uploadVideo(file, metadata)
+    +cancelUpload(jobId)
+    +clearCompleted()
+}
+}
+
+
+package "Services" <<Service>> {
+
+class "OdooAuthService" <<Service>> {
+    -odooBaseUrl: string = "http://localhost:8069"
+    -axios: AxiosInstance
+    
+    __mètodes__
+    +login(username, password): Promise<LoginResponse>
+    +verifyToken(token): Promise<VerifyResponse>
+    +logout(token): Promise<void>
+    +getUserInfo(token): Promise<UserInfo>
+    
+    __endpoints__
+    +POST /web/session/authenticate
+    +POST /verify (custom endpoint)
+}
+
+class "SpringVideoService" <<Service>> {
+    -springBaseUrl: string = "http://localhost:8080"
+    -axios: AxiosInstance
+    
+    __mètodes__
+    +getVideos(token, params): Promise<VideoDTO[]>
+    +getVideoById(token, id): Promise<VideoDTO>
+    +createVideo(token, videoData): Promise<VideoDTO>
+    +updateVideo(token, id, data): Promise<VideoDTO>
+    +deleteVideo(token, id): Promise<void>
+    +getCategories(token): Promise<Categoria[]>
+    +getEdats(token): Promise<Edat[]>
+    +getSeries(token): Promise<Serie[]>
+    
+    __config__
+    +setAuthHeader(token)
+}
+
+class "ExpressVideoService" <<Service>> {
+    -expressBaseUrl: string = "http://localhost:3000"
+    -axios: AxiosInstance
+    
+    __mètodes__
+    +uploadVideoMP4(token, file, onProgress): Promise<UploadResponse>
+    +getProcessingStatus(token, jobId): Promise<ProcessingJob>
+    +cancelProcessing(token, jobId): Promise<void>
+    +getVideoMetadata(token, videoId): Promise<VideoMetadata>
+    +getHLSManifest(token, videoId): Promise<string>
+    
+    __config__
+    +setAuthHeader(token)
+}
+}
+
+package "Models (DTOs)" <<Model>> {
+
+class "User" <<Model>> {
+    -id: string
+    -email: string
+    -name: string
+    -role: string
+    -token: string
+    -expiresAt: Date
+}
+
+class "VideoDTO" <<Model>> {
+    -id: number
+    -nom: string
+    -descripcio: string
+    -durada: number
+    -direccion: string
+    -thumbnail: string
+    -categories: string[]
+    -edat: string
+    -serieNom: string
+    -serieTemporada: number
+}
+
+class "Categoria" <<Model>> {
+    -id: number
+    -categoria: string
+}
+
+class "Edat" <<Model>> {
+    -id: number
+    -edat: string
+}
+
+class "SerieDTO" <<Model>> {
+    -id: number
+    -nom: string
+    -temporada: number
+    -descripcio: string
+    -totalVideos: number
+}
+
+class "UploadJob" <<Model>> {
+    -id: string
+    -file: File
+    -metadata: Object
+    -progress: number
+    -status: string
+    -error: string|null
+}
+
+class "ProcessingJob" <<Model>> {
+    -jobId: string
+    -videoId: number|null
+    -status: string
+    -progress: number
+    -step: string
+    -estimatedTime: number
+}
+}
+
+package "Utils" <<Util>> {
+
+class "AuthUtils" <<Util>> {
+    +storeToken(token): void
+    +getToken(): string|null
+    +removeToken(): void
+    +isTokenExpired(token): boolean
+    +decodeToken(token): Object|null
+}
+
+class "FileUtils" <<Util>> {
+    +validateVideoFile(file): boolean
+    +getFileSizeMB(file): number
+    +createFormData(file, metadata): FormData
+    +generateThumbnail(file): Promise<string>
+}
+
+class "VideoUtils" <<Util>> {
+    +formatDuration(seconds): string
+    +formatFileSize(bytes): string
+    +getQualityOptions(video): Array<string>
+}
+}
+}
+
+' ============================================
+' RELACIONES INTERNAS QUASAR
+' ============================================
+
+' Components -> Stores
+VideoUploader --> UploadStore
+VideoList --> VideoStore
+VideoEditor --> VideoStore
+SerieManager --> VideoStore
+ProcessingStatus --> UploadStore
+LoginForm --> AuthStore
+
+' Components -> Services
+VideoUploader --> ExpressVideoService
+VideoUploader --> SpringVideoService
+VideoList --> SpringVideoService
+VideoEditor --> SpringVideoService
+SerieManager --> SpringVideoService
+ProcessingStatus --> ExpressVideoService
+LoginForm --> OdooAuthService
+
+' Stores -> Services
+AuthStore --> OdooAuthService
+VideoStore --> SpringVideoService
+UploadStore --> ExpressVideoService
+
+' Router -> Guards
+AuthGuard --> AuthStore
+
+' Services -> Utils
+OdooAuthService --> AuthUtils
+SpringVideoService --> AuthUtils
+ExpressVideoService --> AuthUtils
+VideoUploader --> FileUtils
+VideoEditor --> VideoUtils
+
+' Models usados por todos
+OdooAuthService ..> User
+SpringVideoService ..> VideoDTO
+SpringVideoService ..> Categoria
+SpringVideoService ..> Edat
+SpringVideoService ..> SerieDTO
+ExpressVideoService ..> ProcessingJob
+UploadStore ..> UploadJob
+
+' ============================================
+' RELACIONES CON BACKENDS EXTERNOS
+' ============================================
+
+' Odoo Auth Service → Odoo Server
+OdooAuthService ..[#red]> "HTTP POST" OdooServer
+note on link: "Autenticación centralizada\n1. Login → token\n2. Todas las peticiones llevan token"
+
+' Spring Video Service → Spring Boot Server
+SpringVideoService ..[#green]> "HTTP REST" SpringBootServer
+note on link: "Gestión catálogo MySQL/MongoDB\nToken en header X-Auth-Token"
+
+' Express Video Service → Express Server
+ExpressVideoService ..[#blue]> "HTTP + WebSocket" ExpressServer
+note on link: "Procesamiento video + HLS\nUpload .mp4 → .m3u8 + .ts"
+
+
+
+@enduml

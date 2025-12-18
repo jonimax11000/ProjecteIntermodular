@@ -1,0 +1,525 @@
+@startuml
+' Diagrama de Classes - Sistema de Gestió de Vídeos amb Odoo
+' Configuració d'estil
+skinparam class {
+    BackgroundColor<<MySQL>> #ccffcc
+    BackgroundColor<<MongoDB>> #ffcccc
+    BackgroundColor<<DTO>> #ffffcc
+    BackgroundColor<<Controller>> #ccccff
+    BackgroundColor<<Service>> #ffccff
+    BackgroundColor<<Repository>> #ffcc99
+    BackgroundColor<<Model>> #ffffff
+    BackgroundColor<<Config>> #ccffff
+    BackgroundColor<<Odoo>> #ffccff
+    BorderColor #333333
+    ArrowColor #333333
+}
+
+' ============================================
+' PAQUET PRINCIPAL I CLASSE MAIN
+' ============================================
+
+package "com.videos.sistema" {
+    class "VideoStreamingApplication" {
+        +main(String[] args): void
+    }
+}
+
+' ============================================
+' CONFIGURACIÓ I PROPERTIES
+' ============================================
+
+package "config" <<Config>> {
+    
+    class "OdooConfig" <<Config>> {
+        -String odooUrl
+        -String odooVerifyEndpoint
+        -Integer odooTimeout
+        +getOdooUrl(): String
+        +getVerifyEndpoint(): String
+        +restTemplate(): RestTemplate
+    }
+    
+    class "DatabaseConfig" <<Config>> {
+        -DataSource mysqlDataSource()
+        -LocalContainerEntityManagerFactoryBean entityManagerFactory()
+        -MongoClient mongoClient()
+        -MongoTemplate mongoTemplate()
+    }
+    
+    class "SecurityConfig" <<Config>> {
+        -SecurityFilterChain filterChain(HttpSecurity http)
+        -OdooAuthenticationFilter odooAuthFilter()
+    }
+}
+
+' ============================================
+' MODELS PER A MYSQL (JPA/HIBERNATE)
+' ============================================
+
+package "models.mysql" <<MySQL>> {
+    
+    class "Video" <<Model>> {
+        -Long id
+        -String nom
+        -String descripcio
+        -Integer durada
+        -String direccion
+        -String thumbnail
+        +getters/setters()
+        +Video()
+        +Video(String nom, String descripcio, Integer durada, String direccion, String thumbnail)
+    }
+    
+    class "Serie" <<Model>> {
+        -Long id
+        -String nom
+        -Integer temporada
+        +getters/setters()
+        +Serie()
+        +Serie(String nom, Integer temporada)
+    }
+    
+    class "Categoria" <<Model>> {
+        -Long id
+        -String categoria
+        +getters/setters()
+        +Categoria()
+        +Categoria(String categoria)
+    }
+    
+    class "Edat" <<Model>> {
+        -Long id
+        -String edat
+        +getters/setters()
+        +Edat()
+        +Edat(String edat)
+    }
+    
+    ' Relacions MySQL exactes segons especificació
+    Video "1" -- "0..1" Serie
+    Video "1" -- "1" Edat
+    Video "n" -- "n" Categoria
+}
+
+' ============================================
+' MODELS PER A MONGODB (DOCUMENTS)
+' ============================================
+
+package "models.mongodb" <<MongoDB>> {
+    
+    ' JSON 1: Videos Vistos - SIN CAMBIOS
+    class "videos vistos" <<Model>> {
+        -String id
+        -String videoId
+        -String usuariId
+        -Date dataVisualitzacio
+        -Integer minutActual
+        -Boolean completat
+        +getters/setters()
+    }
+    
+    ' JSON 2: Metadatos - SIN CAMBIOS
+    class "metadatos" <<Model>> {
+        -String id
+        -String videoId
+        -Map<String, Object> metadata
+        -Date dataProcessament
+        -String format
+        -Integer qualitat
+        -Long mida
+        +getters/setters()
+    }
+    
+    ' JSON 3: Series Seguidas - SIN CAMBIOS
+    class "series seguidas" <<Model>> {
+        -String id
+        -String serieId
+        -String usuariId
+        -Date dataInici
+        -Date dataUltimAcces
+        -Integer episodisVistos
+        -Boolean notificacions
+        +getters/setters()
+    }
+}
+
+' ============================================
+' DTOs (DATA TRANSFER OBJECTS)
+' ============================================
+
+package "dtos" <<DTO>> {
+    
+    class "VideoDTO" <<DTO>> {
+        -Long id
+        -String nom
+        -String descripcio
+        -Integer durada
+        -String direccion
+        -String thumbnail
+        -List<String> categories
+        -String edat
+        -String serieNom
+        -Integer serieTemporada
+        +getters/setters()
+        +VideoDTO()
+    }
+    
+    class "VideoRequestDTO" <<DTO>> {
+        -String nom
+        -String descripcio
+        -Integer durada
+        -String direccion
+        -String thumbnail
+        -List<Long> categoriesIds
+        -Long edatId
+        -Long serieId
+        +getters/setters()
+        +VideoRequestDTO()
+    }
+    
+    class "VisualitzacioDTO" <<DTO>> {
+        -String videoId
+        -String usuariId
+        -Integer minutActual
+        -Boolean completat
+        +getters/setters()
+        +VisualitzacioDTO()
+    }
+    
+    class "SerieSeguidaDTO" <<DTO>> {
+        -String serieId
+        -String usuariId
+        -Boolean notificacions
+        +getters/setters()
+        +SerieSeguidaDTO()
+    }
+    
+    class "OdooVerifyRequest" <<DTO>> {
+        -String token
+        +getters/setters()
+        +OdooVerifyRequest()
+        +OdooVerifyRequest(String token)
+    }
+    
+    class "OdooVerifyResponse" <<DTO>> {
+        -boolean success
+        -String userId
+        -String email
+        -String name
+        -String role
+        -String message
+        +getters/setters()
+        +OdooVerifyResponse()
+    }
+    
+    class "UsuariSessio" <<DTO>> {
+        -String userId
+        -String email
+        -String nom
+        -String rol
+        +getters/setters()
+        +UsuariSessio()
+        +UsuariSessio(String userId, String email, String nom, String rol)
+    }
+}
+
+' ============================================
+' REPOSITORIS
+' ============================================
+
+package "repositories" <<Repository>> {
+    
+    ' Repositoris MySQL
+    interface "VideoRepository" <<Repository>> {
+        +findAll(): List<Video>
+        +findById(Long): Optional<Video>
+        +save(Video): Video
+        +deleteById(Long): void
+        +findByNomContaining(String): List<Video>
+        +findBySerieId(Long): List<Video>
+        +findByEdatId(Long): List<Video>
+    }
+    
+    interface "SerieRepository" <<Repository>> {
+        +findAll(): List<Serie>
+        +findById(Long): Optional<Serie>
+        +save(Serie): Serie
+        +findByNom(String): List<Serie>
+    }
+    
+    interface "CategoriaRepository" <<Repository>> {
+        +findAll(): List<Categoria>
+        +findById(Long): Optional<Categoria>
+        +findByCategoria(String): Optional<Categoria>
+    }
+    
+    interface "EdatRepository" <<Repository>> {
+        +findAll(): List<Edat>
+        +findById(Long): Optional<Edat>
+        +findByEdat(String): Optional<Edat>
+    }
+    
+    ' Repositoris MongoDB - SIN CAMBIOS
+    interface "VideoVistRepository" <<Repository>> {
+        +findByUsuariId(String): List<videos vistos>
+        +findByVideoIdAndUsuariId(String, String): Optional<videos vistos>
+        +save(videos vistos): videos vistos
+        +deleteById(String): void
+    }
+    
+    interface "MetadadesVideoRepository" <<Repository>> {
+        +findByVideoId(String): Optional<metadatos>
+        +save(metadatos): metadatos
+    }
+    
+    interface "SerieSeguidaRepository" <<Repository>> {
+        +findByUsuariId(String): List<series seguidas>
+        +findBySerieIdAndUsuariId(String, String): Optional<series seguidas>
+        +save(series seguidas): series seguidas
+    }
+}
+
+' ============================================
+' SERVEIS
+' ============================================
+
+package "services" <<Service>> {
+    
+    class "VideoService" <<Service>> {
+        -VideoRepository videoRepository
+        -CategoriaRepository categoriaRepository
+        -EdatRepository edatRepository
+        -SerieRepository serieRepository
+        +getAllVideos(): List<VideoDTO>
+        +getVideoById(Long): Optional<VideoDTO>
+        +createVideo(VideoRequestDTO): VideoDTO
+        +updateVideo(Long, VideoRequestDTO): Optional<VideoDTO>
+        +deleteVideo(Long): boolean
+        +getVideosBySerie(Long): List<VideoDTO>
+        +getVideosByEdat(Long): List<VideoDTO>
+        +getVideosByCategoria(Long): List<VideoDTO>
+        -convertToDTO(Video): VideoDTO
+        -convertToEntity(VideoRequestDTO): Video
+    }
+    
+    class "VisualitzacioService" <<Service>> {
+        -VideoVistRepository videoVistRepository
+        -VideoRepository videoRepository
+        +registrarVisualitzacio(VisualitzacioDTO): videos vistos
+        +obtenirHistorialUsuari(String): List<videos vistos>
+        +obtenirMinutActual(String, String): Integer
+        +marcarComCompletat(String, String): boolean
+    }
+    
+    class "SerieService" <<Service>> {
+        -SerieSeguidaRepository serieSeguidaRepository
+        -SerieRepository serieRepository
+        +seguirSerie(SerieSeguidaDTO): series seguidas
+        +deixarDeSeguirSerie(String, String): boolean
+        +obtenirSeriesSeguides(String): List<series seguidas>
+        +obtenirSeriesDisponibles(): List<Serie>
+        +actualitzarProgresSerie(String, String, Integer): boolean
+    }
+    
+    class "MetadadesService" <<Service>> {
+        -MetadadesVideoRepository metadadesRepository
+        +guardarMetadades(String, Map<String, Object>): metadatos
+        +obtenirMetadadesVideo(String): Optional<metadatos>
+        +actualitzarMetadades(String, Map<String, Object>): Optional<metadatos>
+    }
+    
+    class "OdooAuthService" <<Service>> <<Odoo>> {
+        -RestTemplate restTemplate
+        -String odooVerifyUrl
+        +verificarToken(String): Optional<UsuariSessio>
+        +validarToken(String): Optional<String>
+        +obtenirRolUsuari(String): String
+        -callOdooVerify(String): OdooVerifyResponse
+        -mapResponseToUsuari(OdooVerifyResponse): UsuariSessio
+    }
+}
+
+' ============================================
+' CONTROLADORS
+' ============================================
+
+package "controllers" <<Controller>> {
+    
+    class "VideoController" <<Controller>> {
+        -VideoService videoService
+        -OdooAuthService odooAuthService
+        +getAllVideos(String): ResponseEntity<List<VideoDTO>>
+        +getVideoById(Long, String): ResponseEntity<VideoDTO>
+        +createVideo(VideoRequestDTO, String): ResponseEntity<VideoDTO>
+        +updateVideo(Long, VideoRequestDTO, String): ResponseEntity<VideoDTO>
+        +deleteVideo(Long, String): ResponseEntity<Void>
+        +getVideosBySerie(Long, String): ResponseEntity<List<VideoDTO>>
+        +getVideosByEdat(Long, String): ResponseEntity<List<VideoDTO>>
+        +getVideosByCategoria(Long, String): ResponseEntity<List<VideoDTO>>
+    }
+    
+    class "VisualitzacioController" <<Controller>> {
+        -VisualitzacioService visualitzacioService
+        -OdooAuthService odooAuthService
+        +registrarVisualitzacio(VisualitzacioDTO, String): ResponseEntity<videos vistos>
+        +obtenirHistorial(String): ResponseEntity<List<videos vistos>>
+        +obtenirProgres(String, String): ResponseEntity<Integer>
+        +marcarCompletat(String, String): ResponseEntity<Void>
+    }
+    
+    class "SerieController" <<Controller>> {
+        -SerieService serieService
+        -OdooAuthService odooAuthService
+        +seguirSerie(SerieSeguidaDTO, String): ResponseEntity<series seguidas>
+        +deixarSerie(String, String): ResponseEntity<Void>
+        +obtenirSeriesSeguides(String): ResponseEntity<List<series seguidas>>
+        +obtenirSeriesDisponibles(String): ResponseEntity<List<Serie>>
+        +actualitzarProgres(String, String, Integer): ResponseEntity<Void>
+    }
+    
+    class "MetadadesController" <<Controller>> {
+        -MetadadesService metadadesService
+        -OdooAuthService odooAuthService
+        +guardarMetadades(String, String, Map<String, Object>): ResponseEntity<metadatos>
+        +obtenirMetadades(String, String): ResponseEntity<metadatos>
+        +actualitzarMetadades(String, String, Map<String, Object>): ResponseEntity<metadatos>
+    }
+    
+    class "AuthController" <<Controller>> {
+        -OdooAuthService odooAuthService
+        +verifyToken(OdooVerifyRequest): ResponseEntity<UsuariSessio>
+        +logout(): ResponseEntity<Void>
+    }
+}
+
+' ============================================
+' FILTRES I COMPONENTS SECURITY
+' ============================================
+
+package "security" <<Odoo>> {
+    
+    class "OdooAuthenticationFilter" {
+        -OdooAuthService odooAuthService
+        +doFilterInternal(HttpServletRequest, HttpServletResponse, FilterChain): void
+        -extractToken(HttpServletRequest): Optional<String>
+        -setAuthentication(String): void
+    }
+    
+    class "AuthenticationHeader" {
+        -static final String HEADER_NAME = "X-Auth-Token"
+        -static final String BEARER_PREFIX = "Bearer "
+        +extractToken(HttpServletRequest): Optional<String>
+    }
+}
+
+' ============================================
+' RELACIONS ENTRE CAPES
+' ============================================
+
+' Configuració inicialitza components
+VideoStreamingApplication --> OdooConfig
+VideoStreamingApplication --> DatabaseConfig
+VideoStreamingApplication --> SecurityConfig
+
+' Controladors utilitzen Serveis
+VideoController --> VideoService
+VideoController --> OdooAuthService
+VisualitzacioController --> VisualitzacioService
+VisualitzacioController --> OdooAuthService
+SerieController --> SerieService
+SerieController --> OdooAuthService
+MetadadesController --> MetadadesService
+MetadadesController --> OdooAuthService
+AuthController --> OdooAuthService
+
+' Serveis utilitzen Repositoris
+VideoService --> VideoRepository
+VideoService --> CategoriaRepository
+VideoService --> EdatRepository
+VideoService --> SerieRepository
+
+VisualitzacioService --> VideoVistRepository
+VisualitzacioService --> VideoRepository
+
+SerieService --> SerieSeguidaRepository
+SerieService --> SerieRepository
+
+MetadadesService --> MetadadesVideoRepository
+
+OdooAuthService --> RestTemplate
+
+' Serveis utilitzen DTOs
+VideoService ..> VideoDTO
+VideoService ..> VideoRequestDTO
+VisualitzacioService ..> VisualitzacioDTO
+SerieService ..> SerieSeguidaDTO
+OdooAuthService ..> OdooVerifyRequest
+OdooAuthService ..> OdooVerifyResponse
+OdooAuthService ..> UsuariSessio
+MetadadesService ..> Map
+
+' Configuració Odoo
+OdooConfig ..> OdooAuthService
+
+' Filtre Security
+SecurityConfig --> OdooAuthenticationFilter
+OdooAuthenticationFilter --> OdooAuthService
+
+' Relació Odoo Externa
+OdooAuthService ..[#red]> "HTTP POST" OdooExternal
+component "OdooExternal" <<External>> {
+    class "Odoo Server" {
+        +POST localhost:8069/verify
+        +Request: {token: string}
+        +Response: {success, userId, email, name, role}
+    }
+}
+
+' Notes addicionals
+note top of VideoStreamingApplication
+    @SpringBootApplication
+    @EnableJpaRepositories
+    @EnableMongoRepositories
+    Configuració dual: MySQL + MongoDB
+    Integració Odoo per autenticació
+end note
+
+note right of Video
+    Entitat MySQL exacte segons especificació:
+    - id (PK)
+    - nom (not null)
+    - descripcio (not null)
+    - durada (not null, en segons)
+    - direccion (not null)
+    - thumbnail (not null)
+    Relacions amb: Serie, Edat, Categoria
+end note
+
+note left of models.mongodb
+    MongoDB EXACTAMENT com vares especificar:
+    3 tipos de JSON SIN CAMBIOS:
+    1. videos vistos
+    2. metadatos
+    3. series seguidas
+    Mantingut tal qual vares donar
+end note
+
+note bottom of models.mysql
+    MySQL EXACTAMENT com vares especificar:
+    4 taules sense camps addicionals:
+    1. videos (amb els 6 camps)
+    2. series (nom, temporada)
+    3. categories (categoria)
+    4. edats (edat)
+    Diagrama ER mantingut
+end note
+
+note top of OdooAuthService
+    Servei d'autenticació amb Odoo
+    Verifica tokens a localhost:8069/verify
+    Retorna UsuariSessio amb dades Odoo
+    Sense emmagatzematge local d'usuaris
+end note
+
+@enduml
