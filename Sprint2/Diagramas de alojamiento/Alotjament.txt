@@ -1,0 +1,136 @@
+
+Això és el que hem d'allotjar:
+
+    APLICACIÓ MÒBIL - App per a estudiants (React Native / Flutter)
+
+    APLICACIÓ WEB - Versió web feta amb Quasar (Vue.js)
+
+    SERVIDOR ODOO WEB - El client web d'Odoo (ERP per a gestió)
+
+    SERVIDOR JAVA - Spring Boot amb Hibernate (lògica de negoci)
+
+    SERVIDOR VÍDEOS - Express TypeScript (per a streaming HLS)
+
+    ODOO - El sistema ERP complet
+
+    BASE DE DADES MySQL - Per a dades principals de l'aplicació
+
+    BASE DE DADES MongoDB - Per a dades de vídeos i contingut
+
+    BASE DE DADES PostgreSQL - Base de dades d'Odoo
+
+OPCIÓ BARATA (GRATIS O MOLT ECONÒMICA)
+On allotjar-ho tot en un sol lloc:
+
+Proveïdor recomanat: Oracle Cloud (sempre gratis)
+
+    Ubicació: Una sola màquina virtual
+
+    Tipus: VM.Standard.E4.Flex (ARM)
+
+    Especificacions: 4 cores, 24 GB RAM, 200 GB emmagatzematge
+
+    Cost: COMPLETAMENT GRATIS per sempre
+
+
+OPCIÓ PROFESSIONAL (PRODUCCIÓ REAL)
+On allotjar cada cosa separadament:
+
+Arquitectura recomanada per a producció:
+text
+
+┌─────────────────────────────────────────────────────┐
+│                  CLOUDFLARE (CDN)                   │
+│  • DNS + SSL gratis                                 │
+│  • Protecció DDoS                                   │
+│  • Entrega de vídeos (Stream)                       │
+└───────────────┬─────────────────────────────────────┘
+                │ HTTPS
+                ▼
+┌─────────────────────────────────────────────────────┐
+│              AWS / Google Cloud / Azure              │
+└─────────────────────────────────────────────────────┘
+
+Desgloss per components:
+1. APLICACIÓ MÒBIL:
+
+    On: Google Play Store (Android) i App Store (iOS)
+
+    Connexió: Directe als servidors backend
+
+    Cost: 25€/any (compte de desenvolupador)
+
+2. APLICACIÓ WEB QUASAR:
+
+    On: Amazon S3 + CloudFront (AWS) o Cloudflare Pages
+
+    Com funciona:
+
+        Es construeix com a pàgina web estàtica
+
+        S'emmagatzema en un "cub" S3
+
+        Es distribueix per tot el món amb CDN
+
+    Cost: ~5€/mes per a 10GB de tràfic
+
+3. SERVIDOR JAVA (Spring Boot):
+
+    On: AWS Elastic Beanstalk o Google Cloud Run
+
+    Recomanat: 3 instàncies petites (t2.small)
+
+    Configuració:
+
+        2GB RAM cada una
+
+        Autoescalat: es creen més si hi ha molts usuaris
+
+    Cost: ~50-70€/mes per a les 3 instàncies
+
+4. SERVIDOR DE VÍDEOS (Express TypeScript):
+
+    On: Servei especialitzat per a streaming
+
+    Opcions:
+
+        Cloudflare Stream: 1000 hores gratis, després 1€/1000 hores
+
+        AWS MediaConvert + CloudFront: ~100€/mes per a 500 hores
+
+        Mux.com: Serveis de vídeo fàcils d'usar
+
+5. ODOO (ERP):
+
+    On: Servidor separat (DigitalOcean o VPS)
+
+    Recomanat: Droplet de 4GB RAM en DigitalOcean
+
+    Cost: ~20€/mes
+
+    Opció millor: Odoo.sh (servici gestionat) ~30€/mes
+
+6. BASES DE DADES:
+
+    MySQL:
+
+        On: Amazon RDS (db.t3.small)
+
+        Config: Réplica de lectura per a backups
+
+        Cost: ~25€/mes
+
+    MongoDB:
+
+        On: MongoDB Atlas (M10 cluster)
+
+        Millor: Serveis gestionats, backups automàtics
+
+        Cost: ~60€/mes
+
+    PostgreSQL (per Odoo):
+
+        On: El mateix servidor d'Odoo o RDS separat
+
+        Cost: Inclòs en el servidor d'Odoo
+
