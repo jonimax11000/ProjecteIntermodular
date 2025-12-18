@@ -25,21 +25,21 @@ System_Boundary(sistema_multimedia, "Sistema Multimedia") {
 System_Ext(sistema_pagaments, "Sistema de Pagaments", "Sistema extern de tercers")
 
 ' Relaciones principales
-Rel(usuari, app_movil, "Fa servir", "HTTPS")
-Rel(usuari, portal_web, "Gestiona subscripció", "HTTPS")
-Rel(administrador, aplicacio_web, "Administra", "HTTPS")
-Rel(administrador, portal_web, "Configura", "HTTPS")
+Rel(usuari, app_movil, "Fa servir", "HTTP")
+Rel(usuari, portal_web, "Gestiona subscripció", "HTTP")
+Rel(administrador, aplicacio_web, "Administra", "HTTP")
+Rel(administrador, portal_web, "Configura", "HTTP")
 
 ' Comunicaciones entre contenedores
-Rel(app_movil, api_cataleg, "Consulta catàleg", "HTTPS/JWT (9090)")
-Rel(app_movil, api_continguts, "Reprodueix vídeo", "HLS (3000)")
-Rel(app_movil, api_subscripcions, "Inicia sessió", "HTTPS (8069)")
+Rel(app_movil, api_cataleg, "Consulta catàleg", "HTTP/JWT (9090)")
+Rel(app_movil, api_continguts, "Reprodueix vídeo", "HTTP (3000)")
+Rel(app_movil, api_subscripcions, "Inicia sessió", "HTTP (8069)")
 
-Rel(aplicacio_web, api_cataleg, "CRUD catàleg", "HTTPS/JWT (9090)")
-Rel(aplicacio_web, api_continguts, "Puja/elimina vídeos", "HTTPS/JWT (3000)")
-Rel(aplicacio_web, api_subscripcions, "Inicia sessió", "HTTPS (8069)")
+Rel(aplicacio_web, api_cataleg, "CRUD catàleg", "HTTP/JWT (9090)")
+Rel(aplicacio_web, api_continguts, "Puja/elimina vídeos", "HTTP/JWT (3000)")
+Rel(aplicacio_web, api_subscripcions, "Inicia sessió", "HTTP (8069)")
 
-Rel(portal_web, api_subscripcions, "Gestiona usuaris", "HTTPS (8069)")
+Rel(portal_web, api_subscripcions, "Gestiona usuaris", "HTTP (8069)")
 
 ' Comunicaciones entre APIs y bases de datos - CORREGIDAS SEGÚN TUS ESPECIFICACIONES
 Rel(api_cataleg, mysql_db, "Llegeix i escriu el catàleg", "JDBC (3306)")
@@ -49,9 +49,10 @@ Rel(api_continguts, internal_videos, "Llegeix vídeos per streaming", "Sistema d
 Rel(api_continguts, mongodb_db, "Actualitza metadades de reproducció", "Mongo Driver (27017)")
 
 Rel(api_subscripcions, postgres_db, "Gestiona usuaris i subscripcions", "SQL (5432)")
-Rel(api_subscripcions, sistema_pagaments, "Processa pagaments", "API HTTPS")
+Rel(api_subscripcions, sistema_pagaments, "Processa pagaments", "API HTTP")
 
 ' Conexión adicional: API de catálogo también necesita usuarios para permisos
-Rel(api_cataleg, api_subscripcions, "Verifica permisos d'usuari", "HTTP")
+Rel(app_movil, api_subscripcions, "Verifica permisos d'usuari", "HTTP (8069)")
+Rel(aplicacio_web, api_subscripcions, "Verifica permisos d'administrador", "HTTP (8069)")
 
 @enduml
