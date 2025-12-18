@@ -1,0 +1,42 @@
+@startuml C4_Component
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title Component Diagram for Backend Server
+
+Container_Boundary(backend, "Backend Server") {
+    
+    Component(controllers, "VideoController", "Controller", "Handles HTTP requests for video operations")
+
+    folder "Domain Layer" {
+        Component(get_videos_uc, "GetVideosUseCase", "UseCase", "Retrieves list of available videos")
+        Component(get_user_id_uc, "GetUserByIdUseCase", "UseCase", "Logic to retrieve user by ID")
+        Component(get_user_thumb_uc, "GetUserByThmbnailUseCase", "UseCase", "Logic to retrieve user by thumbnail")
+        
+        Component(repo_interface, "IVideoRepository", "Interface", "Abstracts data access")
+    }
+
+    folder "Infrastructure Layer" {
+        Component(repo_impl, "VideoRepositoryIntern", "Repository Implementation", "Implements data access using file system helper")
+    }
+
+    folder "Data Layer" {
+        Component(data_helper, "videos.ts", "Data Helper", "Scans directories and extracts metadata using ffmpeg")
+    }
+}
+
+System_Ext(filesystem, "File System", "Stores MP4 files and thumbnails")
+
+Rel(controllers, get_videos_uc, "Uses")
+Rel(controllers, get_user_id_uc, "Uses")
+Rel(controllers, get_user_thumb_uc, "Uses")
+
+Rel(get_videos_uc, repo_interface, "Uses")
+Rel(get_user_id_uc, repo_interface, "Uses")
+Rel(get_user_thumb_uc, repo_interface, "Uses")
+
+Rel(repo_impl, repo_interface, "Implements")
+Rel(repo_impl, data_helper, "Calls methods to load videos")
+
+Rel(data_helper, filesystem, "Reads video files", "fs, ffmpeg")
+
+@enduml
