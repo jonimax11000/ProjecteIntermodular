@@ -1,0 +1,45 @@
+@startuml
+!include <C4/C4_Context>
+
+title Diagrama de Contexto - Sistema Web Básico
+
+Person(usuari, "Usuari", "Cliente que usa la app movil")
+Person(administrador, "Administrador", "Administrador de la aplicación")
+
+System(app_movil, "App mòvil", "Reproductor multimèdia")
+System(aplicació_web, "App web", "Administració de continguts")
+System(portal_web_odoo, "Potal web Odoo", "Portal web per a gestionar subscripcions")
+
+
+System(spring, "SpringBoot/Hibernate", "Catàleg de continguts")
+System(express, "ExpressJS", "Servei de continguts")
+System(odoo, "Odoo", "Gestor de subscripcions")
+
+
+System_Ext(mysql_db, "catàleg", "MySQL Database")
+System_Ext(postgress_db, "Usuaris i subscripcions", "PostgresSQL Database")
+System_Ext(mongodb_db, "videos vists, metadates i series seguides", "MongoDB Database")
+System_Ext(internal_videos, "Videos", "Internal")
+
+
+Rel(usuari, app_movil,"","")
+Rel(app_movil, spring, "Consulta Catàleg(JWT)", "HTTP/Puerto 9090")
+Rel(spring, mysql_db, "Consulta", "HTTP\Puerto 3306")
+Rel(spring, mongodb_db, "Consulta", "HTTP\Puerto 27017")
+
+Rel(administrador, aplicació_web,"","")
+Rel(aplicació_web, spring, "CRUD catàleg(JWT)", "HTTP/Puerto 9090")
+
+Rel(app_movil, express, "Reproduir HLS(JWT)", "HTTP/Puerto 3000")
+Rel(aplicació_web, express, "CRUD videos HLS(JWT)", "HTTP/Puerto 3000")
+Rel(express, internal_videos, "", "")
+
+Rel(administrador, portal_web_odoo, "", "")
+Rel(usuari, portal_web_odoo, "", "")
+Rel(portal_web_odoo, odoo, "CRUD usuari i subscripcions", "HTTP/Puerto 8069")
+Rel(odoo, postgress_db, "Consulta", "HTTP/Puerto 5432")
+
+Rel(app_movil, odoo, "Iniciar Sesió(JWT)", "HTTPS/Puerto 8069")
+Rel(aplicació_web, odoo, "Iniciar Sesió(JWT)", "HTTPS/Puerto 8069")
+
+@enduml
