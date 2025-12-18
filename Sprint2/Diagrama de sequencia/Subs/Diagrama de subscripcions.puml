@@ -1,0 +1,35 @@
+@startuml
+' =====================================
+'title Diagrama de Seqüència – Gestió de Subscripcions (Detallat)
+' =====================================
+
+actor Usuari
+participant "Portal Web Odoo" as Portal
+participant "Odoo" as Odoo
+participant "PostgreSQL" as PG
+
+Usuari -> Portal : Accedeix a la gestió de subscripció
+Portal -> Odoo : Inici de sessió
+Odoo -> PG : Valida sessió i permisos
+PG --> Odoo: Tot be
+Odoo --> Portal : Tot be
+Portal -> Odoo : Sol·licita dades de la subscripció 
+Odoo -> PG : Consulta subscripció actual
+PG --> Odoo : Dades de subscripció
+Odoo --> Portal : Estat actual (pla, caducitat, preu)
+
+Usuari -> Portal : Canvia pla / renova / cancel·la
+Portal -> Odoo : Actualitza subscripció
+Odoo -> Odoo : Valida canvi (regles de negoci)
+Odoo -> PG : Actualitza subscripció
+PG --> Odoo : Confirmació
+
+alt Pagament requerit
+  Odoo -> Odoo : Processa cobrament
+end
+
+Odoo --> Portal : Operació correcta
+Portal --> Usuari : Subscripció actualitzada
+
+Odoo -> "App mòbil" : Notifica canvi d'estat
+@enduml

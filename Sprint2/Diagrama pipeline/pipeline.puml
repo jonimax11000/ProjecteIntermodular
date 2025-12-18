@@ -1,0 +1,13 @@
+@startuml
+participant Servidor as " ExpressJS"
+participant Videos as "Carpeta de public/videos"
+participant thumbnail as "Carpeta de public/thumbnails"
+-> Servidor: Recibe el video
+Servidor -> Servidor: Genero el thumbnail con ffmpeg
+Servidor -> thumbnail: Guarda el thumbnail
+Servidor -> Servidor: Saco los metadatos del video original con ffprobe
+ <-- Servidor : Envio los metadatos
+Servidor -> Servidor : Transcodifico el video con ffmpeg
+Servidor -> Videos: Guarda el video transcodificado
+Servidor -> Servidor: Desecho el video original
+@enduml
