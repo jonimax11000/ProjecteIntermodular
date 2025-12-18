@@ -10,6 +10,7 @@ skinparam class {
     BackgroundColor<<Repository>> #ffcc99
     BackgroundColor<<Model>> #ffffff
     BackgroundColor<<Config>> #ccffff
+    BackgroundColor<<Odoo>> #ffccff
     BorderColor #333333
     ArrowColor #333333
 }
@@ -30,12 +31,25 @@ package "com.videos.sistema" {
 
 package "config" <<Config>> {
     
+    class "OdooConfig" <<Config>> {
+        -String odooUrl
+        -String odooVerifyEndpoint
+        -Integer odooTimeout
+        +getOdooUrl(): String
+        +getVerifyEndpoint(): String
+        +restTemplate(): RestTemplate
+    }
     
     class "DatabaseConfig" <<Config>> {
         -DataSource mysqlDataSource()
         -LocalContainerEntityManagerFactoryBean entityManagerFactory()
         -MongoClient mongoClient()
         -MongoTemplate mongoTemplate()
+    }
+    
+    class "SecurityConfig" <<Config>> {
+        -SecurityFilterChain filterChain(HttpSecurity http)
+        -OdooAuthenticationFilter odooAuthFilter()
     }
 }
 
@@ -181,6 +195,23 @@ package "dtos" <<DTO>> {
         +SerieSeguidaDTO()
     }
     
+    class "OdooVerifyRequest" <<DTO>> {
+        -String token
+        +getters/setters()
+        +OdooVerifyRequest()
+        +OdooVerifyRequest(String token)
+    }
+    
+    class "OdooVerifyResponse" <<DTO>> {
+        -boolean success
+        -String userId
+        -String email
+        -String name
+        -String role
+        -String message
+        +getters/setters()
+        +OdooVerifyResponse()
+    }
     
     class "UsuariSessio" <<DTO>> {
         -String userId
@@ -298,6 +329,15 @@ package "services" <<Service>> {
         +actualitzarMetadades(String, Map<String, Object>): Optional<metadatos>
     }
     
+    class "OdooAuthService" <<Service>> <<Odoo>> {
+        -RestTemplate restTemplate
+        -String odooVerifyUrl
+        +verificarToken(String): Optional<UsuariSessio>
+        +validarToken(String): Optional<String>
+        +obtenirRolUsuari(String): String
+        -callOdooVerify(String): OdooVerifyResponse
+        -mapResponseToUsuari(OdooVerifyResponse): UsuariSessio
+    }
 }
 
 ' ============================================
@@ -308,6 +348,7 @@ package "controllers" <<Controller>> {
     
     class "VideoController" <<Controller>> {
         -VideoService videoService
+        -OdooAuthService odooAuthService
         +getAllVideos(String): ResponseEntity<List<VideoDTO>>
         +getVideoById(Long, String): ResponseEntity<VideoDTO>
         +createVideo(VideoRequestDTO, String): ResponseEntity<VideoDTO>
@@ -320,6 +361,7 @@ package "controllers" <<Controller>> {
     
     class "VisualitzacioController" <<Controller>> {
         -VisualitzacioService visualitzacioService
+        -OdooAuthService odooAuthService
         +registrarVisualitzacio(VisualitzacioDTO, String): ResponseEntity<videos vistos>
         +obtenirHistorial(String): ResponseEntity<List<videos vistos>>
         +obtenirProgres(String, String): ResponseEntity<Integer>
@@ -328,6 +370,7 @@ package "controllers" <<Controller>> {
     
     class "SerieController" <<Controller>> {
         -SerieService serieService
+        -OdooAuthService odooAuthService
         +seguirSerie(SerieSeguidaDTO, String): ResponseEntity<series seguidas>
         +deixarSerie(String, String): ResponseEntity<Void>
         +obtenirSeriesSeguides(String): ResponseEntity<List<series seguidas>>
@@ -337,11 +380,37 @@ package "controllers" <<Controller>> {
     
     class "MetadadesController" <<Controller>> {
         -MetadadesService metadadesService
+        -OdooAuthService odooAuthService
         +guardarMetadades(String, String, Map<String, Object>): ResponseEntity<metadatos>
         +obtenirMetadades(String, String): ResponseEntity<metadatos>
         +actualitzarMetadades(String, String, Map<String, Object>): ResponseEntity<metadatos>
     }
     
+    class "AuthController" <<Controller>> {
+        -OdooAuthService odooAuthService
+        +verifyToken(OdooVerifyRequest): ResponseEntity<UsuariSessio>
+        +logout(): ResponseEntity<Void>
+    }
+}
+
+' ============================================
+' FILTRES I COMPONENTS SECURITY
+' ============================================
+
+package "security" <<Odoo>> {
+    
+    class "OdooAuthenticationFilter" {
+        -OdooAuthService odooAuthService
+        +doFilterInternal(HttpServletRequest, HttpServletResponse, FilterChain): void
+        -extractToken(HttpServletRequest): Optional<String>
+        -setAuthentication(String): void
+    }
+    
+    class "AuthenticationHeader" {
+        -static final String HEADER_NAME = "X-Auth-Token"
+        -static final String BEARER_PREFIX = "Bearer "
+        +extractToken(HttpServletRequest): Optional<String>
+    }
 }
 
 ' ============================================
@@ -349,13 +418,20 @@ package "controllers" <<Controller>> {
 ' ============================================
 
 ' Configuració inicialitza components
+VideoStreamingApplication --> OdooConfig
 VideoStreamingApplication --> DatabaseConfig
+VideoStreamingApplication --> SecurityConfig
 
 ' Controladors utilitzen Serveis
 VideoController --> VideoService
+VideoController --> OdooAuthService
 VisualitzacioController --> VisualitzacioService
+VisualitzacioController --> OdooAuthService
 SerieController --> SerieService
+SerieController --> OdooAuthService
 MetadadesController --> MetadadesService
+MetadadesController --> OdooAuthService
+AuthController --> OdooAuthService
 
 ' Serveis utilitzen Repositoris
 VideoService --> VideoRepository
@@ -371,14 +447,34 @@ SerieService --> SerieRepository
 
 MetadadesService --> MetadadesVideoRepository
 
+OdooAuthService --> RestTemplate
+
 ' Serveis utilitzen DTOs
 VideoService ..> VideoDTO
 VideoService ..> VideoRequestDTO
 VisualitzacioService ..> VisualitzacioDTO
 SerieService ..> SerieSeguidaDTO
+OdooAuthService ..> OdooVerifyRequest
+OdooAuthService ..> OdooVerifyResponse
+OdooAuthService ..> UsuariSessio
 MetadadesService ..> Map
 
+' Configuració Odoo
+OdooConfig ..> OdooAuthService
 
+' Filtre Security
+SecurityConfig --> OdooAuthenticationFilter
+OdooAuthenticationFilter --> OdooAuthService
+
+' Relació Odoo Externa
+OdooAuthService ..[#red]> "HTTP POST" OdooExternal
+component "OdooExternal" <<External>> {
+    class "Odoo Server" {
+        +POST localhost:8069/verify
+        +Request: {token: string}
+        +Response: {success, userId, email, name, role}
+    }
+}
 
 ' Notes addicionals
 note top of VideoStreamingApplication
@@ -386,6 +482,7 @@ note top of VideoStreamingApplication
     @EnableJpaRepositories
     @EnableMongoRepositories
     Configuració dual: MySQL + MongoDB
+    Integració Odoo per autenticació
 end note
 
 note right of Video
@@ -406,6 +503,23 @@ note left of models.mongodb
     2. metadatos
     3. series seguidas
     Mantingut tal qual vares donar
+end note
+
+note bottom of models.mysql
+    MySQL EXACTAMENT com vares especificar:
+    4 taules sense camps addicionals:
+    1. videos (amb els 6 camps)
+    2. series (nom, temporada)
+    3. categories (categoria)
+    4. edats (edat)
+    Diagrama ER mantingut
+end note
+
+note top of OdooAuthService
+    Servei d'autenticació amb Odoo
+    Verifica tokens a localhost:8069/verify
+    Retorna UsuariSessio amb dades Odoo
+    Sense emmagatzematge local d'usuaris
 end note
 
 @enduml
