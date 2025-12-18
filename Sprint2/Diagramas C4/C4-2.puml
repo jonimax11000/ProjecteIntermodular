@@ -52,6 +52,7 @@ Rel(api_subscripcions, postgres_db, "Gestiona usuaris i subscripcions", "SQL (54
 Rel(api_subscripcions, sistema_pagaments, "Processa pagaments", "API HTTPS")
 
 ' Conexión adicional: API de catálogo también necesita usuarios para permisos
-Rel(api_cataleg, api_subscripcions, "Verifica permisos d'usuari", "HTTP")
+Rel(api_cataleg, api_subscripcions, "Verifica permisos", "HTTP (8069)")
+Rel(api_continguts, api_subscripcions, "Verifica permisos", "HTTP (8069)")
 
 @enduml
