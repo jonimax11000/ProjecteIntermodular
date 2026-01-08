@@ -3,15 +3,7 @@ import { initializeVideos } from './app/infraestructure/services/initVideos.js';
 import { carregarVideosDesDeCarpeta } from './app/data/videos.js';
 
 async function startServer() {
-  try {
-   
-  
-    //await initializeVideos();
-    
-
-    console.log('📹 Cargando videos en memoria...');
-    await carregarVideosDesDeCarpeta('./src/app/data/videos');
-    
+  try {  
    
     const app = buildServer();
     const PORT = process.env.PORT || 3000;

@@ -13,8 +13,8 @@ export function buildServer() {
   
   // SERVIR ARCHIVOS ESTÁTICOS - Configuración corregida
   const publicPath = path.join(__dirname, '../../app/public');
-  app.use('/thumbnails', express.static(path.join(publicPath, 'thumbnails')));
-  app.use('/videos', express.static(path.join(publicPath, 'videos')));
+  app.use('/api/thumbnails', express.static(path.join(publicPath, 'thumbnails')));
+  app.use('/api/videos', express.static(path.join(publicPath, 'videos')));
   
   // Configuración CORS
   app.use((req: Request, res: Response, next: NextFunction) => {
@@ -33,7 +33,7 @@ export function buildServer() {
   });
 
   // Rutas de la API
-  app.use("/api/videolist", videolistRoutes);
+  //app.use("/api/videolist", videolistRoutes);
 
   // Manejo de rutas no encontradas
   app.use((req: Request, res: Response) => {
