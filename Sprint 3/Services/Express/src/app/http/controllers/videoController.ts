@@ -1,42 +1,20 @@
 import { Request, Response, NextFunction } from "express";
-import { GetVideosUseCase } from "../../domain/usecases/vdeo/GetVideosUseCase";
-import { GetVideoByIdUseCase } from "../../domain/usecases/vdeo/GetUserByIdUseCase";
-import { GetVideoByThumbnailUseCase } from "../../domain/usecases/vdeo/GetUserByThmbnailUseCase";
+import { CreateVideoUseCase } from "../../domain/usecases/vdeo/CreateVideoUseCase";
 
 
 
 export class VideoController {
   constructor(
-        private getVideos: GetVideosUseCase,
-        private getVideoById: GetVideoByIdUseCase,
-        private getVideoByThumbnail: GetVideoByThumbnailUseCase
-    ) { }
+    private createVideo: CreateVideoUseCase,
+  ) { }
 
-  getAll = async (req: Request, res: Response, next: NextFunction) => {
+  create = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const videos = await this.getVideos.execute();
-        console.log(`🎬 Controller: devolviendo ${videos.length} videos`);
-        res.json(videos);
+      const { title } = req.body;
+      const video = req.file;
+      const result = await this.createVideo.execute({ title, video });
+      // const result = await this.createProduct.execute(req.body); // Així va en users però no aci...
+      res.status(201).json(result);
     } catch (err) { next(err); }
   }
-
-    getById = async (req: Request, res: Response, next: NextFunction) => {
-      console.log("Entro al controller de getById");
-      try {
-        const id = req.params.id || "";
-        const video = await this.getVideoById.execute(id);
-        if (!video) return res.status(404).json({ message: "Video not found" });
-        res.json(video);
-      } catch (err) { next(err); }
-    }
-
-    getByThumbnail = async (req: Request, res: Response, next: NextFunction) => {
-      console.log("Entro al controller de getByThumbnail");
-      try {
-        const thumbnail = req.params.topic || "";
-        const video = await this.getVideoByThumbnail.execute(thumbnail);
-        if (!video) return res.status(404).json({ message: "Video not found" });
-        res.json(video);
-      } catch (err) { next(err); }
-    }
 }

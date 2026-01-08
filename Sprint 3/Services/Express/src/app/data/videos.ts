@@ -9,7 +9,7 @@ export let videos: Array<Video> = [];
 // Funció per carregar videos des d'una carpeta amb metadades reals
 export const carregarVideosDesDeCarpeta = async (carpetaPath: string): Promise<Video[]> => {
   const videosTrobats: Video[] = [];
-  
+
   try {
     const arxius = fs.readdirSync(carpetaPath);
 
@@ -30,7 +30,7 @@ export const carregarVideosDesDeCarpeta = async (carpetaPath: string): Promise<V
     videos = videosTrobats;
     console.log(`📹 Carregats ${videos.length} videos des de la carpeta.`);
     return videos;
-    
+
   } catch (error) {
     console.error('Error llegint carpeta:', error);
     return [];
@@ -58,11 +58,9 @@ function obtenirMetadadesVideo(nomArxiu: string, carpetaPath: string): Promise<V
 
       const nomVideo = path.parse(nomArxiu).name.toLowerCase();
       const nomSenseEspais = nomVideo.replace(/\s+/g, '');
-      
+
       const video: Video = {
         id: generarId(nomArxiu),
-        nom: nomVideo,
-        descripcio: generarDescripcio(streamVideo, durada),
         duration: durada,
         thumbnail: `/thumbnails/${nomSenseEspais}.jpg`, // Ruta relativa al thumbnail
         videoUrl: `/videos/${nomSenseEspais}/index.m3u8` // Nueva propiedad: ruta al HLS
@@ -76,7 +74,7 @@ function obtenirMetadadesVideo(nomArxiu: string, carpetaPath: string): Promise<V
 function crearInfoVideoBasica(nomArxiu: string): Video {
   const nomVideo = path.parse(nomArxiu).name;
   const nomSenseEspais = nomVideo.replace(/\s+/g, '');
-  
+
   return {
     id: generarId(nomArxiu),
     nom: nomVideo,
@@ -95,21 +93,21 @@ function generarId(nomArxiu: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-') // Reemplaza espacios y caracteres especiales por guiones
     .replace(/^-+|-+$/g, ''); // Elimina guiones al principio y final
-  
+
   return `${prefix}-${timestamp}-${random}`;
 }
 
 function generarDescripcio(streamVideo: any, durada: number): string {
   const parts = [];
-  
+
   if (streamVideo?.width && streamVideo?.height) {
     parts.push(`Resolució: ${streamVideo.width}x${streamVideo.height}`);
   }
-  
+
   if (streamVideo?.codec_name) {
     parts.push(`Còdec: ${streamVideo.codec_name}`);
   }
-  
+
   if (durada > 0) {
     parts.push(`Durada: ${formatarDurada(durada)}`);
   }

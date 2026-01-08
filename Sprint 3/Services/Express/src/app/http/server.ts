@@ -1,5 +1,5 @@
 import express, { NextFunction, Request, Response } from "express";
-import videolistRoutes from "./routes/videolistRoutes";
+import videoRoutes from "./routes/videoRoutes";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -33,7 +33,7 @@ export function buildServer() {
   });
 
   // Rutas de la API
-  //app.use("/api/videolist", videolistRoutes);
+  app.use("/api/video", videoRoutes);
 
   // Manejo de rutas no encontradas
   app.use((req: Request, res: Response) => {
