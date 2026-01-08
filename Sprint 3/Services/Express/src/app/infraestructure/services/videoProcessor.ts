@@ -11,6 +11,7 @@ export class VideoProcessor {
     this.ensureDirectories();
   }
 
+
   private ensureDirectories(): void {
     if (!fs.existsSync(this.videosPublicPath)) {
       fs.mkdirSync(this.videosPublicPath, { recursive: true });
@@ -39,7 +40,7 @@ export class VideoProcessor {
   private async processVideo(filename: string): Promise<void> {
     const videoName = path.parse(filename).name.toLowerCase().replace(/\s+/g, '');
     const inputPath = path.join(this.videosSourcePath, filename);
-    
+
     // Procesar en paralelo: thumbnail y HLS
     await Promise.all([
       this.generateThumbnail(inputPath, videoName),
@@ -72,7 +73,7 @@ export class VideoProcessor {
   private generateHLS(inputPath: string, videoName: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const outputDir = path.join(this.videosPublicPath, videoName);
-      
+
       // Crear directorio para el video HLS
       if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir, { recursive: true });
@@ -111,17 +112,5 @@ export class VideoProcessor {
   private isVideoFile(filename: string): boolean {
     const extensionsVideo = ['.mp4', '.avi', '.mov', '.mkv', '.wmv', '.webm'];
     return extensionsVideo.includes(path.extname(filename).toLowerCase());
-  }
-
-  needsProcessing(): boolean {
-    // Verificar si hay videos en la carpeta source que no están procesados
-    const sourceVideos = fs.readdirSync(this.videosSourcePath)
-      .filter(file => this.isVideoFile(file))
-      .map(file => path.parse(file).name.toLowerCase().replace(/\s+/g, ''));
-
-    const processedVideos = fs.readdirSync(this.videosPublicPath)
-      .filter(item => fs.statSync(path.join(this.videosPublicPath, item)).isDirectory());
-
-    return sourceVideos.some(video => !processedVideos.includes(video));
   }
 }

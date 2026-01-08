@@ -4,23 +4,16 @@ import { VideoRecord } from "../datasorces/intern/models/VideoRecord";
 export class VideoMapper {
   static toDomain(record: VideoRecord): Video {
     return {
-      id: record.id,
-      nom: record.nom,
-      descripcio: record.descripcio,
-      duration: record.duration,
-      thumbnail: record.thumbnail,
-      videoUrl: record.videoUrl
+      ...record,
+      createdAt: new Date(record.createdAt),
     };
   }
 
-  static toRecord(domain: Video): VideoRecord {
+  static toRecord(video: Omit<Video, "createdAt"> & { createdAt: Date }): VideoRecord {
     return {
-      id: domain.id,
-      nom: domain.nom,
-      descripcio: domain.descripcio,
-      duration: domain.duration,
-      thumbnail: domain.thumbnail,
-      videoUrl: domain.videoUrl 
+      ...video,
+      createdAt: video.createdAt.toISOString(),
+
     };
   }
 }

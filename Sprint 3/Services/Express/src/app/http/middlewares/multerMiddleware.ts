@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Tipos MIME de video permitidos
-const allowedVideoTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/avi', 'video/mov']; //
+const allowedVideoTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/avi', 'video/mov'];
 
 // Configuración del almacenamiento en disco
 const storage = multer.diskStorage({
@@ -18,8 +18,7 @@ const storage = multer.diskStorage({
     },
     filename: (_req: Request, file: Express.Multer.File, cb) => {
         // Nombre de archivo personalizado para evitar conflictos
-        const fileName = _req.body.title.toLowerCase().replace(/\s+/g, '') + ".mp4";
-        cb(null, fileName);
+        cb(null, file.originalname);
     },
 });
 

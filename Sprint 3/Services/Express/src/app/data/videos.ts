@@ -20,13 +20,11 @@ export const carregarVideosDesDeCarpeta = async (carpetaPath: string): Promise<V
           videosTrobats.push(video);
         } catch (error) {
           console.error(`Error llegint metadades per ${arxiu}:`, error);
-          // Afegir video amb informació bàsica
-          videosTrobats.push(crearInfoVideoBasica(arxiu));
+          videosTrobats.push(crearInfoVideoBasica(arxiu, carpetaPath));
         }
       }
     }
 
-    // Actualitzar l'array global de videos
     videos = videosTrobats;
     console.log(`📹 Carregats ${videos.length} videos des de la carpeta.`);
     return videos;
@@ -53,17 +51,27 @@ function obtenirMetadadesVideo(nomArxiu: string, carpetaPath: string): Promise<V
         return;
       }
 
-      const durada = Math.floor(metadades.format.duration || 0);
       const streamVideo = metadades.streams.find((stream) => stream.codec_type === 'video');
-
       const nomVideo = path.parse(nomArxiu).name.toLowerCase();
       const nomSenseEspais = nomVideo.replace(/\s+/g, '');
 
+      let fps = 0;
+      if (streamVideo?.r_frame_rate) {
+        const [num, den] = streamVideo.r_frame_rate.split('/').map(Number);
+        fps = den !== 0 ? Math.round(num / den) : 0;
+      }
+
       const video: Video = {
-        id: generarId(nomArxiu),
-        duration: durada,
-        thumbnail: `/thumbnails/${nomSenseEspais}.jpg`, // Ruta relativa al thumbnail
-        videoUrl: `/videos/${nomSenseEspais}/index.m3u8` // Nueva propiedad: ruta al HLS
+        duracio: Math.floor(metadades.format.duration || 0),
+        thumbnail: `/thumbnails/${nomSenseEspais}.jpg`,
+        videoUrl: `/videos/${nomSenseEspais}/index.m3u8`,
+        width: streamVideo?.width || 0,
+        height: streamVideo?.height || 0,
+        fps: fps,
+        bitrate: parseInt(metadades.format.bit_rate || '0'),
+        codec: streamVideo?.codec_name || 'unknown',
+        fileSize: metadades.format.size || 0,
+        createdAt: fs.statSync(pathComplet).birthtime
       };
 
       resolve(video);
@@ -71,60 +79,21 @@ function obtenirMetadadesVideo(nomArxiu: string, carpetaPath: string): Promise<V
   });
 }
 
-function crearInfoVideoBasica(nomArxiu: string): Video {
-  const nomVideo = path.parse(nomArxiu).name;
+function crearInfoVideoBasica(nomArxiu: string, carpetaPath: string): Video {
+  const nomVideo = path.parse(nomArxiu).name.toLowerCase();
   const nomSenseEspais = nomVideo.replace(/\s+/g, '');
+  const pathComplet = path.join(carpetaPath, nomArxiu);
 
   return {
-    id: generarId(nomArxiu),
-    nom: nomVideo,
-    descripcio: `Video: ${nomArxiu}`,
-    duration: 0,
-    thumbnail: `/thumbnails/${nomSenseEspais}.jpg`, // Ruta relativa actualizada
-    videoUrl: `/videos/${nomSenseEspais}/index.m3u8` // Nueva propiedad
+    duracio: 0,
+    thumbnail: `/thumbnails/${nomSenseEspais}.jpg`,
+    videoUrl: `/videos/${nomSenseEspais}/index.m3u8`,
+    width: 0,
+    height: 0,
+    fps: 0,
+    bitrate: 0,
+    codec: 'unknown',
+    fileSize: 0,
+    createdAt: fs.existsSync(pathComplet) ? fs.statSync(pathComplet).birthtime : new Date()
   };
-}
-
-function generarId(nomArxiu: string): string {
-  // Formato: prefijo-timestamp-random
-  const timestamp = Date.now().toString(36); // Base 36 para hacerlo más corto
-  const random = Math.random().toString(36).substring(2, 6);
-  const prefix = nomArxiu
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-') // Reemplaza espacios y caracteres especiales por guiones
-    .replace(/^-+|-+$/g, ''); // Elimina guiones al principio y final
-
-  return `${prefix}-${timestamp}-${random}`;
-}
-
-function generarDescripcio(streamVideo: any, durada: number): string {
-  const parts = [];
-
-  if (streamVideo?.width && streamVideo?.height) {
-    parts.push(`Resolució: ${streamVideo.width}x${streamVideo.height}`);
-  }
-
-  if (streamVideo?.codec_name) {
-    parts.push(`Còdec: ${streamVideo.codec_name}`);
-  }
-
-  if (durada > 0) {
-    parts.push(`Durada: ${formatarDurada(durada)}`);
-  }
-
-  return parts.join(' | ') || 'Video sense metadades completes';
-}
-
-function formatarDurada(segons: number): string {
-  const hores = Math.floor(segons / 3600);
-  const minuts = Math.floor((segons % 3600) / 60);
-  const segonsRestants = Math.floor(segons % 60);
-
-  if (hores > 0) {
-    return `${hores}h ${minuts}m ${segonsRestants}s`;
-  } else if (minuts > 0) {
-    return `${minuts}m ${segonsRestants}s`;
-  } else {
-    return `${segonsRestants}s`;
-  }
 }

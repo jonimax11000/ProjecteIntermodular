@@ -5,12 +5,9 @@ import { VideoRecord } from "./models/VideoRecord";
 import { videos } from "../../../data/videos";
 
 export class VideoRepositoryIntern implements IVideoRepository {
-  private vids: VideoRecord[] = videos;
 
-  async create(video: Omit<Video>): Promise<Video> {
-    const record: VideoRecord = { video };
-
-    this.vids.push(record);
+  async create(video: Omit<Video, "createdAt">): Promise<Video> {
+    const record: VideoRecord = { createdAt: new Date().toISOString(), ...video };
 
     return VideoMapper.toDomain(record);
   }

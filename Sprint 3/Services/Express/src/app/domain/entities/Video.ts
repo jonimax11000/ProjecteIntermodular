@@ -1,5 +1,4 @@
 export interface Video {
-  id: string;
   duracio: number;
   thumbnail: string;
   videoUrl: string;
@@ -9,5 +8,5 @@ export interface Video {
   bitrate: number;
   codec: string;
   fileSize: number;
-  createdAt: string;
+  createdAt: Date;
 }
