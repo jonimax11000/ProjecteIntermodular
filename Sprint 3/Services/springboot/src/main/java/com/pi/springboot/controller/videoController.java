@@ -8,9 +8,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class videoController {
-	@GetMapping("/")
+	@GetMapping("/api/cataleg")
     @ResponseBody
-    public String helloWorld() {
+    public String getCataleg() {
         return "Pruebas de distincion";
+    }
+	
+	@GetMapping("/api/cataleg/{id}")
+    @ResponseBody
+    public String getCatalegById(@PathVariable Integer id) {
+        return "Pruebas de distincion  "+id;
     }
 }
