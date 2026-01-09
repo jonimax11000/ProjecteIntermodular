@@ -1,4 +1,4 @@
-package com.pi.springboot.models;
+package com.pi.springboot.model;
 
 import java.io.Serializable;
 
