@@ -1,5 +1,8 @@
 package com.pi.springboot.services;
 
-public class Videoserviceimpl {
+import org.springframework.stereotype.*;
+
+@Service
+public class Videoserviceimpl implements Videoservice {
 
 }
