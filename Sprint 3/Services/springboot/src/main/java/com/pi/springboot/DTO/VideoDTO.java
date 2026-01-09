@@ -2,7 +2,7 @@ package com.pi.springboot.DTO;
 
 import java.io.Serializable;
 
-import com.pi.springboot.models.Video;
+import com.pi.springboot.model.Video;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

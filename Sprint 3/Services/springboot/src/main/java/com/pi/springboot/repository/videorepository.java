@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.pi.springboot.models.Video;
+import com.pi.springboot.model.Video;
 
 import jakarta.transaction.Transactional;
 
