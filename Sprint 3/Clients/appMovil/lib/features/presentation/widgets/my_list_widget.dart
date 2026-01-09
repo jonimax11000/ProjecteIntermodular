@@ -35,7 +35,7 @@ class MyListWidget extends StatelessWidget {
   Widget _buildVideoListItem(BuildContext context, Video video) {
     return GestureDetector(
       onTap: () {
-        print('Video tapped: ${video.nom}');
+        print('Video tapped: ${video.title}');
         onVideoTap(video);
       },
       child: Container(
@@ -53,73 +53,69 @@ class MyListWidget extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                // Miniatura del vídeo
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    width: 120,
-                    height: 80,
-                    color: const Color(0xFF2A2A2A),
-                    child: video.thumbnail.isNotEmpty
-                        ? Image.network(
-                            "http://10.0.2.2:3000${video.thumbnail}",
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return const Icon(
-                                Icons.broken_image,
-                                color: Colors.white38,
-                                size: 32,
-                              );
-                            },
-                          )
-                        : const Icon(
-                            Icons.play_circle_outline,
-                            color: Colors.white38,
-                            size: 40,
-                          ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                // Informació del vídeo
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        video.nom,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+          child: Row(
+            children: [
+              // Miniatura del vídeo
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  width: 120,
+                  height: 80,
+                  color: const Color(0xFF2A2A2A),
+                  child: video.thumbnail.isNotEmpty
+                      ? Image.network(
+                          "http://10.0.2.2:3000${video.thumbnail}",
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.broken_image,
+                              color: Colors.white38,
+                              size: 32,
+                            );
+                          },
+                        )
+                      : const Icon(
+                          Icons.play_circle_outline,
+                          color: Colors.white38,
+                          size: 40,
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 6),
-                      
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                        
-                          const SizedBox(width: 4),
-                          
-                          
-                        ],
-                      ),
-                    ],
-                  ),
                 ),
-                const Icon(
-                  Icons.chevron_right,
-                  color: Colors.white38,
-                  size: 24,
+              ),
+              const SizedBox(width: 12),
+              // Informació del vídeo
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      video.title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 6),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        const SizedBox(width: 4),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              const Icon(
+                Icons.chevron_right,
+                color: Colors.white38,
+                size: 24,
+              ),
+            ],
           ),
         ),
-      );
+      ),
+    );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:exercici_disseny_responsiu_stateful/features/presentation/widgets/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'injection_container.dart' as di;
 import 'features/presentation/widgets/home_screen.dart';
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const HomeScreen(),
+      home: const LoginScreen(),
     );
   }
 }

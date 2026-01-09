@@ -1,17 +1,21 @@
 class Video {
-  final String id;
-  final String nom;
-  final String descripcio;
-  final int duration;
+  final int id;
+  final String title;
+  final String description;
+  final String duration;
   final String thumbnail;
-  final String url; // URL del video para reproducción
+  /*final int categoryId;
+  final int ageId;
+  final int seriesId;*/
 
-  Video({
-    required this.id,
-    required this.nom,
-    required this.descripcio,
-    required this.duration,
-    required this.thumbnail,
-    required this.url,
-  });
+  Video(
+      {required this.id,
+      required this.title,
+      required this.description,
+      required this.duration,
+      required this.thumbnail
+      /*required this.categoryId,
+    required this.ageId,
+    required this.seriesId,*/
+      });
 }
