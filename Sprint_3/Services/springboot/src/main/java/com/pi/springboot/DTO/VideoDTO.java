@@ -25,8 +25,6 @@ public class VideoDTO {
 		videoDTO.setId(video.getId());
 		videoDTO.setTitol(video.getTitol());
 
-		// IMPORTANTE: Usa los getters de Lombok
-		// Lombok generó getUrl() y getThumbnail() por los nombres de columnas
 		videoDTO.setVideoURL(video.getVideoURL()); // Cambia esto
 		videoDTO.setThumbnailURL(video.getThumbnailURL()); // Cambia esto
 
@@ -43,9 +41,8 @@ public class VideoDTO {
 		video.setId(videoDTO.getId());
 		video.setTitol(videoDTO.getTitol());
 
-		// IMPORTANTE: Usa los setters de Lombok
-		video.setVideoURL(videoDTO.getVideoURL()); // Cambia esto
-		video.setThumbnailURL(videoDTO.getThumbnailURL()); // Cambia esto
+		video.setVideoURL(videoDTO.getVideoURL());
+		video.setThumbnailURL(videoDTO.getThumbnailURL());
 
 		video.setDuracio(videoDTO.getDuracio());
 

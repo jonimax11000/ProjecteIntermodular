@@ -1,6 +1,7 @@
 package com.pi.springboot.model;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
 import jakarta.persistence.*;
@@ -23,6 +24,6 @@ public class Categoria implements Serializable {
 	@Column(nullable = false, unique = true)
 	private String categoria;
 
-	@OneToMany(mappedBy = "categoria", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-	private Set<Video> videos;
+	@ManyToMany(mappedBy = "categories", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+	private Set<Video> videos = new HashSet<>();
 }

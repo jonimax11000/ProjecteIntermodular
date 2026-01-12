@@ -1,6 +1,8 @@
 package com.pi.springboot.model;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,7 +11,8 @@ import lombok.*;
 @NoArgsConstructor
 @Entity
 @Table
-@ToString(exclude = { "serie", "edat", "categoria" })
+@ToString(exclude = { "serie", "edat", "categories" })
+@EqualsAndHashCode(exclude = { "serie", "edat", "categories" })
 public class Video implements Serializable {
 
 	static final long serialVersionUID = 137L;
@@ -31,14 +34,16 @@ public class Video implements Serializable {
 	private Integer duracio;
 
 	@ManyToOne(cascade = CascadeType.PERSIST)
-	@JoinColumn(name = "id", foreignKey = @ForeignKey(name = "FK_VID_SER"))
+	@JoinColumn(name = "serie", foreignKey = @ForeignKey(name = "FK_VID_SER"))
 	private Serie serie;
 
 	@ManyToOne(cascade = CascadeType.PERSIST)
-	@JoinColumn(name = "id", foreignKey = @ForeignKey(name = "FK_VID_EDAT"))
+	@JoinColumn(name = "edat", foreignKey = @ForeignKey(name = "FK_VID_EDAT"))
 	private Edat edat;
 
-	@ManyToOne(cascade = CascadeType.PERSIST)
-	@JoinColumn(name = "id", foreignKey = @ForeignKey(name = "FK_VID_CAT"))
-	private Categoria categoria;
+	@ManyToMany(cascade = CascadeType.PERSIST)
+	@JoinTable(name = "Vid_Cat", joinColumns = {
+			@JoinColumn(name = "id_video", foreignKey = @ForeignKey(name = "FK_VID_CAT")) }, inverseJoinColumns = {
+					@JoinColumn(name = "id_categoria", foreignKey = @ForeignKey(name = "FK_CAT_VID")) })
+	private Set<Categoria> categories = new HashSet<>();
 }
