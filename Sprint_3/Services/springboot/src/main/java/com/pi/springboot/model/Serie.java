@@ -10,7 +10,7 @@ import lombok.*;
 @Entity
 @Table
 @ToString
-public class Video implements Serializable {
+public class Serie implements Serializable {
 
 	static final long serialVersionUID = 137L;
 
@@ -19,14 +19,9 @@ public class Video implements Serializable {
 	private long id;
 
 	@Column(nullable = false)
-	private String titol;
-
-	@Column(name = "url", nullable = false)
-	private String videoURL;
-
-	@Column(name = "thumbnail", nullable = false)
-	private String thumbnailURL;
+	private String nom;
 
 	@Column(nullable = false)
-	private Integer duracio;
+	private Integer temporada;
+
 }
