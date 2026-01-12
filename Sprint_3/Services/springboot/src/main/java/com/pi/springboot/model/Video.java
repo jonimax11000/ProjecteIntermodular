@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @Entity
 @Table
-@ToString
+@ToString(exclude = { "serie", "edat", "categoria" })
 public class Video implements Serializable {
 
 	static final long serialVersionUID = 137L;
@@ -29,4 +29,16 @@ public class Video implements Serializable {
 
 	@Column(nullable = false)
 	private Integer duracio;
+
+	@ManyToOne(cascade = CascadeType.PERSIST)
+	@JoinColumn(name = "id", foreignKey = @ForeignKey(name = "FK_VID_SER"))
+	private Serie serie;
+
+	@ManyToOne(cascade = CascadeType.PERSIST)
+	@JoinColumn(name = "id", foreignKey = @ForeignKey(name = "FK_VID_EDAT"))
+	private Edat edat;
+
+	@ManyToOne(cascade = CascadeType.PERSIST)
+	@JoinColumn(name = "id", foreignKey = @ForeignKey(name = "FK_VID_CAT"))
+	private Categoria categoria;
 }
