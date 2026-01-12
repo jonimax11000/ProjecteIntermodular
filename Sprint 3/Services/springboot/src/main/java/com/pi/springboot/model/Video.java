@@ -9,35 +9,31 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 
 @Data
 @NoArgsConstructor
 @Entity
-@Getter
-@Setter
 @Table
 @ToString
-public class Video implements Serializable{
-	
+public class Video implements Serializable {
+
 	static final long serialVersionUID = 137L;
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-	
+
 	@Column
 	private String titol;
-	
-	@Column(name="url")
+
+	@Column(name = "url")
 	private String videoURL;
-	
-	@Column(name="thumbnail")
+
+	@Column(name = "thumbnail")
 	private String thumbnailURL;
-	
+
 	@Column
-	private int duracio;
+	private Integer duracio;
 }
