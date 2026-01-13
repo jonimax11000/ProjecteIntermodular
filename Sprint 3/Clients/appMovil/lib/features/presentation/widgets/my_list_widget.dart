@@ -35,7 +35,7 @@ class MyListWidget extends StatelessWidget {
   Widget _buildVideoListItem(BuildContext context, Video video) {
     return GestureDetector(
       onTap: () {
-        print('Video tapped: ${video.title}');
+        print('Video tapped: ${video.titol}');
         onVideoTap(video);
       },
       child: Container(
@@ -62,9 +62,9 @@ class MyListWidget extends StatelessWidget {
                   width: 120,
                   height: 80,
                   color: const Color(0xFF2A2A2A),
-                  child: video.thumbnail.isNotEmpty
+                  child: video.thumbnailURL.isNotEmpty
                       ? Image.network(
-                          "http://10.0.2.2:3000${video.thumbnail}",
+                          "http://10.0.2.2:3000${video.thumbnailURL}",
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
                             return const Icon(
@@ -88,7 +88,7 @@ class MyListWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      video.title,
+                      video.titol,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,

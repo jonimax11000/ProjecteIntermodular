@@ -3,10 +3,10 @@ import 'package:http/http.dart' as http;
 
 class VideosApi {
   final String baseUrl;
-  VideosApi({this.baseUrl = 'http://localhost:3001'});
+  VideosApi({this.baseUrl = 'http://localhost:9090'});
 
   Future<List<Map<String, dynamic>>> fetchVideos() async {
-    final uri = Uri.parse('$baseUrl/videos');
+    final uri = Uri.parse('$baseUrl/api/cataleg');
     try {
       final res = await http.get(uri);
       if (res.statusCode == 200) {
@@ -14,11 +14,11 @@ class VideosApi {
         if (decoded is List) {
           return decoded.map<Map<String, dynamic>>((e) {
             return {
-              'id': e['id'] ?? 0,
-              'title': e['title'] ?? '',
-              'description': e['description'] ?? '',
-              'duration': e['duration']?.toString() ?? '',
-              'thumbnail': e['thumbnail'] ?? ''
+              'id': e['id'] as int ?? 0,
+              'titol': e['titol'] ?? '',
+              'videoURL': e['videoURL'] ?? '',
+              'thumbnailURL': e['thumbnailURL'] ?? '',
+              'duracio': e['duracio']?.toString() ?? '',
               /*'categoryId': e['categoryId'] ?? 0,
               'ageId': e['ageId'] ?? 0,
               'seriesId': e['seriesId'] ?? 0,*/

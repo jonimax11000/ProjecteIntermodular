@@ -100,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       print('Video URL not available');
     }*/
-    print('Video selected: ${video.title}');
+    print('Video selected: ${video.titol}');
   }
 
   Future<void> _seekTo(Duration position) async {
@@ -350,7 +350,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /*Widget _buildVideoPlayerCard() {
+  Widget _buildVideoPlayerCard() {
     return Container(
       constraints: const BoxConstraints(
         maxHeight: 600,
@@ -436,12 +436,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   : SizedBox(
                       height: 250,
                       child: Center(
-                        child: _selectedVideo!.thumbnail.isNotEmpty
+                        child: _selectedVideo!.thumbnailURL.isNotEmpty
                             ? Stack(
                                 alignment: Alignment.center,
                                 children: [
                                   Image.asset(
-                                    _selectedVideo!.thumbnail,
+                                    _selectedVideo!.thumbnailURL,
                                     fit: BoxFit.cover,
                                     width: double.infinity,
                                     height: double.infinity,
@@ -473,7 +473,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _selectedVideo!.title,
+                      _selectedVideo!.titol,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -493,7 +493,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          _selectedVideo!.duration,
+                          _selectedVideo!.duracio,
                           style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 13,
@@ -503,8 +503,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                     const SizedBox(height: 10),
-                    Text(
-                      _selectedVideo!.description,
+                    /*Text(
+                      _selectedVideo!.descripcio,
                       style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 14,
@@ -512,7 +512,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
-                    ),
+                    ),*/
                   ],
                 ),
               ),
@@ -521,9 +521,9 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
-  }*/
+  }
 
-  Widget _buildVideoPlayerCard() {
+  /*Widget _buildVideoPlayerCard() {
     return Container(
       constraints: const BoxConstraints(
         maxHeight: 600,
@@ -555,9 +555,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 maxHeight: 400,
               ),
               child: _selectedVideo != null &&
-                      _selectedVideo!.thumbnail.isNotEmpty
+                      _selectedVideo!.thumbnailURL.isNotEmpty
                   ? Image.network(
-                      _selectedVideo!.thumbnail,
+                      _selectedVideo!.thumbnailURL,
                       fit: BoxFit.cover,
                       width: double.infinity,
                       height: double.infinity,
@@ -585,7 +585,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _selectedVideo?.title ?? '',
+                      _selectedVideo?.titol ?? '',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -605,7 +605,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          _selectedVideo?.duration ?? '',
+                          _selectedVideo?.duracio ?? '',
                           style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 13,
@@ -616,7 +616,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      _selectedVideo?.description ?? '',
+                      _selectedVideo?.duracio ?? '',
                       style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 14,
@@ -633,7 +633,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
-  }
+  }*/
 
   Widget _buildVideoControls({bool isFullScreen = false}) {
     if (_videoController == null || !_videoController!.value.isInitialized) {
