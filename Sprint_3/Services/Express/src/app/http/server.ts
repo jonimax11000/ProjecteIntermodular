@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import videoRoutes from "./routes/videoRoutes";
 import path from "path";
 import { fileURLToPath } from "url";
+import cors from "cors";
 
 // Solución para __dirname en ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -10,27 +11,26 @@ const __dirname = path.dirname(__filename);
 export function buildServer() {
   const app = express();
   app.use(express.json());
-  
+
+  // Configuración CORS mejorada
+  const corsOptions = {
+    origin: (origin, callback) => {
+      if (!origin) {
+        callback(null, '*'); // Permitir solicitudes sin origen (como Postman)
+      } else {
+        callback(null, origin); // Permitir cualquier origen dinámicamente
+      }
+    },
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    credentials: true,
+  };
+  app.use(cors(corsOptions));
+
   // SERVIR ARCHIVOS ESTÁTICOS - Configuración corregida
   const publicPath = path.join(__dirname, '../../app/public');
   app.use('/api/thumbnails', express.static(path.join(publicPath, 'thumbnails')));
   app.use('/api/videos', express.static(path.join(publicPath, 'videos')));
-  
-  // Configuración CORS
-  app.use((req: Request, res: Response, next: NextFunction) => {
-    const origin = req.headers.origin;
-    
-    res.setHeader("Access-Control-Allow-Origin", origin || "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-    res.setHeader("Vary", "Origin");
-
-    if (req.method === "OPTIONS") {
-      return res.sendStatus(204);
-    }
-    next();
-  });
 
   // Rutas de la API
   app.use("/api/video", videoRoutes);
