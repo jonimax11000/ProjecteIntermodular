@@ -9,12 +9,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.pi.springboot.DTO.VideoDTO;
-import com.pi.springboot.services.Videoservice;
+import com.pi.springboot.services.VideoService;
 
 @Controller
 public class videoController {
     @Autowired
-    private Videoservice videoService;
+    private VideoService videoService;
 
     @GetMapping("/api/cataleg")
     @ResponseBody

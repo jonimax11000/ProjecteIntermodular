@@ -2,7 +2,7 @@ package com.pi.springboot.services;
 
 import com.pi.springboot.DTO.VideoDTO;
 import com.pi.springboot.model.Video;
-import com.pi.springboot.repository.videorepository;
+import com.pi.springboot.repository.VideoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class Videoserviceimpl implements Videoservice {
+public class VideoServiceImpl implements VideoService {
     @Autowired
-    private videorepository videorepository;
+    private VideoRepository videorepository;
 
     @Override
     public List<VideoDTO> getAllVideos() {
