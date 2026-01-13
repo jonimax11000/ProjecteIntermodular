@@ -4,7 +4,7 @@ import com.pi.springboot.DTO.CategoriaDTO;
 import java.util.List;
 
 public interface CategoriaService {
-    List<CategoriaDTO> getAllCategorias();
+    List<CategoriaDTO> getAllCategories();
 
     CategoriaDTO getCategoriaById(Long id);
 }

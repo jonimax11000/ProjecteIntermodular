@@ -12,7 +12,7 @@ import com.pi.springboot.DTO.VideoDTO;
 import com.pi.springboot.services.VideoService;
 
 @Controller
-public class videoController {
+public class VideoController {
     @Autowired
     private VideoService videoService;
 

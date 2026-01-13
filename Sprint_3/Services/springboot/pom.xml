@@ -48,7 +48,7 @@
 			<artifactId>mysql-connector-j</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-		
+
 		<!-- Lombok con scope provided -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>

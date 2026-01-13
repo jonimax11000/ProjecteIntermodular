@@ -9,5 +9,5 @@ import jakarta.transaction.Transactional;
 
 @Repository
 @Transactional
-public interface videorepository extends JpaRepository<Video, Long> {
+public interface VideoRepository extends JpaRepository<Video, Long> {
 }
