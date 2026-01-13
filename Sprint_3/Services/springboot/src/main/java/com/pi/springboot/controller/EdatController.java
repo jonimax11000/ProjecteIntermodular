@@ -3,11 +3,10 @@ package com.pi.springboot.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import com.pi.springboot.DTO.EdatDTO;
 import com.pi.springboot.services.EdatService;
@@ -31,5 +30,15 @@ public class EdatController {
     public EdatDTO getEdatById(@PathVariable Long id) {
         EdatDTO edat = edatService.getEdatById(id);
         return edat;
+    }
+
+    @PostMapping("/edats")
+    public ResponseEntity<EdatDTO> addEdat(@RequestBody EdatDTO newEdat) {
+        try {
+            edatService.saveEdat(newEdat);
+            return new ResponseEntity<>(newEdat, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 }
