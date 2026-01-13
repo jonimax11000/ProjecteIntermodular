@@ -64,7 +64,7 @@ class MyListWidget extends StatelessWidget {
                   color: const Color(0xFF2A2A2A),
                   child: video.thumbnailURL.isNotEmpty
                       ? Image.network(
-                          "http://10.0.2.2:3000${video.thumbnailURL}",
+                          "http://localhost:3000/api${video.thumbnailURL}",
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
                             return const Icon(
