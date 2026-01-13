@@ -38,7 +38,7 @@ public class CategoriaController {
         return categoria;
     }
 
-    @PostMapping("/categories")
+    @PostMapping("/api/ategories")
     public ResponseEntity<CategoriaDTO> addCategoria(@RequestBody CategoriaDTO newCategoria) {
         try {
             categoriaService.saveCategoria(newCategoria);

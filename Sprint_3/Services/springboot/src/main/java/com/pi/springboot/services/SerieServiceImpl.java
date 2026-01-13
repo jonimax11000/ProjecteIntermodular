@@ -5,6 +5,7 @@ import com.pi.springboot.model.Serie;
 import com.pi.springboot.model.Video;
 import com.pi.springboot.repository.SerieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,7 +20,8 @@ public class SerieServiceImpl implements SerieService {
     private SerieRepository seriesrepository;
 
     @Autowired
-    private VideoServiceImpl videoService;
+    @Lazy
+    private VideoService videoService;
 
     @Override
     public List<SerieDTO> getAllSeries() {
@@ -55,8 +57,10 @@ public class SerieServiceImpl implements SerieService {
     @Override
     public void saveSerie(SerieDTO serieDTO) {
         Set<Video> videos = new HashSet<>();
-        for (Long videoId : serieDTO.getVideos()) {
-            videos.add(videoService.getVideoEntityById(videoId));
+        if (serieDTO.getVideos() != null) {
+            for (Long videoId : serieDTO.getVideos()) {
+                videos.add(videoService.getVideoEntityById(videoId));
+            }
         }
         Serie serie = SerieDTO.convertToEntity(serieDTO, videos);
         seriesrepository.save(serie);

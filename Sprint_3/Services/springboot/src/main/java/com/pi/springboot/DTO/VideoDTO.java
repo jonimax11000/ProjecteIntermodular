@@ -24,7 +24,7 @@ public class VideoDTO {
 	private Integer duracio;
 	private Long serie;
 	private Long edat;
-	private Set<Long> categories;
+	private Set<Long> categories = new HashSet<>();
 
 	public static VideoDTO convertToDTO(Video video) {
 		if (video == null)
@@ -63,7 +63,6 @@ public class VideoDTO {
 			return null;
 
 		Video video = new Video();
-		video.setId(videoDTO.getId());
 		video.setTitol(videoDTO.getTitol());
 
 		video.setVideoURL(videoDTO.getVideoURL());

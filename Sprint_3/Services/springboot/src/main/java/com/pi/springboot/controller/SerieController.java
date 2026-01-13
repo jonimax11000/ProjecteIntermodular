@@ -37,12 +37,21 @@ public class SerieController {
         return serie;
     }
 
-    @PostMapping("/series")
-    public ResponseEntity<SerieDTO> addSerie(@RequestBody SerieDTO newSerie) {
+    @PostMapping("/api/series")
+    @CrossOrigin(origins = "*")
+    @ResponseBody
+    public ResponseEntity<?> addSerie(@RequestBody SerieDTO newSerie) {
+        System.out.println("=== RECIBIENDO SERIE ===");
+        System.out.println("Nombre: " + newSerie.getNom());
+        System.out.println("Temporada: " + newSerie.getTemporada());
+        System.out.println("Videos: " + (newSerie.getVideos() != null ? newSerie.getVideos().size() : "null"));
+
         try {
             serieService.saveSerie(newSerie);
             return new ResponseEntity<>(newSerie, HttpStatus.OK);
         } catch (Exception e) {
+            System.err.println("ERROR: " + e.getMessage());
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }

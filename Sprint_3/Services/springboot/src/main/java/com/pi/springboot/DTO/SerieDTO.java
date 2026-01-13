@@ -18,7 +18,7 @@ public class SerieDTO {
 	private Long id;
 	private String nom;
 	private Integer temporada;
-	private Set<Long> videos;
+	private Set<Long> videos = new HashSet<>();
 
 	public static SerieDTO convertToDTO(Serie serie) {
 		if (serie == null)
@@ -43,7 +43,6 @@ public class SerieDTO {
 			return null;
 
 		Serie serie = new Serie();
-		serie.setId(serieDTO.getId());
 		serie.setNom(serieDTO.getNom());
 		serie.setTemporada(serieDTO.getTemporada());
 		if (videos != null) {

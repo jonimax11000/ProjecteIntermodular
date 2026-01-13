@@ -3,6 +3,8 @@ package com.pi.springboot.model;
 import java.io.Serializable;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,6 +29,7 @@ public class Serie implements Serializable {
 	private Integer temporada;
 
 	@OneToMany(mappedBy = "serie", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+	@JsonBackReference
 	private Set<Video> videos;
 
 }

@@ -17,7 +17,7 @@ public class NivellDTO {
 
 	private Long id;
 	private Integer nivell;
-	private Set<Long> videos;
+	private Set<Long> videos = new HashSet<>();
 
 	public static NivellDTO convertToDTO(Nivell nivell) {
 		if (nivell == null)
@@ -41,7 +41,6 @@ public class NivellDTO {
 			return null;
 
 		Nivell nivell = new Nivell();
-		nivell.setId(nivellDTO.getId());
 		nivell.setNivell(nivellDTO.getNivell());
 		if (videos != null) {
 			nivell.setVideos(videos);

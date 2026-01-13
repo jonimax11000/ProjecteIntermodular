@@ -7,7 +7,7 @@ import com.pi.springboot.model.Serie;
 import com.pi.springboot.model.Video;
 import com.pi.springboot.repository.VideoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,13 +22,16 @@ public class VideoServiceImpl implements VideoService {
     private VideoRepository videorepository;
 
     @Autowired
-    private SerieServiceImpl serieService;
+    @Lazy
+    private SerieService serieService;
 
     @Autowired
-    private EdatServiceImpl edatService;
+    @Lazy
+    private EdatService edatService;
 
     @Autowired
-    private CategoriaServiceImpl categoriaService;
+    @Lazy
+    private CategoriaService categoriaService;
 
     @Override
     public List<VideoDTO> getAllVideos() {
@@ -66,8 +69,10 @@ public class VideoServiceImpl implements VideoService {
         Serie serie = serieService.getSerieEntityById(videoDTO.getSerie());
         Edat edat = edatService.getEdatEntityById(videoDTO.getEdat());
         Set<Categoria> categorias = new HashSet<>();
-        for (Long categoriaId : videoDTO.getCategories()) {
-            categorias.add(categoriaService.getCategoriaEntityById(categoriaId));
+        if (videoDTO.getCategories() != null) {
+            for (Long categoriaId : videoDTO.getCategories()) {
+                categorias.add(categoriaService.getCategoriaEntityById(categoriaId));
+            }
         }
         Video video = VideoDTO.convertToEntity(videoDTO, serie, edat, categorias);
         videorepository.save(video);

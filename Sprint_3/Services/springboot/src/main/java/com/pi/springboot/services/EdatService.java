@@ -2,7 +2,6 @@ package com.pi.springboot.services;
 
 import com.pi.springboot.DTO.EdatDTO;
 import com.pi.springboot.model.Edat;
-import com.pi.springboot.model.Video;
 import java.util.List;
 
 public interface EdatService {

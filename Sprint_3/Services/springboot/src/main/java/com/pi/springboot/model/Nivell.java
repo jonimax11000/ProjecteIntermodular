@@ -3,6 +3,8 @@ package com.pi.springboot.model;
 import java.io.Serializable;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,6 +26,7 @@ public class Nivell implements Serializable {
 	private Integer nivell;
 
 	@OneToMany(mappedBy = "nivell", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+	@JsonBackReference
 	private Set<Video> videos;
 
 }

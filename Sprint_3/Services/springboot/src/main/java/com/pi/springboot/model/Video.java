@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,19 +37,23 @@ public class Video implements Serializable {
 
 	@ManyToOne(cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "serie", foreignKey = @ForeignKey(name = "FK_VID_SER"))
+	@JsonManagedReference
 	private Serie serie;
 
 	@ManyToOne(cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "edat", foreignKey = @ForeignKey(name = "FK_VID_EDAT"))
+	@JsonManagedReference
 	private Edat edat;
 
 	@ManyToOne(cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "nivell", foreignKey = @ForeignKey(name = "FK_VID_NIVELL"))
+	@JsonManagedReference
 	private Nivell nivell;
 
 	@ManyToMany(cascade = CascadeType.PERSIST)
 	@JoinTable(name = "Vid_Cat", joinColumns = {
 			@JoinColumn(name = "id_video", foreignKey = @ForeignKey(name = "FK_VID_CAT")) }, inverseJoinColumns = {
 					@JoinColumn(name = "id_categoria", foreignKey = @ForeignKey(name = "FK_CAT_VID")) })
+	@JsonManagedReference
 	private Set<Categoria> categories = new HashSet<>();
 }

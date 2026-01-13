@@ -5,6 +5,7 @@ import com.pi.springboot.model.Nivell;
 import com.pi.springboot.model.Video;
 import com.pi.springboot.repository.NivellRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,7 +20,8 @@ public class NivellServiceImpl implements NivellService {
     private NivellRepository nivellrepository;
 
     @Autowired
-    private VideoServiceImpl videoService;
+    @Lazy
+    private VideoService videoService;
 
     @Override
     public List<NivellDTO> getAllNivells() {
@@ -55,8 +57,10 @@ public class NivellServiceImpl implements NivellService {
     @Override
     public void saveNivell(NivellDTO nivellDTO) {
         Set<Video> videos = new HashSet<>();
-        for (Long videoId : nivellDTO.getVideos()) {
-            videos.add(videoService.getVideoEntityById(videoId));
+        if (nivellDTO.getVideos() != null) {
+            for (Long videoId : nivellDTO.getVideos()) {
+                videos.add(videoService.getVideoEntityById(videoId));
+            }
         }
         Nivell nivell = NivellDTO.convertToEntity(nivellDTO, videos);
         nivellrepository.save(nivell);

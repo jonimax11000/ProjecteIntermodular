@@ -17,7 +17,7 @@ public class EdatDTO {
 
 	private Long id;
 	private Integer edat;
-	private Set<Long> videos;
+	private Set<Long> videos = new HashSet<>();
 
 	public static EdatDTO convertToDTO(Edat edat) {
 		if (edat == null)
@@ -41,7 +41,6 @@ public class EdatDTO {
 			return null;
 
 		Edat edat = new Edat();
-		edat.setId(edatDTO.getId());
 		edat.setEdat(edatDTO.getEdat());
 		if (videos != null) {
 			edat.setVideos(videos);

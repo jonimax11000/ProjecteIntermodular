@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,5 +27,6 @@ public class Categoria implements Serializable {
 	private String categoria;
 
 	@ManyToMany(mappedBy = "categories", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+	@JsonBackReference
 	private Set<Video> videos = new HashSet<>();
 }

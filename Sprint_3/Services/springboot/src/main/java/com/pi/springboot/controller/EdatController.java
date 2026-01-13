@@ -32,7 +32,7 @@ public class EdatController {
         return edat;
     }
 
-    @PostMapping("/edats")
+    @PostMapping("/api/edats")
     public ResponseEntity<EdatDTO> addEdat(@RequestBody EdatDTO newEdat) {
         try {
             edatService.saveEdat(newEdat);

@@ -37,7 +37,7 @@ public class NivellController {
         return nivell;
     }
 
-    @PostMapping("/nivells")
+    @PostMapping("/api/nivells")
     public ResponseEntity<NivellDTO> addNivell(@RequestBody NivellDTO newNivell) {
         try {
             nivellService.saveNivell(newNivell);

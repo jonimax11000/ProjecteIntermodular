@@ -1,11 +1,11 @@
 package com.pi.springboot.services;
 
 import com.pi.springboot.DTO.EdatDTO;
-import com.pi.springboot.model.Categoria;
 import com.pi.springboot.model.Edat;
 import com.pi.springboot.model.Video;
 import com.pi.springboot.repository.EdatRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -20,7 +20,8 @@ public class EdatServiceImpl implements EdatService {
     private EdatRepository edatrepository;
 
     @Autowired
-    private VideoServiceImpl videoService;
+    @Lazy
+    private VideoService videoService;
 
     @Override
     public List<EdatDTO> getAllEdats() {
@@ -56,8 +57,10 @@ public class EdatServiceImpl implements EdatService {
     @Override
     public void saveEdat(EdatDTO edatDTO) {
         Set<Video> videos = new HashSet<>();
-        for (Long videoId : edatDTO.getVideos()) {
-            videos.add(videoService.getVideoEntityById(videoId));
+        if (edatDTO.getVideos() != null) {
+            for (Long videoId : edatDTO.getVideos()) {
+                videos.add(videoService.getVideoEntityById(videoId));
+            }
         }
         Edat edat = EdatDTO.convertToEntity(edatDTO, videos);
         edatrepository.save(edat);

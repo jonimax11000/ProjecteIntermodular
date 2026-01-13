@@ -17,7 +17,7 @@ public class CategoriaDTO {
 
 	private Long id;
 	private String categoria;
-	private Set<Long> videos;
+	private Set<Long> videos = new HashSet<>();
 
 	public static CategoriaDTO convertToDTO(Categoria categoria) {
 		if (categoria == null)
@@ -41,7 +41,6 @@ public class CategoriaDTO {
 			return null;
 
 		Categoria categoria = new Categoria();
-		categoria.setId(categoriaDTO.getId());
 		categoria.setCategoria(categoriaDTO.getCategoria());
 		if (videos != null) {
 			categoria.setVideos(videos);
