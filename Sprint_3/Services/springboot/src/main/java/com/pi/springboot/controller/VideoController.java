@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -17,6 +18,7 @@ public class VideoController {
     private VideoService videoService;
 
     @GetMapping("/api/cataleg")
+    @CrossOrigin(origins = "*")
     @ResponseBody
     public List<VideoDTO> getCataleg() {
         List<VideoDTO> videos = videoService.getAllVideos();
@@ -24,6 +26,7 @@ public class VideoController {
     }
 
     @GetMapping("/api/cataleg/{id}")
+    @CrossOrigin(origins = "*")
     @ResponseBody
     public VideoDTO getCatalegById(@PathVariable Long id) {
         VideoDTO video = videoService.getVideoById(id);

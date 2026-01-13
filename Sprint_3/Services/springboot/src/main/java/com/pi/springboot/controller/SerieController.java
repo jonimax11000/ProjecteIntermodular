@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -17,6 +18,7 @@ public class SerieController {
     private SerieService serieService;
 
     @GetMapping("/api/series")
+    @CrossOrigin(origins = "*")
     @ResponseBody
     public List<SerieDTO> getSeries() {
         List<SerieDTO> series = serieService.getAllSeries();
@@ -24,6 +26,7 @@ public class SerieController {
     }
 
     @GetMapping("/api/series/{id}")
+    @CrossOrigin(origins = "*")
     @ResponseBody
     public SerieDTO getSerieById(@PathVariable Long id) {
         SerieDTO serie = serieService.getSerieById(id);
