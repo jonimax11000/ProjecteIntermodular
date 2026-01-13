@@ -29,8 +29,10 @@ public class SerieDTO {
 		serieDTO.setNom(serie.getNom());
 		serieDTO.setTemporada(serie.getTemporada());
 		Set<Long> videosIds = new HashSet<>();
-		for (Video video : serie.getVideos()) {
-			videosIds.add(video.getId());
+		if (serie.getVideos() != null) {
+			for (Video video : serie.getVideos()) {
+				videosIds.add(video.getId());
+			}
 		}
 		serieDTO.setVideos(videosIds);
 		return serieDTO;
@@ -44,7 +46,11 @@ public class SerieDTO {
 		serie.setId(serieDTO.getId());
 		serie.setNom(serieDTO.getNom());
 		serie.setTemporada(serieDTO.getTemporada());
-		serie.setVideos(videos);
+		if (videos != null) {
+			serie.setVideos(videos);
+		} else {
+			serie.setVideos(new HashSet<>());
+		}
 
 		return serie;
 	}

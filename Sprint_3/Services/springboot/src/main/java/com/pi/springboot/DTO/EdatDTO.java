@@ -27,8 +27,10 @@ public class EdatDTO {
 		edatDTO.setId(edat.getId());
 		edatDTO.setEdat(edat.getEdat());
 		Set<Long> videosIds = new HashSet<>();
-		for (Video video : edat.getVideos()) {
-			videosIds.add(video.getId());
+		if (edat.getVideos() != null) {
+			for (Video video : edat.getVideos()) {
+				videosIds.add(video.getId());
+			}
 		}
 		edatDTO.setVideos(videosIds);
 		return edatDTO;
@@ -41,7 +43,11 @@ public class EdatDTO {
 		Edat edat = new Edat();
 		edat.setId(edatDTO.getId());
 		edat.setEdat(edatDTO.getEdat());
-		edat.setVideos(videos);
+		if (videos != null) {
+			edat.setVideos(videos);
+		} else {
+			edat.setVideos(new HashSet<>());
+		}
 
 		return edat;
 	}

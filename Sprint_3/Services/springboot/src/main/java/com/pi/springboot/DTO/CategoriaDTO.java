@@ -27,8 +27,10 @@ public class CategoriaDTO {
 		categoriaDTO.setId(categoria.getId());
 		categoriaDTO.setCategoria(categoria.getCategoria());
 		Set<Long> videosIds = new HashSet<>();
-		for (Video video : categoria.getVideos()) {
-			videosIds.add(video.getId());
+		if (categoria.getVideos() != null) {
+			for (Video video : categoria.getVideos()) {
+				videosIds.add(video.getId());
+			}
 		}
 		categoriaDTO.setVideos(videosIds);
 		return categoriaDTO;
@@ -41,8 +43,11 @@ public class CategoriaDTO {
 		Categoria categoria = new Categoria();
 		categoria.setId(categoriaDTO.getId());
 		categoria.setCategoria(categoriaDTO.getCategoria());
-		categoria.setVideos(videos);
-
+		if (videos != null) {
+			categoria.setVideos(videos);
+		} else {
+			categoria.setVideos(new HashSet<>());
+		}
 		return categoria;
 	}
 }

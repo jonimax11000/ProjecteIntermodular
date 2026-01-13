@@ -36,12 +36,22 @@ public class VideoDTO {
 		videoDTO.setVideoURL(video.getVideoURL());
 		videoDTO.setThumbnailURL(video.getThumbnailURL());
 		videoDTO.setDuracio(video.getDuracio());
-		videoDTO.setSerie(video.getSerie().getId());
-		videoDTO.setEdat(video.getEdat().getId());
+		if (video.getSerie() != null) {
+			videoDTO.setSerie(video.getSerie().getId());
+		} else {
+			videoDTO.setSerie(null);
+		}
+		if (video.getEdat() != null) {
+			videoDTO.setEdat(video.getEdat().getId());
+		} else {
+			videoDTO.setEdat(null);
+		}
 		Set<Categoria> categoriesFisiques = video.getCategories();
 		Set<Long> categoriesIds = new HashSet<>();
-		for (Categoria categoria : categoriesFisiques) {
-			categoriesIds.add(categoria.getId());
+		if (categoriesFisiques != null) {
+			for (Categoria categoria : categoriesFisiques) {
+				categoriesIds.add(categoria.getId());
+			}
 		}
 		videoDTO.setCategories(categoriesIds);
 
@@ -58,11 +68,25 @@ public class VideoDTO {
 
 		video.setVideoURL(videoDTO.getVideoURL());
 		video.setThumbnailURL(videoDTO.getThumbnailURL());
-
 		video.setDuracio(videoDTO.getDuracio());
-		video.setSerie(serie);
-		video.setEdat(edat);
-		video.setCategories(categories);
+
+		if (serie != null) {
+			video.setSerie(serie);
+		} else {
+			video.setSerie(null);
+		}
+
+		if (edat != null) {
+			video.setEdat(edat);
+		} else {
+			video.setEdat(null);
+		}
+
+		if (categories != null) {
+			video.setCategories(categories);
+		} else {
+			video.setCategories(new HashSet<>());
+		}
 
 		return video;
 	}
