@@ -11,8 +11,8 @@ import lombok.*;
 @NoArgsConstructor
 @Entity
 @Table
-@ToString(exclude = { "serie", "edat", "categories" })
-@EqualsAndHashCode(exclude = { "serie", "edat", "categories" })
+@ToString(exclude = { "serie", "edat", "categories", "nivell" })
+@EqualsAndHashCode(exclude = { "serie", "edat", "categories", "nivell" })
 public class Video implements Serializable {
 
 	static final long serialVersionUID = 137L;
@@ -40,6 +40,10 @@ public class Video implements Serializable {
 	@ManyToOne(cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "edat", foreignKey = @ForeignKey(name = "FK_VID_EDAT"))
 	private Edat edat;
+
+	@ManyToOne(cascade = CascadeType.PERSIST)
+	@JoinColumn(name = "nivell", foreignKey = @ForeignKey(name = "FK_VID_NIVELL"))
+	private Nivell nivell;
 
 	@ManyToMany(cascade = CascadeType.PERSIST)
 	@JoinTable(name = "Vid_Cat", joinColumns = {
