@@ -99,19 +99,11 @@ class MyListWidget extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        const SizedBox(width: 4),
-                      ],
-                    ),
+                    Row(children: [const SizedBox(width: 4)]),
                   ],
                 ),
               ),
-              const Icon(
-                Icons.chevron_right,
-                color: Colors.white38,
-                size: 24,
-              ),
+              const Icon(Icons.chevron_right, color: Colors.white38, size: 24),
             ],
           ),
         ),
