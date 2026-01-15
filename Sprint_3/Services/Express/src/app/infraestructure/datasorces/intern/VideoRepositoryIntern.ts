@@ -2,7 +2,6 @@ import { IVideoRepository } from "../../../domain/repositories/IVideoRepository"
 import { Video } from "../../../domain/entities/Video";
 import { VideoMapper } from "../../mappers/VideoMapper";
 import { VideoRecord } from "./models/VideoRecord";
-import { videos } from "../../../data/videos";
 
 export class VideoRepositoryIntern implements IVideoRepository {
 
@@ -10,6 +9,10 @@ export class VideoRepositoryIntern implements IVideoRepository {
     const record: VideoRecord = { createdAt: new Date().toISOString(), ...video };
 
     return VideoMapper.toDomain(record);
+  }
+
+  async delete(video: String, thumbnail: String): Promise<String> {
+    return "Video deleted successfully";
   }
 
 }
