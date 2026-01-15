@@ -77,4 +77,9 @@ public class VideoServiceImpl implements VideoService {
         Video video = VideoDTO.convertToEntity(videoDTO, serie, edat, categorias);
         videorepository.save(video);
     }
+
+    @Override
+    public void deleteVideo(Long id) {
+        videorepository.deleteById(id);
+    }
 }

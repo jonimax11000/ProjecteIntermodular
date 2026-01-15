@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.*;
@@ -13,7 +16,7 @@ import lombok.*;
 @NoArgsConstructor
 @Entity
 @Table
-@EqualsAndHashCode(exclude = { "videos" }) // Excluir la relación bidireccional
+@EqualsAndHashCode(exclude = { "videos" })
 @ToString(exclude = { "videos" })
 public class Categoria implements Serializable {
 
@@ -26,7 +29,7 @@ public class Categoria implements Serializable {
 	@Column(nullable = false, unique = true)
 	private String categoria;
 
-	@ManyToMany(mappedBy = "categories", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+	@ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
 	@JsonBackReference
 	private Set<Video> videos = new HashSet<>();
 }

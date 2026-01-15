@@ -12,4 +12,6 @@ public interface EdatService {
     Edat getEdatEntityById(Long id);
 
     void saveEdat(EdatDTO edatDTO);
+
+    void deleteEdat(Long id);
 }

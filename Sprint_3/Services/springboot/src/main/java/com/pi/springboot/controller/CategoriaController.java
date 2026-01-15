@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,7 +39,7 @@ public class CategoriaController {
         return categoria;
     }
 
-    @PostMapping("/api/ategories")
+    @PostMapping("/api/categories")
     public ResponseEntity<CategoriaDTO> addCategoria(@RequestBody CategoriaDTO newCategoria) {
         try {
             categoriaService.saveCategoria(newCategoria);
@@ -46,5 +47,11 @@ public class CategoriaController {
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @DeleteMapping("/api/categories/{id}")
+    public ResponseEntity<String> deleteCategoria(@PathVariable Long id) {
+        categoriaService.deleteCategoria(id);
+        return new ResponseEntity<>("Categoria borrada satisfactoriamente", HttpStatus.OK);
     }
 }

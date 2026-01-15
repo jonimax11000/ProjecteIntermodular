@@ -65,4 +65,9 @@ public class CategoriaServiceImpl implements CategoriaService {
         Categoria categoria = CategoriaDTO.convertToEntity(categoriaDTO, videos);
         categoriarepository.save(categoria);
     }
+
+    @Override
+    public void deleteCategoria(Long id) {
+        categoriarepository.deleteById(id);
+    }
 }

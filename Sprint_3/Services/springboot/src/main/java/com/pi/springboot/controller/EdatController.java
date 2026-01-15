@@ -41,4 +41,10 @@ public class EdatController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
+    @DeleteMapping("/api/edats/{id}")
+    public ResponseEntity<String> deleteEdat(@PathVariable Long id) {
+        edatService.deleteEdat(id);
+        return new ResponseEntity<>("Edat borrada satisfactoriamente", HttpStatus.OK);
+    }
 }

@@ -12,4 +12,6 @@ public interface VideoService {
     Video getVideoEntityById(Long id);
 
     void saveVideo(VideoDTO videoDTO);
+
+    void deleteVideo(Long id);
 }

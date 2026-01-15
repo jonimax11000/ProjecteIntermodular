@@ -65,4 +65,9 @@ public class NivellServiceImpl implements NivellService {
         Nivell nivell = NivellDTO.convertToEntity(nivellDTO, videos);
         nivellrepository.save(nivell);
     }
+
+    @Override
+    public void deleteNivell(Long id) {
+        nivellrepository.deleteById(id);
+    }
 }

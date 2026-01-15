@@ -3,6 +3,9 @@ package com.pi.springboot.model;
 import java.io.Serializable;
 import java.util.Set;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.*;
@@ -27,6 +30,7 @@ public class Edat implements Serializable {
 
 	@OneToMany(mappedBy = "edat", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
 	@JsonBackReference
+	@OnDelete(action = OnDeleteAction.SET_NULL)
 	private Set<Video> videos;
 
 }

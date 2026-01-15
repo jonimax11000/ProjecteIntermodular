@@ -13,4 +13,6 @@ public interface NivellService {
     Nivell getNivellEntityById(Long id);
 
     void saveNivell(NivellDTO nivellDTO);
+
+    void deleteNivell(Long id);
 }

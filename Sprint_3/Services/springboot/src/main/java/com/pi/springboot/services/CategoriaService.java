@@ -12,4 +12,6 @@ public interface CategoriaService {
     Categoria getCategoriaEntityById(Long id);
 
     void saveCategoria(CategoriaDTO categoriaDTO);
+
+    void deleteCategoria(Long id);
 }

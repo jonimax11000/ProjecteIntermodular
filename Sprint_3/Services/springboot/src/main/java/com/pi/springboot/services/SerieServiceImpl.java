@@ -65,4 +65,9 @@ public class SerieServiceImpl implements SerieService {
         Serie serie = SerieDTO.convertToEntity(serieDTO, videos);
         seriesrepository.save(serie);
     }
+
+    @Override
+    public void deleteSerie(Long id) {
+        seriesrepository.deleteById(id);
+    }
 }

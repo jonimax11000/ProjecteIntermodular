@@ -65,4 +65,9 @@ public class EdatServiceImpl implements EdatService {
         Edat edat = EdatDTO.convertToEntity(edatDTO, videos);
         edatrepository.save(edat);
     }
+
+    @Override
+    public void deleteEdat(Long id) {
+        edatrepository.deleteById(id);
+    }
 }
