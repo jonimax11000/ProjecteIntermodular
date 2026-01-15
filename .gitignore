@@ -139,7 +139,8 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 
-**/pgdata
+**/filestore/*
+**/datos_db/*
 
 **/public/thumbnails/*
 **/public/videos/*
