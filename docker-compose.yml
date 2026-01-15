@@ -23,6 +23,7 @@ services:
     links:
       - db
     environment:
+      - HOST=db
       - USER=odoo
       - PASSWORD=odoo
     volumes:

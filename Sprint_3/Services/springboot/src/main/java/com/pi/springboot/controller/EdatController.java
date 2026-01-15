@@ -36,7 +36,7 @@ public class EdatController {
     public ResponseEntity<EdatDTO> addEdat(@RequestBody EdatDTO newEdat) {
         try {
             edatService.saveEdat(newEdat);
-            return new ResponseEntity<>(newEdat, HttpStatus.OK);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

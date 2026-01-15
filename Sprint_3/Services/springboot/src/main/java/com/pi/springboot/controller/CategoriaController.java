@@ -42,7 +42,7 @@ public class CategoriaController {
     public ResponseEntity<CategoriaDTO> addCategoria(@RequestBody CategoriaDTO newCategoria) {
         try {
             categoriaService.saveCategoria(newCategoria);
-            return new ResponseEntity<>(newCategoria, HttpStatus.OK);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

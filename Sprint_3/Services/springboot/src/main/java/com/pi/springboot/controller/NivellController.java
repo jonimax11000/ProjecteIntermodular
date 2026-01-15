@@ -41,7 +41,7 @@ public class NivellController {
     public ResponseEntity<NivellDTO> addNivell(@RequestBody NivellDTO newNivell) {
         try {
             nivellService.saveNivell(newNivell);
-            return new ResponseEntity<>(newNivell, HttpStatus.OK);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

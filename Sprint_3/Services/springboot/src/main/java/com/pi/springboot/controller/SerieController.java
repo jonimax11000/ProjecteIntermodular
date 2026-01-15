@@ -48,7 +48,7 @@ public class SerieController {
 
         try {
             serieService.saveSerie(newSerie);
-            return new ResponseEntity<>(newSerie, HttpStatus.OK);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             System.err.println("ERROR: " + e.getMessage());
             e.printStackTrace();
