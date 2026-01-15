@@ -37,7 +37,7 @@ export class VideoProcessor {
     }
   }
 
-  public async processVideo(filename: string): Promise<void> {
+  private async processVideo(filename: string): Promise<void> {
     const videoName = path.parse(filename).name.toLowerCase().replace(/\s+/g, '');
     const inputPath = path.join(this.videosSourcePath, filename);
 

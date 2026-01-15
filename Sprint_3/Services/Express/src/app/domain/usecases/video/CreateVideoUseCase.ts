@@ -72,28 +72,39 @@ export class CreateVideoUseCase {
     };
   }
 
-  private async obtenerDatosVideo(filename: string, carpetaPath: string = "./src/app/data/videos"): Promise<Video> {
+  private async obtenerDatosVideo(carpetaPath: string = "./src/app/data/videos"): Promise<Video> {
     try {
-      if (this.esArxiuVideo(filename)) {
+      const cwd = process.cwd();
+      const carpetaVideos = path.join(cwd, carpetaPath);
+
+      const archivos = fs.readdirSync(carpetaVideos);
+
+      if (archivos.length === 0) {
+        throw new Error('No hay archivos en la carpeta');
+      }
+
+      const primerArchivo = archivos[0];
+
+      if (this.esArxiuVideo(primerArchivo)) {
         try {
-          const video = await this.obtenirMetadadesVideo(filename, carpetaPath);
+          const video = await this.obtenirMetadadesVideo(primerArchivo, carpetaPath);
           return video;
         } catch (error) {
-          console.error(`Error obteniendo metadatos para ${filename}:`, error);
-          return this.crearInfoVideoBasica(filename, carpetaPath);
+          console.error(`Error obteniendo metadatos para ${primerArchivo}:`, error);
+          return this.crearInfoVideoBasica(primerArchivo, carpetaPath);
         }
       } else {
-        throw new Error(`El archivo ${filename} no es un video válido`);
+        throw new Error(`El archivo ${primerArchivo} no es un video válido`);
       }
     } catch (error) {
-      console.error('Error procesando video:', error);
+      console.error('Error leyendo carpeta:', error);
       throw error;
     }
   }
 
-  async execute(filename: string): Promise<Video> {
-    // Obtener los datos del video especificado
-    const videoData = await this.obtenerDatosVideo(filename);
+  async execute(): Promise<Video> {
+    // Obtener los datos del video desde la carpeta
+    const videoData = await this.obtenerDatosVideo();
 
     // Crear el video usando el repository
     const video = await this.videoRepository.create({
