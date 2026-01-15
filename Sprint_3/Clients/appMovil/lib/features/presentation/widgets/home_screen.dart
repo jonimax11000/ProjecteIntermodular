@@ -57,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _initializeVideo(String videoUrl) async {
+  Future<void> _initializeVideo(String video) async {
     await _videoController?.dispose();
     setState(() {
       _isVideoInitialized = false;
@@ -65,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     _videoController = VideoPlayerController.networkUrl(
-      Uri.parse('http://10.0.2.2:3000$videoUrl'),
+      Uri.parse('http://localhost:3000/api${video}'),
     );
 
     try {
@@ -95,11 +95,11 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _selectedVideo = video;
     });
-    /*if (video.url.isNotEmpty) {
-      _initializeVideo(video.url);
+    if (video.videoURL.isNotEmpty) {
+      _initializeVideo(video.videoURL);
     } else {
       print('Video URL not available');
-    }*/
+    }
     print('Video selected: ${video.titol}');
   }
 
