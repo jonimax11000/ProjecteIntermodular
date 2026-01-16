@@ -144,3 +144,23 @@ vite.config.ts.timestamp-*
 
 **/public/thumbnails/*
 **/public/videos/*
+
+# Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+pubspec.lock
+build/
+.pub-cache/
+.pub/
+*.iml
+*.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
