@@ -3,6 +3,7 @@ package com.pi.springboot.services;
 import com.pi.springboot.DTO.VideoDTO;
 import com.pi.springboot.model.Categoria;
 import com.pi.springboot.model.Edat;
+import com.pi.springboot.model.Nivell;
 import com.pi.springboot.model.Serie;
 import com.pi.springboot.model.Video;
 import com.pi.springboot.repository.VideoRepository;
@@ -28,6 +29,10 @@ public class VideoServiceImpl implements VideoService {
     @Autowired
     @Lazy
     private EdatService edatService;
+
+    @Autowired
+    @Lazy
+    private NivellService nivellService;
 
     @Autowired
     @Lazy
@@ -68,13 +73,14 @@ public class VideoServiceImpl implements VideoService {
     public void saveVideo(VideoDTO videoDTO) {
         Serie serie = serieService.getSerieEntityById(videoDTO.getSerie());
         Edat edat = edatService.getEdatEntityById(videoDTO.getEdat());
+        Nivell nivell = nivellService.getNivellEntityById(videoDTO.getNivell());
         Set<Categoria> categorias = new HashSet<>();
         if (videoDTO.getCategories() != null) {
             for (Long categoriaId : videoDTO.getCategories()) {
                 categorias.add(categoriaService.getCategoriaEntityById(categoriaId));
             }
         }
-        Video video = VideoDTO.convertToEntity(videoDTO, serie, edat, categorias);
+        Video video = VideoDTO.convertToEntity(videoDTO, serie, edat, nivell, categorias);
         videorepository.save(video);
     }
 

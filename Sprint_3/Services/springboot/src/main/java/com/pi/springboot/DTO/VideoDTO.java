@@ -5,6 +5,7 @@ import java.util.Set;
 
 import com.pi.springboot.model.Categoria;
 import com.pi.springboot.model.Edat;
+import com.pi.springboot.model.Nivell;
 import com.pi.springboot.model.Serie;
 import com.pi.springboot.model.Video;
 
@@ -24,6 +25,7 @@ public class VideoDTO {
 	private Integer duracio;
 	private Long serie;
 	private Long edat;
+	private Long nivell;
 	private Set<Long> categories = new HashSet<>();
 
 	public static VideoDTO convertToDTO(Video video) {
@@ -46,6 +48,11 @@ public class VideoDTO {
 		} else {
 			videoDTO.setEdat(null);
 		}
+		if (video.getNivell() != null) {
+			videoDTO.setNivell(video.getNivell().getId());
+		} else {
+			videoDTO.setNivell(null);
+		}
 		Set<Categoria> categoriesFisiques = video.getCategories();
 		Set<Long> categoriesIds = new HashSet<>();
 		if (categoriesFisiques != null) {
@@ -58,7 +65,8 @@ public class VideoDTO {
 		return videoDTO;
 	}
 
-	public static Video convertToEntity(VideoDTO videoDTO, Serie serie, Edat edat, Set<Categoria> categories) {
+	public static Video convertToEntity(VideoDTO videoDTO, Serie serie, Edat edat, Nivell nivell,
+			Set<Categoria> categories) {
 		if (videoDTO == null)
 			return null;
 
@@ -79,6 +87,12 @@ public class VideoDTO {
 			video.setEdat(edat);
 		} else {
 			video.setEdat(null);
+		}
+
+		if (nivell != null) {
+			video.setNivell(nivell);
+		} else {
+			video.setNivell(null);
 		}
 
 		if (categories != null) {
