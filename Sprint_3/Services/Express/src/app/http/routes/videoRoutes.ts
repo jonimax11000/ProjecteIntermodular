@@ -4,11 +4,13 @@ import { VideoController } from "../controllers/videoController";
 import { uploadVideo } from "../middlewares/multerMiddleware";
 import { CreateVideoUseCase } from "../../domain/usecases/video/CreateVideoUseCase";
 import { hlslMiddleware } from "../middlewares/hlslMiddleware";
+import { DeleteVideoUseCase } from "../../domain/usecases/video/DeleteVideoUsecase";
 
 const createController = () => {
   const repo = new VideoRepositoryIntern();  // ← Se crea CUANDO SE USA la ruta
   return new VideoController(
-    new CreateVideoUseCase(repo)
+    new CreateVideoUseCase(repo),
+    new DeleteVideoUseCase(repo)
   );
 };
 
@@ -21,5 +23,9 @@ videoRoutes.post("/", uploadVideo.single('video'), hlslMiddleware, (req, res, ne
 /*videoRoutes.put("/:id", (req, res, next) => {
   createController().getById(req, res, next);  // ← Repository se crea aquí
 });*/
+
+videoRoutes.delete("/", (req, res, next) => {
+  createController().delete(req, res, next);  // ← Repository se crea aquí
+});
 
 export default videoRoutes;

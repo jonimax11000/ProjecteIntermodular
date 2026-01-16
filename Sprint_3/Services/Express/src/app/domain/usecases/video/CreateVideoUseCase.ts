@@ -3,13 +3,10 @@ import ffmpeg, { FfprobeData } from 'fluent-ffmpeg';
 import { Video } from "../../../domain/entities/Video";
 import fs from 'fs';
 import path from "path";
-import { fileURLToPath } from 'url';
-
 
 export class CreateVideoUseCase {
   constructor(private videoRepository: IVideoRepository) { }
 
-  // Métodos privados auxiliares
   private esArxiuVideo(nomArxiu: string): boolean {
     const extensionsVideo = ['.mp4', '.avi', '.mov', '.mkv', '.wmv', '.webm'];
     return extensionsVideo.includes(path.extname(nomArxiu).toLowerCase());
@@ -72,53 +69,24 @@ export class CreateVideoUseCase {
     };
   }
 
-  private async obtenerDatosVideo(carpetaPath: string = "./src/app/data/videos"): Promise<Video> {
+  private async obtenerDatosVideo(filename: string, carpetaPath: string = "./src/app/data/videos"): Promise<Video> {
+    const cwd = process.cwd();
+    const pathAbsolutCarpeta = path.join(cwd, carpetaPath);
+
+    if (!this.esArxiuVideo(filename)) {
+      throw new Error(`El archivo ${filename} no es un video válido`);
+    }
+
     try {
-      const cwd = process.cwd();
-      const carpetaVideos = path.join(cwd, carpetaPath);
-
-      const archivos = fs.readdirSync(carpetaVideos);
-
-      if (archivos.length === 0) {
-        throw new Error('No hay archivos en la carpeta');
-      }
-
-      const primerArchivo = archivos[0];
-
-      if (this.esArxiuVideo(primerArchivo)) {
-        try {
-          const video = await this.obtenirMetadadesVideo(primerArchivo, carpetaPath);
-          return video;
-        } catch (error) {
-          console.error(`Error obteniendo metadatos para ${primerArchivo}:`, error);
-          return this.crearInfoVideoBasica(primerArchivo, carpetaPath);
-        }
-      } else {
-        throw new Error(`El archivo ${primerArchivo} no es un video válido`);
-      }
+      return await this.obtenirMetadadesVideo(filename, pathAbsolutCarpeta);
     } catch (error) {
-      console.error('Error leyendo carpeta:', error);
-      throw error;
+      console.error(`Error obteniendo metadatos para ${filename}:`, error);
+      return this.crearInfoVideoBasica(filename, pathAbsolutCarpeta);
     }
   }
 
-  async execute(): Promise<Video> {
-    // Obtener los datos del video desde la carpeta
-    const videoData = await this.obtenerDatosVideo();
-
-    // Crear el video usando el repository
-    const video = await this.videoRepository.create({
-      duracio: videoData.duracio,
-      thumbnail: videoData.thumbnail,
-      videoUrl: videoData.videoUrl,
-      width: videoData.width,
-      height: videoData.height,
-      fps: videoData.fps,
-      bitrate: videoData.bitrate,
-      codec: videoData.codec,
-      fileSize: videoData.fileSize,
-    });
-
-    return video;
+  async execute(filename: string): Promise<Video> {
+    const videoData = await this.obtenerDatosVideo(filename);
+    return await this.videoRepository.create(videoData);
   }
 }
