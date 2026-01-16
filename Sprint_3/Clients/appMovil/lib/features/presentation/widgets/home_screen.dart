@@ -1,3 +1,4 @@
+import 'package:exercici_disseny_responsiu_stateful/features/core/service_locator.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/widgets/perfil_screen.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/widgets/videoList_screen.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    getVideos = di.sl<GetVideos>();
+    getVideos = ServiceLocator().getVideos;
     _loadVideos();
   }
 
@@ -58,6 +59,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _initializeVideo(String video) async {
+    final String videoURL = ServiceLocator().getVideoUrl();
+
     await _videoController?.dispose();
     setState(() {
       _isVideoInitialized = false;
@@ -65,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     _videoController = VideoPlayerController.networkUrl(
-      Uri.parse('http://localhost:3000/api${video}'),
+      Uri.parse("$videoURL$video"),
     );
 
     try {

@@ -1,4 +1,0 @@
-2026/01/09-11:32:14.189 790c Creating DB C:\Users\carlo\AppData\Local\Temp\flutter_tools.e3f8e86\flutter_tools_chrome_device.81458a3a\Default\IndexedDB\devtools_devtools_0.indexeddb.leveldb since it was missing.
-2026/01/09-11:32:14.201 790c Reusing MANIFEST C:\Users\carlo\AppData\Local\Temp\flutter_tools.e3f8e86\flutter_tools_chrome_device.81458a3a\Default\IndexedDB\devtools_devtools_0.indexeddb.leveldb/MANIFEST-000001
-2026/01/09-11:32:14.203 790c Recovering log #3
-2026/01/09-11:32:14.205 790c Reusing old log C:\Users\carlo\AppData\Local\Temp\flutter_tools.e3f8e86\flutter_tools_chrome_device.81458a3a\Default\IndexedDB\devtools_devtools_0.indexeddb.leveldb/000003.log 

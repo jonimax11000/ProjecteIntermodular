@@ -5,7 +5,7 @@ import 'features/presentation/widgets/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await di.init();
+  //await di.init();
   runApp(const MyApp());
 }
 

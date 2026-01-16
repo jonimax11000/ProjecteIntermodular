@@ -4,11 +4,12 @@ import 'features/data/repositories/videos_repository_impl.dart';
 import 'features/domain/repositories/videos_repository.dart';
 import 'features/domain/usecases/get_videos.dart';
 
+/*const String baseUrl = "http://localhost:8081";
 final sl = GetIt.instance;
 
 Future<void> init() async {
   // Features - Videos
-  sl.registerLazySingleton(() => VideosApi());
+  sl.registerLazySingleton(() => VideosApi(baseUrl));
   sl.registerLazySingleton<VideosRepository>(() => VideosRepositoryImpl(sl()));
   sl.registerLazySingleton(() => GetVideos(sl()));
-}
+}*/

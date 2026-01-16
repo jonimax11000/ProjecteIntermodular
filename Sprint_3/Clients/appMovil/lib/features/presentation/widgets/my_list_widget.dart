@@ -1,3 +1,4 @@
+import 'package:exercici_disseny_responsiu_stateful/features/core/service_locator.dart';
 import 'package:flutter/material.dart';
 import '../../domain/entities/video.dart';
 
@@ -33,6 +34,7 @@ class MyListWidget extends StatelessWidget {
   }
 
   Widget _buildVideoListItem(BuildContext context, Video video) {
+    final String videoURL = ServiceLocator().getVideoUrl();
     return GestureDetector(
       onTap: () {
         print('Video tapped: ${video.titol}');
@@ -64,7 +66,7 @@ class MyListWidget extends StatelessWidget {
                   color: const Color(0xFF2A2A2A),
                   child: video.thumbnailURL.isNotEmpty
                       ? Image.network(
-                          "http://localhost:3000/api${video.thumbnailURL}",
+                          "$videoURL${video.thumbnailURL}",
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
                             return const Icon(

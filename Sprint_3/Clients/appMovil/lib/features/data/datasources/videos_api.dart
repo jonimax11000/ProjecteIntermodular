@@ -2,14 +2,16 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class VideosApi {
-  final String baseUrl;
-  VideosApi({this.baseUrl = 'http://localhost:8081'});
+  String baseUrl;
+
+  VideosApi(this.baseUrl);
 
   Future<List<Map<String, dynamic>>> fetchVideos() async {
     final uri = Uri.parse('$baseUrl/api/cataleg');
     try {
       final res = await http.get(uri);
       if (res.statusCode == 200) {
+        String body = utf8.decode(res.bodyBytes);
         final decoded = json.decode(res.body);
         if (decoded is List) {
           return decoded.map<Map<String, dynamic>>((e) {
