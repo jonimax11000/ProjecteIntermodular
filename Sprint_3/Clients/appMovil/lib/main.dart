@@ -1,7 +1,5 @@
-import 'package:exercici_disseny_responsiu_stateful/features/presentation/widgets/login_screen.dart';
+import 'package:exercici_disseny_responsiu_stateful/features/presentation/login_screen.dart';
 import 'package:flutter/material.dart';
-import 'injection_container.dart' as di;
-import 'features/presentation/widgets/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
