@@ -20,10 +20,6 @@ videoRoutes.post("/", uploadVideo.single('video'), hlslMiddleware, (req, res, ne
   createController().create(req, res, next);
 });
 
-/*videoRoutes.put("/:id", (req, res, next) => {
-  createController().getById(req, res, next);  // ← Repository se crea aquí
-});*/
-
 videoRoutes.delete("/", (req, res, next) => {
   createController().delete(req, res, next);  // ← Repository se crea aquí
 });

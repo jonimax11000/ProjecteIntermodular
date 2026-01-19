@@ -12,6 +12,8 @@ public interface SerieService {
 
     Serie getSerieEntityById(Long id);
 
+    SerieDTO getSeriesByVideo(Long id);
+
     void saveSerie(SerieDTO serieDTO);
 
     void deleteSerie(Long id);

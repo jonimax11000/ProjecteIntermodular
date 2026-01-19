@@ -1,6 +1,7 @@
 package com.pi.springboot.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,4 +17,7 @@ import jakarta.transaction.Transactional;
 public interface SerieRepository extends JpaRepository<Serie, Long> {
     @Query(value = "SELECT R FROM Serie R WHERE R.nom LIKE CONCAT('%', :nom, '%')")
     List<Serie> findByNom(@Param("nom") String nom);
+
+    @Query(value = "SELECT R FROM Serie R JOIN R.videos V WHERE V.id = :id")
+    Optional<Serie> findByVideo(@Param("id") Long id);
 }

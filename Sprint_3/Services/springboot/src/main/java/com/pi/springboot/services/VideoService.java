@@ -11,6 +11,14 @@ public interface VideoService {
 
     Video getVideoEntityById(Long id);
 
+    List<VideoDTO> getVideosByCategoria(Long id);
+
+    List<VideoDTO> getVideosByEdat(Long id);
+
+    List<VideoDTO> getVideosByNivell(Long id);
+
+    List<VideoDTO> getVideosBySerie(Long id);
+
     void saveVideo(VideoDTO videoDTO);
 
     void deleteVideo(Long id);

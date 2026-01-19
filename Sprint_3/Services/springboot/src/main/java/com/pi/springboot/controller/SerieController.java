@@ -46,6 +46,14 @@ public class SerieController {
         return series;
     }
 
+    @GetMapping("/api/seriesByVideo/{id}")
+    @CrossOrigin(origins = "*")
+    @ResponseBody
+    public SerieDTO getSeriesByVideo(@PathVariable Long id) {
+        SerieDTO serie = serieService.getSeriesByVideo(id);
+        return serie;
+    }
+
     @PostMapping("/api/series")
     @CrossOrigin(origins = "*")
     @ResponseBody

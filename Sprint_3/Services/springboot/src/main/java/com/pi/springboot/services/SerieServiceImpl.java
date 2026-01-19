@@ -66,6 +66,16 @@ public class SerieServiceImpl implements SerieService {
     }
 
     @Override
+    public SerieDTO getSeriesByVideo(Long id) {
+        Optional<Serie> serie = seriesrepository.findByVideo(id);
+        if (serie.isPresent()) {
+            return SerieDTO.convertToDTO(serie.get());
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public void saveSerie(SerieDTO serieDTO) {
         Set<Video> videos = new HashSet<>();
         if (serieDTO.getVideos() != null) {

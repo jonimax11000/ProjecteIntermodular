@@ -46,6 +46,38 @@ public class VideoController {
         return videos;
     }
 
+    @GetMapping("/api/catalegByCategoria/{id}")
+    @CrossOrigin(origins = "*")
+    @ResponseBody
+    public List<VideoDTO> getVideosByCategoria(@PathVariable Long id) {
+        List<VideoDTO> videos = videoService.getVideosByCategoria(id);
+        return videos;
+    }
+
+    @GetMapping("/api/catalegByEdat/{id}")
+    @CrossOrigin(origins = "*")
+    @ResponseBody
+    public List<VideoDTO> getVideosByEdat(@PathVariable Long id) {
+        List<VideoDTO> videos = videoService.getVideosByEdat(id);
+        return videos;
+    }
+
+    @GetMapping("/api/catalegByNivell/{id}")
+    @CrossOrigin(origins = "*")
+    @ResponseBody
+    public List<VideoDTO> getVideosByNivell(@PathVariable Long id) {
+        List<VideoDTO> videos = videoService.getVideosByNivell(id);
+        return videos;
+    }
+
+    @GetMapping("/api/catalegBySerie/{id}")
+    @CrossOrigin(origins = "*")
+    @ResponseBody
+    public List<VideoDTO> getVideosBySerie(@PathVariable Long id) {
+        List<VideoDTO> videos = videoService.getVideosBySerie(id);
+        return videos;
+    }
+
     @PostMapping("/api/cataleg")
     @CrossOrigin(origins = "*")
     @ResponseBody

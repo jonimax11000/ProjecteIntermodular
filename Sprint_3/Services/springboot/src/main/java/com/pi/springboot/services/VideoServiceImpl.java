@@ -82,6 +82,50 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
+    public List<VideoDTO> getVideosByCategoria(Long id) {
+        List<Video> lista = videorepository.findByCategoria(id);
+        List<VideoDTO> listaResultado = new ArrayList<VideoDTO>();
+
+        for (Video v : lista) {
+            listaResultado.add(VideoDTO.convertToDTO(v));
+        }
+        return listaResultado;
+    }
+
+    @Override
+    public List<VideoDTO> getVideosByEdat(Long id) {
+        List<Video> lista = videorepository.findByEdat(id);
+        List<VideoDTO> listaResultado = new ArrayList<VideoDTO>();
+
+        for (Video v : lista) {
+            listaResultado.add(VideoDTO.convertToDTO(v));
+        }
+        return listaResultado;
+    }
+
+    @Override
+    public List<VideoDTO> getVideosByNivell(Long id) {
+        List<Video> lista = videorepository.findByNivell(id);
+        List<VideoDTO> listaResultado = new ArrayList<VideoDTO>();
+
+        for (Video v : lista) {
+            listaResultado.add(VideoDTO.convertToDTO(v));
+        }
+        return listaResultado;
+    }
+
+    @Override
+    public List<VideoDTO> getVideosBySerie(Long id) {
+        List<Video> lista = videorepository.findBySerie(id);
+        List<VideoDTO> listaResultado = new ArrayList<VideoDTO>();
+
+        for (Video v : lista) {
+            listaResultado.add(VideoDTO.convertToDTO(v));
+        }
+        return listaResultado;
+    }
+
+    @Override
     public void saveVideo(VideoDTO videoDTO) {
         Serie serie = serieService.getSerieEntityById(videoDTO.getSerie());
         Edat edat = edatService.getEdatEntityById(videoDTO.getEdat());
