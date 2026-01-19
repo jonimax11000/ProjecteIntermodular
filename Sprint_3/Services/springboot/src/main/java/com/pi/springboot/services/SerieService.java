@@ -15,4 +15,6 @@ public interface SerieService {
     void saveSerie(SerieDTO serieDTO);
 
     void deleteSerie(Long id);
+
+    List<SerieDTO> getSeriesByName(String name);
 }

@@ -55,6 +55,17 @@ public class SerieServiceImpl implements SerieService {
     }
 
     @Override
+    public List<SerieDTO> getSeriesByName(String name) {
+        List<Serie> lista = seriesrepository.findByNom(name);
+        List<SerieDTO> listaResultado = new ArrayList<SerieDTO>();
+
+        for (Serie s : lista) {
+            listaResultado.add(SerieDTO.convertToDTO(s));
+        }
+        return listaResultado;
+    }
+
+    @Override
     public void saveSerie(SerieDTO serieDTO) {
         Set<Video> videos = new HashSet<>();
         if (serieDTO.getVideos() != null) {

@@ -14,4 +14,6 @@ public interface VideoService {
     void saveVideo(VideoDTO videoDTO);
 
     void deleteVideo(Long id);
+
+    List<VideoDTO> getVideosByName(String name);
 }

@@ -38,6 +38,14 @@ public class VideoController {
         return video;
     }
 
+    @GetMapping("/api/catalegByName/{name}")
+    @CrossOrigin(origins = "*")
+    @ResponseBody
+    public List<VideoDTO> getVideosByName(@PathVariable String name) {
+        List<VideoDTO> videos = videoService.getVideosByName(name);
+        return videos;
+    }
+
     @PostMapping("/api/cataleg")
     @CrossOrigin(origins = "*")
     @ResponseBody

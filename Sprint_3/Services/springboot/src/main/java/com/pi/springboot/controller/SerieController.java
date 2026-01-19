@@ -38,6 +38,14 @@ public class SerieController {
         return serie;
     }
 
+    @GetMapping("/api/seriesByName/{name}")
+    @CrossOrigin(origins = "*")
+    @ResponseBody
+    public List<SerieDTO> getSeriesByName(@PathVariable String name) {
+        List<SerieDTO> series = serieService.getSeriesByName(name);
+        return series;
+    }
+
     @PostMapping("/api/series")
     @CrossOrigin(origins = "*")
     @ResponseBody

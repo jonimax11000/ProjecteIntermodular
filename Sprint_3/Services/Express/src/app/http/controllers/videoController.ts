@@ -18,6 +18,8 @@ export class VideoController {
         throw new Error('No video file uploaded'); // Or handle appropriately
       }
 
+      res.status(200).json({ message: "Video subido para procesar" });
+
       const result = await this.createVideo.execute(file.filename);
       res.status(201).json(result);
 

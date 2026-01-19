@@ -3,8 +3,8 @@ import videoRoutes from "./routes/videoRoutes";
 import path from "path";
 import { fileURLToPath } from "url";
 import cors from "cors";
+import { WebSocketServer } from "ws";
 
-// Solución para __dirname en ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -12,13 +12,12 @@ export function buildServer() {
   const app = express();
   app.use(express.json());
 
-  // Configuración CORS mejorada
   const corsOptions = {
     origin: (origin, callback) => {
       if (!origin) {
-        callback(null, '*'); // Permitir solicitudes sin origen (como Postman)
+        callback(null, '*');
       } else {
-        callback(null, origin); // Permitir cualquier origen dinámicamente
+        callback(null, origin);
       }
     },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
@@ -27,20 +26,18 @@ export function buildServer() {
   };
   app.use(cors(corsOptions));
 
-  // SERVIR ARCHIVOS ESTÁTICOS - Configuración corregida
+  const wss = new WebSocketServer({ noServer: true });
+
   const publicPath = path.join(__dirname, '../../app/public');
   app.use('/api/thumbnails', express.static(path.join(publicPath, 'thumbnails')));
   app.use('/api/videos', express.static(path.join(publicPath, 'videos')));
 
-  // Rutas de la API
   app.use("/api/video", videoRoutes);
 
-  // Manejo de rutas no encontradas
   app.use((req: Request, res: Response) => {
     res.status(404).json({ message: "Resource not found" });
   });
 
-  // Manejo de errores
   app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     console.error(err);
     const status = err.status || 500;

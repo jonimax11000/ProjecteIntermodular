@@ -1,5 +1,6 @@
 package com.pi.springboot.services;
 
+import com.pi.springboot.DTO.SerieDTO;
 import com.pi.springboot.DTO.VideoDTO;
 import com.pi.springboot.model.Categoria;
 import com.pi.springboot.model.Edat;
@@ -67,6 +68,17 @@ public class VideoServiceImpl implements VideoService {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public List<VideoDTO> getVideosByName(String name) {
+        List<Video> lista = videorepository.findByNom(name);
+        List<VideoDTO> listaResultado = new ArrayList<VideoDTO>();
+
+        for (Video v : lista) {
+            listaResultado.add(VideoDTO.convertToDTO(v));
+        }
+        return listaResultado;
     }
 
     @Override
