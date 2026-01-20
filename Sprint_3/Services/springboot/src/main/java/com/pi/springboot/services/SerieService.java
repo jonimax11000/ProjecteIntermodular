@@ -19,4 +19,6 @@ public interface SerieService {
     void deleteSerie(Long id);
 
     List<SerieDTO> getSeriesByName(String name);
+
+    void changeSerie(SerieDTO laSerie, SerieDTO updSerie);
 }

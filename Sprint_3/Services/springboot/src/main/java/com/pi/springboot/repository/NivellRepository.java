@@ -10,4 +10,5 @@ import jakarta.transaction.Transactional;
 @Repository
 @Transactional
 public interface NivellRepository extends JpaRepository<Nivell, Long> {
+    boolean existsByNivell(Integer nivell);
 }

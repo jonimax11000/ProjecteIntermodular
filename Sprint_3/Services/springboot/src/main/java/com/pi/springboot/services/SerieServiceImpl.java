@@ -1,9 +1,14 @@
 package com.pi.springboot.services;
 
+import com.pi.springboot.DTO.NivellDTO;
 import com.pi.springboot.DTO.SerieDTO;
+import com.pi.springboot.model.Nivell;
 import com.pi.springboot.model.Serie;
 import com.pi.springboot.model.Video;
 import com.pi.springboot.repository.SerieRepository;
+
+import jakarta.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -84,6 +89,23 @@ public class SerieServiceImpl implements SerieService {
             }
         }
         Serie serie = SerieDTO.convertToEntity(serieDTO, videos);
+        seriesrepository.save(serie);
+    }
+
+    @Override
+    public void changeSerie(SerieDTO laSerie, SerieDTO updSerie) {
+        Serie serie = seriesrepository.findById(laSerie.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Edat not found with id: " + laSerie.getId()));
+
+        if ((!serie.getNom().equals(updSerie.getNom()) || !serie.getTemporada().equals(updSerie.getTemporada()))
+                && seriesrepository.existsByNomAndTemporada(updSerie.getNom(), updSerie.getTemporada())) {
+            throw new IllegalStateException("Serie with name " + updSerie.getNom() + " and temporada "
+                    + updSerie.getTemporada() + " already exists.");
+        }
+
+        serie.setNom(updSerie.getNom());
+        serie.setTemporada(updSerie.getTemporada());
+
         seriesrepository.save(serie);
     }
 

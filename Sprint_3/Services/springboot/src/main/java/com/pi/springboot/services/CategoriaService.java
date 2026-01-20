@@ -14,4 +14,6 @@ public interface CategoriaService {
     void saveCategoria(CategoriaDTO categoriaDTO);
 
     void deleteCategoria(Long id);
+
+    void changeCategoria(CategoriaDTO laCategoria, CategoriaDTO updCategoria);
 }

@@ -20,4 +20,7 @@ public interface SerieRepository extends JpaRepository<Serie, Long> {
 
     @Query(value = "SELECT R FROM Serie R JOIN R.videos V WHERE V.id = :id")
     Optional<Serie> findByVideo(@Param("id") Long id);
+
+    @Query(value = "SELECT count(R)>0 FROM Serie R WHERE R.nom = :nom and R.temporada = :temporada")
+    Boolean existsByNomAndTemporada(@Param("nom") String nom, @Param("temporada") Integer temporada);
 }

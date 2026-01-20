@@ -42,6 +42,22 @@ public class EdatController {
         }
     }
 
+    @PutMapping("/api/edats")
+    public ResponseEntity<EdatDTO> updateEdat(@RequestBody EdatDTO updEdat) {
+        try {
+            EdatDTO laEdat = edatService.getEdatById(updEdat.getId());
+            if (laEdat == null) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            } else {
+                // com ja sabem que existeix, save actualitza
+                edatService.changeEdat(laEdat, updEdat);
+                return new ResponseEntity<>(updEdat, HttpStatus.OK);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @DeleteMapping("/api/edats/{id}")
     public ResponseEntity<String> deleteEdat(@PathVariable Long id) {
         edatService.deleteEdat(id);

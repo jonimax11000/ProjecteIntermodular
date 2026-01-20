@@ -1,9 +1,13 @@
 package com.pi.springboot.services;
 
 import com.pi.springboot.DTO.NivellDTO;
+import com.pi.springboot.model.Edat;
 import com.pi.springboot.model.Nivell;
 import com.pi.springboot.model.Video;
 import com.pi.springboot.repository.NivellRepository;
+
+import jakarta.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -63,6 +67,21 @@ public class NivellServiceImpl implements NivellService {
             }
         }
         Nivell nivell = NivellDTO.convertToEntity(nivellDTO, videos);
+        nivellrepository.save(nivell);
+    }
+
+    @Override
+    public void changeNivell(NivellDTO elNivell, NivellDTO updNivell) {
+        Nivell nivell = nivellrepository.findById(elNivell.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Edat not found with id: " + elNivell.getId()));
+
+        if (!nivell.getNivell().equals(updNivell.getNivell())
+                && nivellrepository.existsByNivell(updNivell.getNivell())) {
+            throw new IllegalStateException("Nivell with value " + updNivell.getNivell() + " already exists.");
+        }
+
+        nivell.setNivell(updNivell.getNivell());
+
         nivellrepository.save(nivell);
     }
 

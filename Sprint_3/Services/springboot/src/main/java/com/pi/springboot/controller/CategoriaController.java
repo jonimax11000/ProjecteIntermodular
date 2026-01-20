@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.pi.springboot.DTO.CategoriaDTO;
+import com.pi.springboot.DTO.EdatDTO;
 import com.pi.springboot.services.CategoriaService;
+import org.springframework.web.bind.annotation.PutMapping;
 
 @Controller
 public class CategoriaController {
@@ -44,6 +46,22 @@ public class CategoriaController {
         try {
             categoriaService.saveCategoria(newCategoria);
             return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("api/categories")
+    public ResponseEntity<CategoriaDTO> putMethodName(@RequestBody CategoriaDTO updCategoria) {
+        try {
+            CategoriaDTO laCategoria = categoriaService.getCategoriaById(updCategoria.getId());
+            if (laCategoria == null) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            } else {
+                // com ja sabem que existeix, save actualitza
+                categoriaService.changeCategoria(laCategoria, updCategoria);
+                return new ResponseEntity<>(updCategoria, HttpStatus.OK);
+            }
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

@@ -15,4 +15,6 @@ public interface NivellService {
     void saveNivell(NivellDTO nivellDTO);
 
     void deleteNivell(Long id);
+
+    void changeNivell(NivellDTO elNivell, NivellDTO updNivellDTO);
 }

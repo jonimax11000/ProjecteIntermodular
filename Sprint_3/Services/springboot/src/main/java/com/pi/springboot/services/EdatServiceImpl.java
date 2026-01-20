@@ -4,6 +4,10 @@ import com.pi.springboot.DTO.EdatDTO;
 import com.pi.springboot.model.Edat;
 import com.pi.springboot.model.Video;
 import com.pi.springboot.repository.EdatRepository;
+
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -13,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class EdatServiceImpl implements EdatService {
@@ -63,6 +68,20 @@ public class EdatServiceImpl implements EdatService {
             }
         }
         Edat edat = EdatDTO.convertToEntity(edatDTO, videos);
+        edatrepository.save(edat);
+    }
+
+    @Override
+    @Transactional
+    public void changeEdat(EdatDTO laEdat, EdatDTO updEdat) {
+        Edat edat = edatrepository.findById(laEdat.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Edat not found with id: " + laEdat.getId()));
+
+        if (!edat.getEdat().equals(updEdat.getEdat()) && edatrepository.existsByEdat(updEdat.getEdat())) {
+            throw new IllegalStateException("Edat with value " + updEdat.getEdat() + " already exists.");
+        }
+
+        edat.setEdat(updEdat.getEdat());
         edatrepository.save(edat);
     }
 

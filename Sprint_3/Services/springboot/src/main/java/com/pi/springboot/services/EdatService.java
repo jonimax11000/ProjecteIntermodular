@@ -14,4 +14,6 @@ public interface EdatService {
     void saveEdat(EdatDTO edatDTO);
 
     void deleteEdat(Long id);
+
+    void changeEdat(EdatDTO laEdat, EdatDTO updEdat);
 }
