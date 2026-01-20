@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_template_subscription_form_view" model="ir.ui.view">
+        <field name="name">product.template.subscription.form</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='group_general']" position="inside">
+                <group string="Configuración de Suscripción">
+                    <field name="is_subscription"/>
+                    <field name="subscription_days" attrs="{'invisible': [('is_subscription', '=', False)], 'required': [('is_subscription', '=', True)]}"/>
+                    <field name="subscription_tier" attrs="{'invisible': [('is_subscription', '=', False)]}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

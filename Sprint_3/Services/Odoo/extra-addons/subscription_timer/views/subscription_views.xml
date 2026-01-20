@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Secuencia para suscripciones -->
+    <record id="sequence_subscription" model="ir.sequence">
+        <field name="name">Secuencia Suscripción</field>
+        <field name="code">subscription.subscription</field>
+        <field name="prefix">SUB/</field>
+        <field name="padding">5</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+    </record>
+
+    <!-- Vista de árbol -->
+    <record id="subscription_tree_view" model="ir.ui.view">
+        <field name="name">subscription.subscription.tree</field>
+        <field name="model">subscription.subscription</field>
+        <field name="arch" type="xml">
+            <tree string="Suscripciones" decoration-success="state=='active'" decoration-muted="state=='expired'">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="product_id"/>
+                <field name="subscription_tier"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="days_remaining"/>
+                <field name="auto_renew"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Vista de formulario -->
+    <record id="subscription_form_view" model="ir.ui.view">
+        <field name="name">subscription.subscription.form</field>
+        <field name="model">subscription.subscription</field>
+        <field name="arch" type="xml">
+            <form string="Suscripción">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="active,expired"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="product_id"/>
+                            <field name="subscription_tier"/>
+                            <field name="sale_order_id" readonly="1"/>
+                            <field name="auto_renew"/>
+                        </group>
+                        <group>
+                            <field name="start_date"/>
+                            <field name="end_date"/>
+                            <field name="total_days"/>
+                            <field name="days_remaining"/>
+                            <field name="progress" widget="progressbar"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción de menú -->
+    <record id="subscription_action" model="ir.actions.act_window">
+        <field name="name">Suscripciones</field>
+        <field name="res_model">subscription.subscription</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menú -->
+    <menuitem id="menu_subscription_root" name="Suscripciones" sequence="10"/>
+    <menuitem id="menu_subscription_subscriptions" name="Todas las Suscripciones" parent="menu_subscription_root" action="subscription_action" sequence="1"/>
+</odoo>
