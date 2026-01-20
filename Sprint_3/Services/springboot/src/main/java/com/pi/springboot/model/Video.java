@@ -29,6 +29,9 @@ public class Video implements Serializable {
 	@Column(name = "url", nullable = false)
 	private String videoURL;
 
+	@Column(name = "descripcio", nullable = false)
+	private String descripcio;
+
 	@Column(name = "thumbnail", nullable = false)
 	private String thumbnailURL;
 

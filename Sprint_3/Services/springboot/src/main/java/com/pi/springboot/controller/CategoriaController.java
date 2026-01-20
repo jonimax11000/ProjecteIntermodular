@@ -42,6 +42,7 @@ public class CategoriaController {
     }
 
     @PostMapping("/api/categories")
+    @CrossOrigin(origins = "*")
     public ResponseEntity<CategoriaDTO> addCategoria(@RequestBody CategoriaDTO newCategoria) {
         try {
             categoriaService.saveCategoria(newCategoria);
@@ -52,6 +53,7 @@ public class CategoriaController {
     }
 
     @PutMapping("api/categories")
+    @CrossOrigin(origins = "*")
     public ResponseEntity<CategoriaDTO> putMethodName(@RequestBody CategoriaDTO updCategoria) {
         try {
             CategoriaDTO laCategoria = categoriaService.getCategoriaById(updCategoria.getId());
@@ -68,6 +70,7 @@ public class CategoriaController {
     }
 
     @DeleteMapping("/api/categories/{id}")
+    @CrossOrigin(origins = "*")
     public ResponseEntity<String> deleteCategoria(@PathVariable Long id) {
         categoriaService.deleteCategoria(id);
         return new ResponseEntity<>("Categoria borrada satisfactoriamente", HttpStatus.OK);

@@ -76,7 +76,8 @@ public class SerieController {
     }
 
     @PutMapping("api/series")
-    public ResponseEntity<SerieDTO> putMethodName(@RequestBody SerieDTO updSerie) {
+    @CrossOrigin(origins = "*")
+    public ResponseEntity<SerieDTO> updEdat(@RequestBody SerieDTO updSerie) {
         try {
             SerieDTO laSerie = serieService.getSerieById(updSerie.getId());
             if (laSerie == null) {
@@ -92,6 +93,7 @@ public class SerieController {
     }
 
     @DeleteMapping("/api/series/{id}")
+    @CrossOrigin(origins = "*")
     public ResponseEntity<String> deleteSerie(@PathVariable Long id) {
         serieService.deleteSerie(id);
         return new ResponseEntity<>("Serie borrada satisfactoriamente", HttpStatus.OK);

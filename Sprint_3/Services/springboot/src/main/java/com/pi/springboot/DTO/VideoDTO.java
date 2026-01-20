@@ -22,6 +22,7 @@ public class VideoDTO {
 	private String titol;
 	private String videoURL;
 	private String thumbnailURL;
+	private String descripcio;
 	private Integer duracio;
 	private Long serie;
 	private Long edat;
@@ -37,6 +38,7 @@ public class VideoDTO {
 		videoDTO.setTitol(video.getTitol());
 		videoDTO.setVideoURL(video.getVideoURL());
 		videoDTO.setThumbnailURL(video.getThumbnailURL());
+		videoDTO.setDescripcio(video.getDescripcio());
 		videoDTO.setDuracio(video.getDuracio());
 		if (video.getSerie() != null) {
 			videoDTO.setSerie(video.getSerie().getId());
@@ -76,6 +78,7 @@ public class VideoDTO {
 		video.setVideoURL(videoDTO.getVideoURL());
 		video.setThumbnailURL(videoDTO.getThumbnailURL());
 		video.setDuracio(videoDTO.getDuracio());
+		video.setDescripcio(videoDTO.getDescripcio());
 
 		if (serie != null) {
 			video.setSerie(serie);

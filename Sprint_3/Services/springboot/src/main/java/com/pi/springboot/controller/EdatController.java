@@ -33,6 +33,7 @@ public class EdatController {
     }
 
     @PostMapping("/api/edats")
+    @CrossOrigin(origins = "*")
     public ResponseEntity<EdatDTO> addEdat(@RequestBody EdatDTO newEdat) {
         try {
             edatService.saveEdat(newEdat);
@@ -43,6 +44,7 @@ public class EdatController {
     }
 
     @PutMapping("/api/edats")
+    @CrossOrigin(origins = "*")
     public ResponseEntity<EdatDTO> updateEdat(@RequestBody EdatDTO updEdat) {
         try {
             EdatDTO laEdat = edatService.getEdatById(updEdat.getId());
@@ -59,6 +61,7 @@ public class EdatController {
     }
 
     @DeleteMapping("/api/edats/{id}")
+    @CrossOrigin(origins = "*")
     public ResponseEntity<String> deleteEdat(@PathVariable Long id) {
         edatService.deleteEdat(id);
         return new ResponseEntity<>("Edat borrada satisfactoriamente", HttpStatus.OK);

@@ -41,6 +41,7 @@ public class NivellController {
     }
 
     @PostMapping("/api/nivells")
+    @CrossOrigin(origins = "*")
     public ResponseEntity<NivellDTO> addNivell(@RequestBody NivellDTO newNivell) {
         try {
             nivellService.saveNivell(newNivell);
@@ -51,6 +52,7 @@ public class NivellController {
     }
 
     @PutMapping("/api/nivells")
+    @CrossOrigin(origins = "*")
     public ResponseEntity<NivellDTO> updateEdat(@RequestBody NivellDTO updNivellDTO) {
         // busquem si existeix prèviament
         try {
@@ -68,6 +70,7 @@ public class NivellController {
     }
 
     @DeleteMapping("/api/nivells/{id}")
+    @CrossOrigin(origins = "*")
     public ResponseEntity<String> deleteNivell(@PathVariable Long id) {
         nivellService.deleteNivell(id);
         return new ResponseEntity<>("Nivell borrado satisfactoriamente", HttpStatus.OK);

@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.pi.springboot.DTO.SerieDTO;
 import com.pi.springboot.DTO.VideoDTO;
 import com.pi.springboot.services.VideoService;
 
@@ -89,6 +91,26 @@ public class VideoController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
+    /*
+     * @PutMapping("api/series")
+     * 
+     * @CrossOrigin(origins = "*")
+     * public ResponseEntity<SerieDTO> updVideo(@RequestBody VideoDTO updVideo) {
+     * try {
+     * VideoDTO laVideo = videoService.getVideoById(updVideo.getId());
+     * if (laVideo == null) {
+     * return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+     * } else {
+     * // com ja sabem que existeix, save actualitza
+     * videoService.changeVideo(laVideo, updVideo);
+     * return new ResponseEntity<>(updVideo, HttpStatus.OK);
+     * }
+     * } catch (Exception e) {
+     * return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+     * }
+     * }
+     */
 
     @DeleteMapping("/api/videos/{id}")
     public ResponseEntity<String> deleteCliente(@PathVariable Long id) {

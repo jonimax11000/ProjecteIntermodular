@@ -24,4 +24,6 @@ public interface VideoService {
     void deleteVideo(Long id);
 
     List<VideoDTO> getVideosByName(String name);
+
+    void changeVideo(VideoDTO laVideo, VideoDTO updVideo);
 }
