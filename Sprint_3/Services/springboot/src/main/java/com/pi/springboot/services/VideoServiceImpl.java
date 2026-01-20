@@ -127,10 +127,26 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public void saveVideo(VideoDTO videoDTO) {
-        Serie serie = serieService.getSerieEntityById(videoDTO.getSerie());
-        Edat edat = edatService.getEdatEntityById(videoDTO.getEdat());
-        Nivell nivell = nivellService.getNivellEntityById(videoDTO.getNivell());
+        Serie serie = null;
+        Edat edat = null;
+        Nivell nivell = null;
         Set<Categoria> categorias = new HashSet<>();
+
+        if (videoDTO.getSerie() != null) {
+            serie = serieService.getSerieEntityById(videoDTO.getSerie());
+        }
+        if (videoDTO.getEdat() != null) {
+            edat = edatService.getEdatEntityById(videoDTO.getEdat());
+        }
+        if (videoDTO.getNivell() != null) {
+            nivell = nivellService.getNivellEntityById(videoDTO.getNivell());
+        }
+        if (videoDTO.getCategories() != null) {
+            categorias = new HashSet<>();
+            for (Long categoriaId : videoDTO.getCategories()) {
+                categorias.add(categoriaService.getCategoriaEntityById(categoriaId));
+            }
+        }
         if (videoDTO.getCategories() != null) {
             for (Long categoriaId : videoDTO.getCategories()) {
                 categorias.add(categoriaService.getCategoriaEntityById(categoriaId));
@@ -141,9 +157,68 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
-    public void changeVideo(VideoDTO laVideo, VideoDTO updVideo) {
-        // Video video = VideoDTO.convertToEntity(updVideo);
-        // videorepository.save(video);
+    public void changeVideo(VideoDTO elVideo, VideoDTO updVideo) {
+        Serie serie = null;
+        Edat edat = null;
+        Nivell nivell = null;
+        Set<Categoria> categorias = new HashSet<>();
+
+        if (updVideo.getSerie() != null) {
+            serie = serieService.getSerieEntityById(updVideo.getSerie());
+        }
+        if (updVideo.getEdat() != null) {
+            edat = edatService.getEdatEntityById(updVideo.getEdat());
+        }
+        if (updVideo.getNivell() != null) {
+            nivell = nivellService.getNivellEntityById(updVideo.getNivell());
+        }
+        if (updVideo.getCategories() != null) {
+            categorias = new HashSet<>();
+            for (Long categoriaId : updVideo.getCategories()) {
+                categorias.add(categoriaService.getCategoriaEntityById(categoriaId));
+            }
+        }
+        Video video = getVideoEntityById(elVideo.getId());
+
+        video.setTitol(updVideo.getTitol());
+        video.setVideoURL(updVideo.getVideoURL());
+        video.setThumbnailURL(updVideo.getThumbnailURL());
+        video.setDuracio(updVideo.getDuracio());
+
+        if (video.getSerie() != null && !video.getSerie().equals(serie)) {
+            video.getSerie().getVideos().remove(video);
+        }
+        video.setSerie(serie);
+        if (serie != null && !serie.getVideos().contains(video)) {
+            serie.getVideos().add(video);
+        }
+
+        if (video.getEdat() != null && !video.getEdat().equals(edat)) {
+            video.getEdat().getVideos().remove(video);
+        }
+        video.setEdat(edat);
+        if (edat != null && !edat.getVideos().contains(video)) {
+            edat.getVideos().add(video);
+        }
+
+        if (video.getNivell() != null && !video.getNivell().equals(nivell)) {
+            video.getNivell().getVideos().remove(video);
+        }
+        video.setNivell(nivell);
+        if (nivell != null && !nivell.getVideos().contains(video)) {
+            nivell.getVideos().add(video);
+        }
+        for (Categoria categoria : video.getCategories()) {
+            categoria.getVideos().remove(video);
+        }
+        video.getCategories().clear();
+
+        for (Categoria categoria : categorias) {
+            video.getCategories().add(categoria);
+            categoria.getVideos().add(video);
+        }
+        videorepository.save(video);
+
     }
 
     @Override

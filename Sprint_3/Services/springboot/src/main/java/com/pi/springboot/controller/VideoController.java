@@ -92,25 +92,22 @@ public class VideoController {
         }
     }
 
-    /*
-     * @PutMapping("api/series")
-     * 
-     * @CrossOrigin(origins = "*")
-     * public ResponseEntity<SerieDTO> updVideo(@RequestBody VideoDTO updVideo) {
-     * try {
-     * VideoDTO laVideo = videoService.getVideoById(updVideo.getId());
-     * if (laVideo == null) {
-     * return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-     * } else {
-     * // com ja sabem que existeix, save actualitza
-     * videoService.changeVideo(laVideo, updVideo);
-     * return new ResponseEntity<>(updVideo, HttpStatus.OK);
-     * }
-     * } catch (Exception e) {
-     * return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-     * }
-     * }
-     */
+    @PutMapping("api/cataleg")
+    @CrossOrigin(origins = "*")
+    public ResponseEntity<VideoDTO> updVideo(@RequestBody VideoDTO updVideo) {
+        try {
+            VideoDTO laVideo = videoService.getVideoById(updVideo.getId());
+            if (laVideo == null) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            } else {
+                // com ja sabem que existeix, save actualitza
+                videoService.changeVideo(laVideo, updVideo);
+                return new ResponseEntity<>(updVideo, HttpStatus.OK);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
 
     @DeleteMapping("/api/videos/{id}")
     public ResponseEntity<String> deleteCliente(@PathVariable Long id) {
