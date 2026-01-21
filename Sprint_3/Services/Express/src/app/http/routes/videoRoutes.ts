@@ -3,21 +3,22 @@ import { VideoRepositoryIntern } from "../../infraestructure/datasorces/intern/V
 import { VideoController } from "../controllers/videoController";
 import { uploadVideo } from "../middlewares/multerMiddleware";
 import { CreateVideoUseCase } from "../../domain/usecases/video/CreateVideoUseCase";
-import { hlslMiddleware } from "../middlewares/hlslMiddleware";
+
 import { DeleteVideoUseCase } from "../../domain/usecases/video/DeleteVideoUsecase";
 
-const createController = () => {
+const createController = (wsManager?: any) => {
   const repo = new VideoRepositoryIntern();  // ← Se crea CUANDO SE USA la ruta
   return new VideoController(
-    new CreateVideoUseCase(repo),
+    new CreateVideoUseCase(repo, wsManager),
     new DeleteVideoUseCase(repo)
   );
 };
 
 const videoRoutes = Router();
 
-videoRoutes.post("/", uploadVideo.single('video'), hlslMiddleware, (req, res, next) => {
-  createController().create(req, res, next);
+videoRoutes.post("/", uploadVideo.single('video'), (req, res, next) => {
+  const wsManager = (req as any).wsManager;
+  createController(wsManager).create(req, res, next);
 });
 
 videoRoutes.delete("/", (req, res, next) => {
