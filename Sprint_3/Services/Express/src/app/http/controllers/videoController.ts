@@ -12,20 +12,62 @@ export class VideoController {
   ) { }
 
   create = async (req: Request, res: Response, next: NextFunction) => {
+    let jobId: string | undefined;
+
     try {
       const file = (req as any).file;
       if (!file) {
-        throw new Error('No video file uploaded'); // Or handle appropriately
+        throw new Error('No video file uploaded');
       }
 
-      res.status(200).json({ message: "Video subido para procesar" });
+      const clientId = req.headers['x-client-id'] as string;
+      const wsManager = (req as any).wsManager;
 
-      const result = await this.createVideo.execute(file.filename);
-      res.status(201).json(result);
+      jobId = `job_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-      this.eliminarVideoTemporal(file.filename);
+      if (clientId && wsManager) {
+        wsManager.createJob(jobId, clientId);
+        wsManager.sendByJobId(jobId, {
+          type: 'processing_started',
+          jobId,
+          filename: file.filename,
+          message: 'Iniciando procesamiento HLS',
+          timestamp: new Date().toISOString()
+        });
+      }
 
-    } catch (err) { next(err); }
+      res.status(202).json({
+        message: "Video aceptado para procesamiento",
+        jobId,
+        status: "processing"
+      });
+
+      setTimeout(async () => {
+        try {
+          const result = await this.createVideo.execute(
+            file.filename,
+            jobId,
+            clientId
+          );
+          console.log(`Video procesado: ${file.filename}`);
+
+          this.eliminarVideoTemporal(file.filename);
+
+        } catch (error) {
+          console.error(`Error procesando ${file.filename}:`, error);
+        }
+      }, 0);
+
+    } catch (err) {
+      if (jobId && (req as any).wsManager) {
+        (req as any).wsManager.notifyProcessingError(
+          jobId,
+          file?.filename || 'unknown',
+          err instanceof Error ? err.message : 'Error desconocido'
+        );
+      }
+      next(err);
+    }
   }
 
   delete = async (req: Request, res: Response, next: NextFunction) => {

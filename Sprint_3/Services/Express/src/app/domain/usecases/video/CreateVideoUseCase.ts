@@ -2,10 +2,52 @@ import { IVideoRepository } from "../../../domain/repositories/IVideoRepository"
 import ffmpeg, { FfprobeData } from 'fluent-ffmpeg';
 import { Video } from "../../../domain/entities/Video";
 import fs from 'fs';
+import { VideoProcessor } from "../../../infraestructure/services/videoProcessor";
+import { WebSocketManager } from "../../http/websocket/WebSocketManager";
 import path from "path";
 
 export class CreateVideoUseCase {
-  constructor(private videoRepository: IVideoRepository) { }
+  private videoProcessor: VideoProcessor;
+
+  constructor(
+    private videoRepository: IVideoRepository,
+    private wsManager?: WebSocketManager
+  ) {
+    this.videoProcessor = new VideoProcessor();
+  }
+
+  async execute(filename: string, jobId?: string, clientId?: string): Promise<Video> {
+    try {
+
+      console.log(`Iniciando procesamiento de: ${filename}`);
+      await this.videoProcessor.processVideo(filename);
+
+      const videoData = await this.obtenerDatosVideo(filename);
+
+      const savedVideo = await this.videoRepository.create(videoData);
+
+      if (this.wsManager && jobId) {
+        this.wsManager.notifyProcessingCompleted(
+          jobId,
+          filename,
+          savedVideo
+        );
+      }
+
+      return savedVideo;
+
+    } catch (error) {
+      if (this.wsManager && jobId) {
+        this.wsManager.notifyProcessingError(
+          jobId,
+          filename,
+          error instanceof Error ? error.message : 'Error desconocido'
+        );
+      }
+      throw error;
+    }
+  }
+
 
   private esArxiuVideo(nomArxiu: string): boolean {
     const extensionsVideo = ['.mp4', '.avi', '.mov', '.mkv', '.wmv', '.webm'];
@@ -83,10 +125,5 @@ export class CreateVideoUseCase {
       console.error(`Error obteniendo metadatos para ${filename}:`, error);
       return this.crearInfoVideoBasica(filename, pathAbsolutCarpeta);
     }
-  }
-
-  async execute(filename: string): Promise<Video> {
-    const videoData = await this.obtenerDatosVideo(filename);
-    return await this.videoRepository.create(videoData);
   }
 }
