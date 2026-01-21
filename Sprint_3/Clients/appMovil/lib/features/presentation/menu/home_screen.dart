@@ -1,6 +1,7 @@
 import 'package:exercici_disseny_responsiu_stateful/features/core/service_locator.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/entities/video.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/usecases/get_videos.dart';
+import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/widgets/grid_all_videos.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/widgets/submenu.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/perfil/perfil_screen.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/videoList/videoList_screen.dart';
@@ -162,7 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     if (_isFullScreen) {
       return Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: const Color(0xFF1E1E1E),
         body: Stack(
           children: [
             Center(
@@ -194,7 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     duration: const Duration(milliseconds: 200),
                                     child: Container(
                                       decoration: BoxDecoration(
-                                        color: Colors.black54,
+                                        color: const Color(0xFF1E1E1E),
                                         shape: BoxShape.circle,
                                       ),
                                       padding: const EdgeInsets.all(16),
@@ -244,25 +245,23 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: const Color(0xFF121212),
         appBar: AppBar(
           backgroundColor: const Color(0xFF1E1E1E),
-          elevation: 0, // aumentar para que quepa el menú
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start, // alinear al inicio
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 10.0),
-                child: Image.asset(
-                  "assets/img/justflix.png",
-                  height: 44,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: const Color(0xFF2A2A2A),
-                      child: const Icon(Icons.broken_image,
-                          color: Colors.white54, size: 64),
-                    );
-                  },
-                ),
-              ),
-            ],
+          elevation: 0,
+          centerTitle: true,
+          title: SafeArea(
+            child: Image.asset(
+              "assets/img/justflix.png",
+              height: 44,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  color: const Color(0xFF2A2A2A),
+                  child: const Icon(
+                    Icons.broken_image,
+                    color: Colors.white54,
+                    size: 64,
+                  ),
+                );
+              },
+            ),
           ),
         ),
         body: Column(
@@ -328,11 +327,15 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildVideoPlayerCard(),
           const SizedBox(height: 2),
         ],
-        Expanded(
+        /*Expanded(
           child: MyListWidget(
             videos: videos ?? [],
             onVideoTap: _onVideoTap,
           ),
+        ),*/
+        SizedBox(
+          height: 230, // 🔥 altura fija del carrusel
+          child: GridAllVideos(),
         ),
       ],
     );
@@ -349,13 +352,18 @@ class _HomeScreenState extends State<HomeScreen> {
             child: _buildVideoPlayerCard(),
           ),
         ),
-        Flexible(
+        SizedBox(
+          width: 360, // ancho controlado
+          child: GridAllVideos(),
+        ),
+        /*Flexible(
           flex: 3,
-          child: MyListWidget(
+          /*child: MyListWidget(
             videos: videos ?? [],
             onVideoTap: _onVideoTap,
-          ),
-        ),
+          ),*/
+          child: GridAllVideos(),
+        ),*/
       ],
     );
   }

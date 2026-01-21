@@ -12,23 +12,21 @@ class LoginScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFF1E1E1E),
         elevation: 0,
-        title: Padding(
-          padding: const EdgeInsets.only(top: 10.0, right: 24),
-          child: SafeArea(
-            child: Image.asset(
-              "assets/img/justflix.png",
-              height: 44,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  color: const Color(0xFF2A2A2A),
-                  child: const Icon(
-                    Icons.broken_image,
-                    color: Colors.white54,
-                    size: 64,
-                  ),
-                );
-              },
-            ),
+        centerTitle: true,
+        title: SafeArea(
+          child: Image.asset(
+            "assets/img/justflix.png",
+            height: 44,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                color: const Color(0xFF2A2A2A),
+                child: const Icon(
+                  Icons.broken_image,
+                  color: Colors.white54,
+                  size: 64,
+                ),
+              );
+            },
           ),
         ),
       ),
