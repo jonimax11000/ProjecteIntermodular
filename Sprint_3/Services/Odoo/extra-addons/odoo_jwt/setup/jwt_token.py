@@ -6,36 +6,34 @@ from odoo import tools
 from odoo.exceptions import AccessDenied
 
 
-file_for_secret = str(os.path.join(os.path.dirname(__file__), '.translator'))
-print('secret file path = '+ file_for_secret)
+file_private_key = os.path.join(os.path.dirname(__file__), 'private_key.pem')
+file_public_key = os.path.join(os.path.dirname(__file__), 'public_key.pem')
 
 class JwtToken:
-    JWT_ALGORITHM = 'HS256'
-    ACCESS_TOKEN_SECONDS = 60
-    REFRESH_TOKEN_SECONDS = 3600
+    JWT_ALGORITHM = 'RS256'
+    ACCESS_TOKEN_SECONDS = 3600  # Aumentado para pruebas, ajustar según necesidad
+    REFRESH_TOKEN_SECONDS = 86400
 
     @classmethod
-    def get_jwt_secret(cls):
-        secret_key = ''
-        try:
-            if os.path.exists(file_for_secret):
-                with open(file_for_secret, "r") as f:
-                    secret_key = f.read().strip()
-        except IOError:
-            pass
-            
-        if not secret_key:
-            if tools.config.get('env') == 'dev':
-                secret_key = tools.config.get('jwt_secret')
-        
-        # Fallback for development if absolutely nothing is found, 
-        # but simpler to just raise a clearer error or default
-        if not secret_key:
-             # Just a fallback for now to prevent crash if not configured
-            secret_key = 'default_insecure_secret_change_me' 
-            # raise Exception('No secret key is set for tokens')
-            
-        return secret_key
+    def _read_key(cls, path):
+        if os.path.exists(path):
+            with open(path, "r") as f:
+                return f.read()
+        return None
+
+    @classmethod
+    def get_private_key(cls):
+        key = cls._read_key(file_private_key)
+        if not key:
+            raise Exception('Private key not found at %s' % file_private_key)
+        return key
+
+    @classmethod
+    def get_public_key(cls):
+        key = cls._read_key(file_public_key)
+        if not key:
+            raise Exception('Public key not found at %s' % file_public_key)
+        return key
 
     @classmethod
     def generate_token(cls, user_id, duration=0, extra_payload=None):
@@ -50,10 +48,8 @@ class JwtToken:
         if extra_payload:
             payload.update(extra_payload)
 
-        sec_key = cls.get_jwt_secret()
-        return jwt.encode(payload, sec_key, algorithm=cls.JWT_ALGORITHM)
-
-
+        private_key = cls.get_private_key()
+        return jwt.encode(payload, private_key, algorithm=cls.JWT_ALGORITHM)
 
     @classmethod
     def create_refresh_token(cls, req, uid):
@@ -65,7 +61,6 @@ class JwtToken:
         else:
             refresh_model.create({'stored_token': new_token, 'user_id': uid})
         
-        # Ensure future_response exists (Odoo 15+), fail gracefully if not
         if hasattr(req, 'future_response'):
              req.future_response.set_cookie('refreshToken', new_token, httponly=True, secure=True, samesite='Lax')
         return new_token
@@ -73,14 +68,16 @@ class JwtToken:
     @classmethod
     def verify_refresh_token(cls, req, uid, token):
         try:
-            sec_key = cls.get_jwt_secret()
-            jwt.decode(token, sec_key, algorithms=[cls.JWT_ALGORITHM])
-        except:
-            raise AccessDenied('Refresh Token has been expired')
+            public_key = cls.get_public_key()
+            jwt.decode(token, public_key, algorithms=[cls.JWT_ALGORITHM])
+        except Exception as e:
+            raise AccessDenied('Refresh Token verification failed: %s' % str(e))
+            
         tok_ob = req.env['jwt.refresh_token'].sudo().search([('user_id', '=', int(uid))])
         if not tok_ob:
             raise AccessDenied('Refresh Token is invalid')
         if tok_ob.stored_token != token:
+            # En RS256, si el token es válido pero ha cambiado en BD, invalidamos
             raise AccessDenied('Refresh Token has been changed')
         if tok_ob.is_revoked:
             raise AccessDenied('Token has been revoked => User Logged out, Please Log in again')
