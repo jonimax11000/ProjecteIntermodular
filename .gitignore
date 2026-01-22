@@ -165,3 +165,4 @@ build/
 
 # Odoo / proyecto
 datos_db/
+filestore/

@@ -30,7 +30,7 @@ services:
       - ./Sprint_3/Services/Odoo/extra-addons:/mnt/extra-addons
       - ./Sprint_3/Services/Odoo/config:/etc/odoo
       - ./Sprint_3/Services/Odoo/log:/var/log/odoo
-      - ./Sprint_3/Services/Odoo/filestore:/var/lib/odoo/.local/share/Odoo
+      - ./Sprint_3/Services/Odoo/filestore:/var/lib/odoo/
   db:
     image: postgres:15
     restart: always
