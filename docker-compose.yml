@@ -52,5 +52,19 @@ services:
     volumes:
       - ./Sprint_3/Services/Express:/app
       - /app/node_modules
+  spring_app:
+    build: ./Sprint_3/Services/springboot
+    container_name: spring_boot_service
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/Justflix?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+
 volumes:
   mysql_data:
