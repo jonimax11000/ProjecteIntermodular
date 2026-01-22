@@ -10,7 +10,7 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -30,7 +30,7 @@ services:
       - ./Sprint_3/Services/Odoo/extra-addons:/mnt/extra-addons
       - ./Sprint_3/Services/Odoo/config:/etc/odoo
       - ./Sprint_3/Services/Odoo/log:/var/log/odoo
-      - ./Sprint_3/Services/Odoo/filestore:/var/lib/odoo/.local/share/Odoo/filestore
+      - ./Sprint_3/Services/Odoo/filestore:/var/lib/odoo/.local/share/Odoo
   db:
     image: postgres:15
     restart: always
@@ -43,5 +43,14 @@ services:
       - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
       - ./Sprint_3/Services/Odoo/datos_db:/var/lib/postgresql/data/
+  express_app:
+    build: ./Sprint_3/Services/Express
+    container_name: express_ffmpeg_service
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./Sprint_3/Services/Express:/app
+      - /app/node_modules
 volumes:
   mysql_data:
