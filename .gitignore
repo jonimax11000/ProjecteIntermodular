@@ -141,6 +141,8 @@ vite.config.ts.timestamp-*
 
 **/public/thumbnails/*
 **/public/videos/*
+!**/public/thumbnails/.gitkeep
+!**/public/videos/.gitkeep
 
 # Flutter
 .dart_tool/
