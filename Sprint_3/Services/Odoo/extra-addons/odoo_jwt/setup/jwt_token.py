@@ -38,37 +38,22 @@ class JwtToken:
         return secret_key
 
     @classmethod
-    def generate_token(cls, user_id, duration=0):
+    def generate_token(cls, user_id, duration=0, extra_payload=None):
         if not duration:
-            duration = JwtToken.ACCESS_TOKEN_SECONDS
-        
+            duration = cls.ACCESS_TOKEN_SECONDS
+
         payload = {
             'user_id': user_id,
-            'exp': datetime.utcnow() + timedelta(seconds=duration),
-            'subscription_status': 'inactive',
-            'subscription_tier': False,
+            'exp': datetime.utcnow() + timedelta(seconds=duration)
         }
 
-        # Intentar obtener información de suscripción si el request está disponible
-        try:
-            from odoo.http import request
-            if request and request.env:
-                user = request.env['res.users'].sudo().browse(user_id)
-                if user.exists():
-                    sub = request.env['subscription.subscription'].sudo().search([
-                        ('partner_id', '=', user.partner_id.id),
-                        ('state', '=', 'active')
-                    ], limit=1)
-                    if sub:
-                        payload['subscription_status'] = 'active'
-                        payload['subscription_tier'] = sub.subscription_tier
-        except:
-            # Fallback si no estamos en un contexto de request o hay error
-            pass
+        if extra_payload:
+            payload.update(extra_payload)
 
         sec_key = cls.get_jwt_secret()
-        created_token = jwt.encode(payload, sec_key, algorithm=cls.JWT_ALGORITHM)
-        return created_token
+        return jwt.encode(payload, sec_key, algorithm=cls.JWT_ALGORITHM)
+
+
 
     @classmethod
     def create_refresh_token(cls, req, uid):
