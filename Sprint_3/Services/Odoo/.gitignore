@@ -1,6 +1,7 @@
 # .gitignore para Odoo
 filestore/           # ¡NUNCA subir el filestore!
 sessions/           # Sesiones de usuario
+datos_db/
 *.log              # Log files
 *.pyc              # Python compilado
 __pycache__/       # Cache de Python
