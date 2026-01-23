@@ -6,11 +6,12 @@ from odoo import tools
 from odoo.exceptions import AccessDenied
 
 
-file_private_key = os.path.join(os.path.dirname(__file__), 'private_key.pem')
-file_public_key = os.path.join(os.path.dirname(__file__), 'public_key.pem')
+file_private_key = os.path.join(os.path.dirname(__file__), "private_key.pem")
+file_public_key = os.path.join(os.path.dirname(__file__), "public_key.pem")
+
 
 class JwtToken:
-    JWT_ALGORITHM = 'RS256'
+    JWT_ALGORITHM = "RS256"
     ACCESS_TOKEN_SECONDS = 3600  # Aumentado para pruebas, ajustar según necesidad
     REFRESH_TOKEN_SECONDS = 86400
 
@@ -25,14 +26,14 @@ class JwtToken:
     def get_private_key(cls):
         key = cls._read_key(file_private_key)
         if not key:
-            raise Exception('Private key not found at %s' % file_private_key)
+            raise Exception("Private key not found at %s" % file_private_key)
         return key
 
     @classmethod
     def get_public_key(cls):
         key = cls._read_key(file_public_key)
         if not key:
-            raise Exception('Public key not found at %s' % file_public_key)
+            raise Exception("Public key not found at %s" % file_public_key)
         return key
 
     @classmethod
@@ -41,8 +42,8 @@ class JwtToken:
             duration = cls.ACCESS_TOKEN_SECONDS
 
         payload = {
-            'user_id': user_id,
-            'exp': datetime.utcnow() + timedelta(seconds=duration)
+            "user_id": user_id,
+            "exp": datetime.utcnow() + timedelta(seconds=duration),
         }
 
         if extra_payload:
@@ -54,15 +55,17 @@ class JwtToken:
     @classmethod
     def create_refresh_token(cls, req, uid):
         new_token = cls.generate_token(uid, JwtToken.REFRESH_TOKEN_SECONDS)
-        refresh_model = req.env['jwt.refresh_token'].sudo()
-        existing_token = refresh_model.search([('user_id', '=', uid)])
+        refresh_model = req.env["jwt.refresh_token"].sudo()
+        existing_token = refresh_model.search([("user_id", "=", uid)])
         if existing_token:
-            existing_token.write({'stored_token': new_token, 'is_revoked': False})
+            existing_token.write({"stored_token": new_token, "is_revoked": False})
         else:
-            refresh_model.create({'stored_token': new_token, 'user_id': uid})
-        
-        if hasattr(req, 'future_response'):
-             req.future_response.set_cookie('refreshToken', new_token, httponly=True, secure=True, samesite='Lax')
+            refresh_model.create({"stored_token": new_token, "user_id": uid})
+
+        if hasattr(req, "future_response"):
+            req.future_response.set_cookie(
+                "refreshToken", new_token, httponly=True, secure=True, samesite="Lax"
+            )
         return new_token
 
     @classmethod
@@ -71,13 +74,17 @@ class JwtToken:
             public_key = cls.get_public_key()
             jwt.decode(token, public_key, algorithms=[cls.JWT_ALGORITHM])
         except Exception as e:
-            raise AccessDenied('Refresh Token verification failed: %s' % str(e))
-            
-        tok_ob = req.env['jwt.refresh_token'].sudo().search([('user_id', '=', int(uid))])
+            raise AccessDenied("Refresh Token verification failed: %s" % str(e))
+
+        tok_ob = (
+            req.env["jwt.refresh_token"].sudo().search([("user_id", "=", int(uid))])
+        )
         if not tok_ob:
-            raise AccessDenied('Refresh Token is invalid')
+            raise AccessDenied("Refresh Token is invalid")
         if tok_ob.stored_token != token:
             # En RS256, si el token es válido pero ha cambiado en BD, invalidamos
-            raise AccessDenied('Refresh Token has been changed')
+            raise AccessDenied("Refresh Token has been changed")
         if tok_ob.is_revoked:
-            raise AccessDenied('Token has been revoked => User Logged out, Please Log in again')
+            raise AccessDenied(
+                "Token has been revoked => User Logged out, Please Log in again"
+            )

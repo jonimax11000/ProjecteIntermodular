@@ -52,6 +52,8 @@ services:
     volumes:
       - ./Sprint_3/Services/Express:/app
       - /app/node_modules
+      # Montamos la clave pública en modo solo lectura
+      - ./public_key.pem:/app/public_key.pem:ro
   spring_app:
     build: ./Sprint_3/Services/springboot
     container_name: spring_boot_service
@@ -65,6 +67,11 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/Justflix?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
+      # Opcional: Variable de entorno para indicar la ruta de la clave
+      JWT_PUBLIC_KEY_PATH: /app/public_key.pem
+    volumes:
+      # Montamos la clave pública en modo solo lectura
+      - ./public_key.pem:/app/public_key.pem:ro
 
 volumes:
   mysql_data:
