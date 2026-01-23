@@ -13,6 +13,7 @@ export class VideoController {
 
   create = async (req: Request, res: Response, next: NextFunction) => {
     let jobId: string | undefined;
+    const nivel = (req as any).body.nivel;
 
     try {
       const file = (req as any).file;
@@ -47,7 +48,7 @@ export class VideoController {
           const result = await this.createVideo.execute(
             file.filename,
             jobId,
-            clientId
+            clientId,
           );
           console.log(`Video procesado: ${file.filename}`);
 

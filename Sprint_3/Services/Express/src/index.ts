@@ -8,6 +8,7 @@ async function startServer() {
     const app = buildServer();
     const PORT = process.env.PORT || 3000;
     const publicKeyPath = process.env.JWT_PUBLIC_KEY_PATH;
+    console.log(publicKeyPath);
     const publicKey = fs.readFileSync(publicKeyPath, 'utf8');
 
     console.log('Clave pública cargada:', publicKey);

@@ -21,36 +21,20 @@ export class VideoProcessor {
     }
   }
 
-  async processAllVideos(): Promise<void> {
-    const videoFiles = fs.readdirSync(this.videosSourcePath)
-      .filter(file => this.isVideoFile(file));
-
-    console.log(`🎬 Procesando ${videoFiles.length} videos...`);
-
-    for (const videoFile of videoFiles) {
-      try {
-        await this.processVideo(videoFile);
-        console.log(`✅ Procesado: ${videoFile}`);
-      } catch (error) {
-        console.error(`❌ Error procesando ${videoFile}:`, error);
-      }
-    }
-  }
-
-  public async processVideo(filename: string): Promise<void> {
+  public async processVideo(filename: string, nivel: number): Promise<void> {
     const videoName = path.parse(filename).name.toLowerCase().replace(/\s+/g, '');
     const inputPath = path.join(this.videosSourcePath, filename);
 
     // Procesar en paralelo: thumbnail y HLS
     await Promise.all([
-      this.generateThumbnail(inputPath, videoName),
-      this.generateHLS(inputPath, videoName)
+      this.generateThumbnail(inputPath, videoName, nivel),
+      this.generateHLS(inputPath, videoName, nivel)
     ]);
   }
 
-  private generateThumbnail(inputPath: string, videoName: string): Promise<void> {
+  private generateThumbnail(inputPath: string, videoName: string, nivel: number): Promise<void> {
     return new Promise((resolve, reject) => {
-      const outputPath = path.join(this.thumbnailsPublicPath, `${videoName}.jpg`);
+      const outputPath = path.join(this.thumbnailsPublicPath, nivel.toString(), `${videoName}.jpg`);
 
       ffmpeg(inputPath)
         .screenshots({
@@ -70,9 +54,9 @@ export class VideoProcessor {
     });
   }
 
-  private generateHLS(inputPath: string, videoName: string): Promise<void> {
+  private generateHLS(inputPath: string, videoName: string, nivel: number): Promise<void> {
     return new Promise((resolve, reject) => {
-      const outputDir = path.join(this.videosPublicPath, videoName);
+      const outputDir = path.join(this.videosPublicPath, nivel.toString(), videoName);
 
       // Crear directorio para el video HLS
       if (!fs.existsSync(outputDir)) {
