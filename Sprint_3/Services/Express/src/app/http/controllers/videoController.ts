@@ -13,10 +13,12 @@ export class VideoController {
 
   create = async (req: Request, res: Response, next: NextFunction) => {
     let jobId: string | undefined;
-    const nivel = (req as any).body.nivel;
 
     try {
       const file = (req as any).file;
+      const { nivel } = req.body;
+      console.log("req", req.body);
+      console.log("nivel controller:", nivel);
       if (!file) {
         throw new Error('No video file uploaded');
       }
@@ -32,6 +34,7 @@ export class VideoController {
           type: 'processing_started',
           jobId,
           filename: file.filename,
+          nivel: nivel,
           message: 'Iniciando procesamiento HLS',
           timestamp: new Date().toISOString()
         });
@@ -47,6 +50,7 @@ export class VideoController {
         try {
           const result = await this.createVideo.execute(
             file.filename,
+            nivel,
             jobId,
             clientId,
           );

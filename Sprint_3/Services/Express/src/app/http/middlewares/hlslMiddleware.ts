@@ -6,7 +6,7 @@ import 'multer';
 export const hlslMiddleware = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const processor = new VideoProcessor();
     const file = (req as any).file;
-    const nivel = (req as any).body.nivel;
+    const { nivel } = req.body;
     if (file) {
         await processor.processVideo(file.filename, nivel);
     }

@@ -21,7 +21,8 @@ export class VideoProcessor {
     }
   }
 
-  public async processVideo(filename: string, nivel: number): Promise<void> {
+  public async processVideo(filename: string, nivel: string): Promise<void> {
+    console.log(`Nivel Process Video: ${nivel}`);
     const videoName = path.parse(filename).name.toLowerCase().replace(/\s+/g, '');
     const inputPath = path.join(this.videosSourcePath, filename);
 
@@ -32,9 +33,10 @@ export class VideoProcessor {
     ]);
   }
 
-  private generateThumbnail(inputPath: string, videoName: string, nivel: number): Promise<void> {
+  private generateThumbnail(inputPath: string, videoName: string, nivel: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      const outputPath = path.join(this.thumbnailsPublicPath, nivel.toString(), `${videoName}.jpg`);
+      console.log(`Nivel Generate Thumbnail: ${nivel}`);
+      const outputPath = path.join(this.thumbnailsPublicPath, nivel, `${videoName}.jpg`);
 
       ffmpeg(inputPath)
         .screenshots({
@@ -54,9 +56,9 @@ export class VideoProcessor {
     });
   }
 
-  private generateHLS(inputPath: string, videoName: string, nivel: number): Promise<void> {
+  private generateHLS(inputPath: string, videoName: string, nivel: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      const outputDir = path.join(this.videosPublicPath, nivel.toString(), videoName);
+      const outputDir = path.join(this.videosPublicPath, nivel, videoName);
 
       // Crear directorio para el video HLS
       if (!fs.existsSync(outputDir)) {

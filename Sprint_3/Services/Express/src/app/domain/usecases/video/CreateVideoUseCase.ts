@@ -16,9 +16,9 @@ export class CreateVideoUseCase {
     this.videoProcessor = new VideoProcessor();
   }
 
-  async execute(filename: string, jobId?: string, clientId?: string, nivel?: number): Promise<Video> {
+  async execute(filename: string, nivel: string, jobId?: string, clientId?: string): Promise<Video> {
     try {
-
+      console.log(`Nivel Create Video Use Case: ${nivel}`);
       console.log(`Iniciando procesamiento de: ${filename}`);
       await this.videoProcessor.processVideo(filename, nivel);
 
