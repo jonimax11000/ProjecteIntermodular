@@ -7,6 +7,7 @@ import { WebSocketServer } from "ws";
 import http from "http";
 import { WebSocketManager } from "./websocket/WebSocketManager";
 import { setupWebSocketHandler } from "./websocket/WebSocketHandler";
+import { jwtMiddleware, jwtMiddlewareUser } from "./middlewares/jwtMiddleware";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,8 +37,10 @@ export function buildServer() {
   setupWebSocketHandler(wss, wsManager);
 
   const publicPath = path.join(__dirname, '../../app/public');
+
   app.use('/api/thumbnails', express.static(path.join(publicPath, 'thumbnails')));
-  app.use('/api/videos', express.static(path.join(publicPath, 'videos')));
+  app.use(jwtMiddleware);
+  app.use('/api/videos', jwtMiddlewareUser, express.static(path.join(publicPath, 'videos')));
 
   app.use((req: Request, res: Response, next: NextFunction) => {
     (req as any).wsManager = wsManager;

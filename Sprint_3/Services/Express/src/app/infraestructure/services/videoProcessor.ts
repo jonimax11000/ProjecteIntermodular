@@ -48,6 +48,7 @@ export class VideoProcessor {
         .on('end', () => {
           console.log(`   📸 Thumbnail generado: ${videoName}.jpg`);
           resolve();
+          fs.chmodSync(outputPath, 0o777);
         })
         .on('error', (err) => {
           console.error(`   ❌ Error en thumbnail ${videoName}:`, err);
@@ -86,6 +87,7 @@ export class VideoProcessor {
         .on('end', () => {
           console.log(`   ✅ HLS completado: ${videoName}`);
           resolve();
+          fs.chmodSync(outputDir, 0o777);
         })
         .on('error', (err) => {
           console.error(`   ❌ Error en HLS ${videoName}:`, err);

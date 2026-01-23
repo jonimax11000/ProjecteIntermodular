@@ -3,6 +3,7 @@ import { VideoRepositoryIntern } from "../../infraestructure/datasorces/intern/V
 import { VideoController } from "../controllers/videoController";
 import { uploadVideo } from "../middlewares/multerMiddleware";
 import { CreateVideoUseCase } from "../../domain/usecases/video/CreateVideoUseCase";
+import { jwtMiddlewareAdmin } from "../middlewares/jwtMiddleware";
 
 import { DeleteVideoUseCase } from "../../domain/usecases/video/DeleteVideoUsecase";
 
@@ -16,12 +17,12 @@ const createController = (wsManager?: any) => {
 
 const videoRoutes = Router();
 
-videoRoutes.post("/", uploadVideo.single('video'), (req, res, next) => {
+videoRoutes.post("/", jwtMiddlewareAdmin, uploadVideo.single('video'), (req, res, next) => {
   const wsManager = (req as any).wsManager;
   createController(wsManager).create(req, res, next);
 });
 
-videoRoutes.delete("/", (req, res, next) => {
+videoRoutes.delete("/", jwtMiddlewareAdmin, (req, res, next) => {
   createController().delete(req, res, next);  // ← Repository se crea aquí
 });
 
