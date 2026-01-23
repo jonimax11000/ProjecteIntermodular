@@ -65,7 +65,7 @@ class _GridAllVideosState extends State<GridAllVideos> {
     }
 
     return SizedBox(
-      height: 300,
+      height: 600,
       child: PageView.builder(
         controller: pageController,
         itemCount: listaVideos!.length,
@@ -112,7 +112,7 @@ class _VideoCardState extends State<VideoCard> {
     final String videoURL = ServiceLocator().getVideoUrl();
 
     return SizedBox(
-      width: 200,
+      width: 225,
       child: AnimatedScale(
         scale: _pressed ? 0.97 : 1.0,
         duration: const Duration(milliseconds: 120),

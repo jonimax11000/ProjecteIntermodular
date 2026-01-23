@@ -1,13 +1,13 @@
 import 'dart:convert';
-import 'package:exercici_disseny_responsiu_stateful/features/domain/entities/categorias.dart';
+
 import 'package:http/http.dart' as http;
 
-class VideosApi {
+class CategoriasApi {
   String baseUrl;
 
-  VideosApi(this.baseUrl);
+  CategoriasApi(this.baseUrl);
 
-  Future<List<Map<String, dynamic>>> fetchVideos() async {
+  Future<List<Map<String, dynamic>>> fetchCategorias() async {
     final uri = Uri.parse(baseUrl);
     try {
       final res = await http.get(uri);
@@ -17,16 +17,9 @@ class VideosApi {
         if (decoded is List) {
           return decoded.map<Map<String, dynamic>>((e) {
             return {
-              'id': e['id'] as int ?? 0,
-              'titol': e['titol'] ?? '',
-              'videoURL': e['videoURL'] ?? '',
-              'thumbnailURL': e['thumbnailURL'] ?? '',
-              'descripcio': e['descripcio']?.toString() ?? '',
-              'duracio': e['duracio']?.toString() ?? '',
-              'serie': e['serie'] ?? 0,
-              'edat': e['edat'] ?? 0,
-              'nivell': e['nivell'] ?? 0,
-              'categories': List<int>.from(e['categories']) ?? [],
+              'id': e['id'] ?? 0,
+              'categoria': e['categoria'] ?? '',
+              'videos': List<int>.from(e['videos'] ?? []),
             };
           }).toList();
         } else {

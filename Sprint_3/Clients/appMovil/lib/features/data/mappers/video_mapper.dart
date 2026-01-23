@@ -6,9 +6,11 @@ class VideoMapper {
         titol: json['titol'] ?? '',
         videoURL: json['videoURL'] ?? '',
         thumbnailURL: json['thumbnailURL'] ?? '',
+        descripcio: json['descripcio']?.toString() ?? '',
         duracio: json['duracio']?.toString() ?? '',
-        /*categoryId: json['categoryId'] ?? 0,
-        ageId: json['ageId'] ?? 0,
-        seriesId: json['seriesId'] ?? 0,*/
+        serie: json['serie'] ?? 0,
+        edat: json['edat'] ?? 0,
+        nivell: json['nivell'] ?? 0,
+        categories: List<int>.from(json['categories'] ?? []),
       );
 }

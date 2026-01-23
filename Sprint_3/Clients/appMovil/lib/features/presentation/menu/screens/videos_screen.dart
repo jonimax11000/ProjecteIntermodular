@@ -1,18 +1,23 @@
+import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/widgets/categories_widget.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/widgets/grid_all_videos.dart';
 import 'package:flutter/material.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/core/service_locator.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/entities/video.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/usecases/get_videos.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class VideosScreen extends StatefulWidget {
-  const VideosScreen({super.key});
+  final categoriaId;
+  const VideosScreen({super.key, required this.categoriaId});
 
   @override
   State<VideosScreen> createState() => _VideosScreenState();
 }
 
 class _VideosScreenState extends State<VideosScreen> {
-  List<Video>? videos;
+  List<Video>? videos = [];
+  List<Video>? filteredVideos = [];
+  int? selectedCategoriaId;
   bool isLoading = true;
   String? errorMessage;
   late final GetVideos getVideos;
@@ -27,8 +32,10 @@ class _VideosScreenState extends State<VideosScreen> {
   Future<void> _loadVideos() async {
     try {
       final result = await getVideos();
+
       setState(() {
         videos = result;
+        filteredVideos = videos;
         isLoading = false;
       });
     } catch (e) {
@@ -37,6 +44,19 @@ class _VideosScreenState extends State<VideosScreen> {
         isLoading = false;
       });
     }
+  }
+
+  void _filteredByCategoria(int? categoriaId) {
+    setState(() {
+      selectedCategoriaId = categoriaId;
+      if (categoriaId == null) {
+        filteredVideos = videos;
+      } else {
+        filteredVideos = videos!
+            .where((video) => video.categories!.contains(categoriaId))
+            .toList();
+      }
+    });
   }
 
   @override
@@ -54,7 +74,13 @@ class _VideosScreenState extends State<VideosScreen> {
       ),
       body: Column(
         children: [
-          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+            child: CategoriesWidget(
+              onCategoriaSelected: _filteredByCategoria,
+              selectedCategoriaId: selectedCategoriaId,
+            ),
+          ),
           const Text(
             "Videos",
             style: TextStyle(
@@ -65,9 +91,7 @@ class _VideosScreenState extends State<VideosScreen> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
-          Expanded(
-            child: _buildContent(),
-          ),
+          Flexible(child: _buildContent()),
         ],
       ),
     );
@@ -97,17 +121,17 @@ class _VideosScreenState extends State<VideosScreen> {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       child: GridView.builder(
-        itemCount: videos!.length,
+        itemCount: filteredVideos!.length,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
-          childAspectRatio: 0.65,
+          crossAxisSpacing: 9,
+          mainAxisSpacing: 0,
+          childAspectRatio: 1.20,
         ),
         itemBuilder: (context, index) {
-          return VideoGridCard(video: videos![index]);
+          return VideoGridCard(video: filteredVideos![index]);
         },
       ),
     );
@@ -126,10 +150,11 @@ class VideoGridCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Thumbnail
         AspectRatio(
-          aspectRatio: 8 / 8,
+          aspectRatio: 16 / 9,
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(3),
+            borderRadius: BorderRadius.circular(6),
             child: video.thumbnailURL.isNotEmpty
                 ? Image.network(
                     "$videoURL${video.thumbnailURL}",
@@ -140,22 +165,36 @@ class VideoGridCard extends StatelessWidget {
                     child: const Icon(
                       Icons.play_circle_outline,
                       color: Colors.white38,
-                      size: 32,
+                      size: 40,
                     ),
                   ),
           ),
         ),
         const SizedBox(height: 6),
+        // Título
         Text(
           video.titol,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: FontWeight.w600, // SemiBold
             color: Colors.white,
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
           ),
         ),
+
+        const SizedBox(height: 2),
+
+        // Categorías / metadatos
+        if (video.categories!.isNotEmpty)
+          Text(
+            "Categoría: ${video.categories?.join(', ')}",
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              fontWeight: FontWeight.w400, // Regular
+              color: Colors.white70,
+            ),
+          ),
       ],
     );
   }

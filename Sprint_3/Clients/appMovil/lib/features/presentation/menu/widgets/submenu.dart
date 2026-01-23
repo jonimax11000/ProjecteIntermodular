@@ -44,7 +44,8 @@ class Submenu extends StatelessWidget {
               onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const VideosScreen())),
+                      builder: (context) =>
+                          const VideosScreen(categoriaId: null))),
             ),
           ),
           const SizedBox(width: 20),
