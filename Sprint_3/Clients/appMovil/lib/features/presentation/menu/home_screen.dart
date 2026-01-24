@@ -321,23 +321,20 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildPortraitLayout() {
-    return Column(
-      children: [
-        if (_selectedVideo != null) ...[
-          _buildVideoPlayerCard(),
-          const SizedBox(height: 2),
-        ],
-        /*Expanded(
-          child: MyListWidget(
-            videos: videos ?? [],
-            onVideoTap: _onVideoTap,
+    return Padding(
+      padding: const EdgeInsets.all(8.0), // ajusta el valor según necesites
+      child: Column(
+        children: [
+          if (_selectedVideo != null) ...[
+            _buildVideoPlayerCard(),
+            const SizedBox(height: 2),
+          ],
+          SizedBox(
+            height: 300, // 🔥 altura fija del carrusel
+            child: GridAllVideos(),
           ),
-        ),*/
-        SizedBox(
-          height: 230, // 🔥 altura fija del carrusel
-          child: GridAllVideos(),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

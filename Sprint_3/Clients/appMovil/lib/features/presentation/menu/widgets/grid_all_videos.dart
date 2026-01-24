@@ -112,7 +112,7 @@ class _VideoCardState extends State<VideoCard> {
     final String videoURL = ServiceLocator().getVideoUrl();
 
     return SizedBox(
-      width: 225,
+      width: 250,
       child: AnimatedScale(
         scale: _pressed ? 0.97 : 1.0,
         duration: const Duration(milliseconds: 120),
