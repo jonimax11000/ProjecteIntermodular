@@ -1,4 +1,5 @@
 import 'package:exercici_disseny_responsiu_stateful/features/core/service_locator.dart';
+import 'package:exercici_disseny_responsiu_stateful/features/core/session_service.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/entities/video.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/usecases/get_videos.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/widgets/grid_all_videos.dart';
@@ -7,6 +8,8 @@ import 'package:exercici_disseny_responsiu_stateful/features/presentation/perfil
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/videoList/videoList_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:video_player/video_player.dart';
 import 'widgets/my_list_widget.dart';
 
@@ -95,15 +98,25 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _onVideoTap(Video video) {
+  void _onVideoTap(Video video) async {
+    final sessionService = SessionService(FlutterSecureStorage());
+    final tokenData = await sessionService.getTokenData();
+
+    if (tokenData!['nivell'] != video.nivell) {
+      print("Video is not available for your level");
+      return;
+    }
+
     setState(() {
       _selectedVideo = video;
     });
+
     if (video.videoURL.isNotEmpty) {
       _initializeVideo(video.videoURL);
     } else {
       print('Video URL not available');
     }
+
     print('Video selected: ${video.titol}');
   }
 

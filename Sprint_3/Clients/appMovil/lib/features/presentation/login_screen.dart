@@ -153,6 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
         final token = data['token'];
 
         await storage.write(key: 'jwt', value: token);
+        print("TOKEN:" + token);
 
         Navigator.pushReplacement(
           context,
