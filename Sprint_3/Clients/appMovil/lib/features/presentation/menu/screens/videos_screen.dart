@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/core/service_locator.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/entities/video.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/usecases/get_videos.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class VideosScreen extends StatefulWidget {
   final categoriaId;
@@ -176,7 +175,7 @@ class VideoGridCard extends StatelessWidget {
           video.titol,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.inter(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600, // SemiBold
             color: Colors.white,
@@ -189,7 +188,7 @@ class VideoGridCard extends StatelessWidget {
         if (video.categories!.isNotEmpty)
           Text(
             "Categoría: ${video.categories?.join(', ')}",
-            style: GoogleFonts.inter(
+            style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w400, // Regular
               color: Colors.white70,
