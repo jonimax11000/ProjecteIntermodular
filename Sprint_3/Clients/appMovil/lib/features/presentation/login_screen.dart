@@ -90,6 +90,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           _emailController.text,
                           _passwordController.text,
                         );
+                        /*Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (_) => const HomeScreen()),
+                        );*/
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
@@ -143,7 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8069/api/authenticate'),
+        Uri.parse('https://10.0.2.2:8069/api/authenticate'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(params),
       );

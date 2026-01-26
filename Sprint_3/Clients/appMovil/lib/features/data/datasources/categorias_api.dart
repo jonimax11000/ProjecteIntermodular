@@ -6,6 +6,7 @@ class CategoriasApi {
   String baseUrl;
 
   CategoriasApi(this.baseUrl);
+  
 
   Future<List<Map<String, dynamic>>> fetchCategorias() async {
     final uri = Uri.parse(baseUrl);

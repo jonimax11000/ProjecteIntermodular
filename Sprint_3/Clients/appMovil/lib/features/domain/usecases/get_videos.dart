@@ -9,4 +9,8 @@ class GetVideos {
   Future<List<Video>> call() async {
     return await repository.getVideos();
   }
+
+  Future<List<Video>> callBySerie(int serieId) async {
+    return await repository.getVideosBySerie(serieId);
+  }
 }

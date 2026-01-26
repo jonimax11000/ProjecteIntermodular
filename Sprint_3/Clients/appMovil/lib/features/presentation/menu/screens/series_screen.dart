@@ -1,4 +1,5 @@
 import 'package:exercici_disseny_responsiu_stateful/features/domain/entities/series.dart';
+import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/screens/series_detall_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/core/service_locator.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/usecases/get_series.dart';
@@ -119,42 +120,56 @@ class SerieGridCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AspectRatio(
-          aspectRatio: 8 / 8,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: Container(
-              color: const Color(0xFF2A2A2A),
-              child: const Icon(
-                Icons.tv,
-                color: Colors.white38,
-                size: 40,
+    return InkWell(
+      borderRadius: BorderRadius.circular(4),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => SeriesDetallScreen(
+              series: serie,
+            ),
+          ),
+        );
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AspectRatio(
+            aspectRatio: 8 / 8,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: Container(
+                color: const Color(0xFF2A2A2A),
+                child: const Icon(
+                  Icons.tv,
+                  color: Colors.white38,
+                  size: 40,
+                ),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          serie.nom,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
+          const SizedBox(height: 6),
+          Text(
+            serie.nom,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
           ),
-        ),
-        Text(
-          "Temporada ${serie.temporada}",
-          style: const TextStyle(
-            color: Colors.white54,
-            fontSize: 11,
+          Text(
+            "Temporada ${serie.temporada}",
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.color
+                      ?.withOpacity(0.7),
+                ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
