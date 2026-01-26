@@ -18,8 +18,9 @@ services:
   odoo:
     build: .
     restart: always
-    ports:
-      - "8069:8069"
+    # Ports exposed via Nginx now
+    # ports:
+    #   - "8069:8069"
     depends_on:
       - db
     environment:
@@ -31,6 +32,18 @@ services:
       - ./Sprint_3/Services/Odoo/config:/etc/odoo
       - ./Sprint_3/Services/Odoo/log:/var/log/odoo
       - ./Sprint_3/Services/Odoo/filestore:/var/lib/odoo/
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8069:443"
+    volumes:
+      - ./Sprint_3/Services/Nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./Sprint_3/Services/Nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      - odoo
   db:
     image: postgres:15
     restart: always
