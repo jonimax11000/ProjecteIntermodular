@@ -8,7 +8,7 @@ _logger = logging.getLogger(__name__)
 
 class ApiAuth(http.Controller):
 
-    @http.route('/api/authenticate', type='json', auth='none', methods=['POST'], csrf=False)
+    @http.route('/api/authenticate', type='json', auth='none', methods=['POST'], csrf=False, cors="*")
     def authenticate_post(self, **kwargs):
         # Extraer parámetros - Odoo puede enviarlos de varias formas
         params = {}
@@ -116,7 +116,7 @@ class ApiAuth(http.Controller):
         )
         return has_subscription
 
-    @http.route('/api/update/access-token', type='json', auth='none', methods=['POST'], csrf=False)
+    @http.route('/api/update/access-token', type='json', auth='none', methods=['POST'], csrf=False, cors="*")
     def updated_short_term_token(self, **kwargs):
         # Extraer parámetros - compatible con múltiples formatos
         params = {}
@@ -158,7 +158,7 @@ class ApiAuth(http.Controller):
         except Exception as e:
             return {'error': str(e)}
 
-    @http.route('/api/update/refresh-token', type='json', auth='jwt', methods=['POST'], csrf=False)
+    @http.route('/api/update/refresh-token', type='json', auth='jwt', methods=['POST'], csrf=False, cors="*")
     def updated_long_term_token(self, **kwargs):
         # Extraer parámetros - compatible con múltiples formatos
         params = {}
@@ -204,7 +204,7 @@ class ApiAuth(http.Controller):
         except Exception as e:
             return {'error': str(e)}
 
-    @http.route('/api/revoke/token', type='json', auth='jwt', methods=['POST'], csrf=False)
+    @http.route('/api/revoke/token', type='json', auth='jwt', methods=['POST'], csrf=False, cors="*")
     def revoke_api_token(self, **kwargs):
         # Extraer parámetros - compatible con múltiples formatos
         params = {}
@@ -233,7 +233,7 @@ class ApiAuth(http.Controller):
         except Exception as e:
             return {'error': str(e)}
 
-    @http.route('/api/protected/test', type='json', auth='jwt', methods=['POST'], csrf=False)
+    @http.route('/api/protected/test', type='json', auth='jwt', methods=['POST'], csrf=False, cors="*")
     def protected_users_json(self):
         uob = request.env.user
         users = [{'id': 1, 'name': 'sami3'}]
