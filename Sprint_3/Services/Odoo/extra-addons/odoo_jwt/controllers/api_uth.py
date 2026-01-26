@@ -55,7 +55,6 @@ class ApiAuth(http.Controller):
             res_data = {
                 'rotation_period': rotation_period,
                 'token': access_token,
-                'user_id': uid,
                 'long_term_token_span': JwtToken.REFRESH_TOKEN_SECONDS,
                 'short_term_token_span': JwtToken.ACCESS_TOKEN_SECONDS
             }
