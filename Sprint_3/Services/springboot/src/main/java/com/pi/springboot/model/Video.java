@@ -61,4 +61,7 @@ public class Video implements Serializable {
 	})
 	@JsonManagedReference
 	private Set<Categoria> categories = new HashSet<>();
+
+	@Embedded
+	private Metadades metadades;
 }
