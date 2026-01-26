@@ -70,10 +70,10 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
       # Opcional: Variable de entorno para indicar la ruta de la clave
-      JWT_PUBLIC_KEY_PATH: /app/public_key.pem
+      JWT_PUBLIC_KEY_PATH: /public_key.pem
     volumes:
       # Montamos la clave pública en modo solo lectura
-      - ./public_key.pem:/app/public_key.pem:ro
+      - ./public_key.pem:/public_key.pem:ro
 
 volumes:
   mysql_data:

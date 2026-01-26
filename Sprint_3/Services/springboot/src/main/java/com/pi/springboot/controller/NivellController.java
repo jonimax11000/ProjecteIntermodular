@@ -1,10 +1,14 @@
 package com.pi.springboot.controller;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,7 +19,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.pi.springboot.DTO.EdatDTO;
 import com.pi.springboot.DTO.NivellDTO;
 import com.pi.springboot.services.NivellService;
 
@@ -42,8 +45,11 @@ public class NivellController {
 
     @PostMapping("/api/nivells")
     @CrossOrigin(origins = "*")
-    public ResponseEntity<NivellDTO> addNivell(@RequestBody NivellDTO newNivell) {
+    @PreAuthorize("#jwt.getClaimAsString('role') == 'admin'")
+    public ResponseEntity<NivellDTO> addNivell(@RequestBody NivellDTO newNivell, @AuthenticationPrincipal Jwt jwt) {
         try {
+            System.out.println("\n\n\nNivell: " + newNivell);
+            System.out.println("JWT: " + jwt + "\n\n\n");
             nivellService.saveNivell(newNivell);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
@@ -53,7 +59,9 @@ public class NivellController {
 
     @PutMapping("/api/nivells")
     @CrossOrigin(origins = "*")
-    public ResponseEntity<NivellDTO> updateEdat(@RequestBody NivellDTO updNivellDTO) {
+    @PreAuthorize("#jwt.getClaimAsString('role') == 'admin'")
+    public ResponseEntity<NivellDTO> updateEdat(@RequestBody NivellDTO updNivellDTO,
+            @AuthenticationPrincipal Jwt jwt) {
         // busquem si existeix prèviament
         try {
             NivellDTO elNivell = nivellService.getNivellById(updNivellDTO.getId());
@@ -71,7 +79,7 @@ public class NivellController {
 
     @DeleteMapping("/api/nivells/{id}")
     @CrossOrigin(origins = "*")
-    public ResponseEntity<String> deleteNivell(@PathVariable Long id) {
+    public ResponseEntity<String> deleteNivell(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
         nivellService.deleteNivell(id);
         return new ResponseEntity<>("Nivell borrado satisfactoriamente", HttpStatus.OK);
     }

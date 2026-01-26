@@ -3,8 +3,11 @@ package com.pi.springboot.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +37,8 @@ public class EdatController {
 
     @PostMapping("/api/edats")
     @CrossOrigin(origins = "*")
-    public ResponseEntity<EdatDTO> addEdat(@RequestBody EdatDTO newEdat) {
+    @PreAuthorize("#jwt.getClaimAsString('role') == 'admin'")
+    public ResponseEntity<EdatDTO> addEdat(@RequestBody EdatDTO newEdat, @AuthenticationPrincipal Jwt jwt) {
         try {
             edatService.saveEdat(newEdat);
             return new ResponseEntity<>(HttpStatus.OK);
@@ -45,7 +49,8 @@ public class EdatController {
 
     @PutMapping("/api/edats")
     @CrossOrigin(origins = "*")
-    public ResponseEntity<EdatDTO> updateEdat(@RequestBody EdatDTO updEdat) {
+    @PreAuthorize("#jwt.getClaimAsString('role') == 'admin'")
+    public ResponseEntity<EdatDTO> updateEdat(@RequestBody EdatDTO updEdat, @AuthenticationPrincipal Jwt jwt) {
         try {
             EdatDTO laEdat = edatService.getEdatById(updEdat.getId());
             if (laEdat == null) {
@@ -62,7 +67,8 @@ public class EdatController {
 
     @DeleteMapping("/api/edats/{id}")
     @CrossOrigin(origins = "*")
-    public ResponseEntity<String> deleteEdat(@PathVariable Long id) {
+    @PreAuthorize("#jwt.getClaimAsString('role') == 'admin'")
+    public ResponseEntity<String> deleteEdat(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
         edatService.deleteEdat(id);
         return new ResponseEntity<>("Edat borrada satisfactoriamente", HttpStatus.OK);
     }

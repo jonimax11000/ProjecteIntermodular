@@ -2,10 +2,12 @@ package com.pi.springboot.controller;
 
 import java.util.List;
 
-import org.hibernate.grammars.importsql.SqlScriptParser.CommandContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.pi.springboot.DTO.CategoriaDTO;
-import com.pi.springboot.DTO.EdatDTO;
 import com.pi.springboot.services.CategoriaService;
 import org.springframework.web.bind.annotation.PutMapping;
 
@@ -43,7 +44,9 @@ public class CategoriaController {
 
     @PostMapping("/api/categories")
     @CrossOrigin(origins = "*")
-    public ResponseEntity<CategoriaDTO> addCategoria(@RequestBody CategoriaDTO newCategoria) {
+    @PreAuthorize("#jwt.getClaimAsString('role') == 'admin'")
+    public ResponseEntity<CategoriaDTO> addCategoria(@RequestBody CategoriaDTO newCategoria,
+            @AuthenticationPrincipal Jwt jwt) {
         try {
             categoriaService.saveCategoria(newCategoria);
             return new ResponseEntity<>(HttpStatus.OK);
@@ -54,7 +57,9 @@ public class CategoriaController {
 
     @PutMapping("api/categories")
     @CrossOrigin(origins = "*")
-    public ResponseEntity<CategoriaDTO> putMethodName(@RequestBody CategoriaDTO updCategoria) {
+    @PreAuthorize("#jwt.getClaimAsString('role') == 'admin'")
+    public ResponseEntity<CategoriaDTO> putMethodName(@RequestBody CategoriaDTO updCategoria,
+            @AuthenticationPrincipal Jwt jwt) {
         try {
             CategoriaDTO laCategoria = categoriaService.getCategoriaById(updCategoria.getId());
             if (laCategoria == null) {
@@ -71,7 +76,8 @@ public class CategoriaController {
 
     @DeleteMapping("/api/categories/{id}")
     @CrossOrigin(origins = "*")
-    public ResponseEntity<String> deleteCategoria(@PathVariable Long id) {
+    @PreAuthorize("#jwt.getClaimAsString('role') == 'admin'")
+    public ResponseEntity<String> deleteCategoria(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
         categoriaService.deleteCategoria(id);
         return new ResponseEntity<>("Categoria borrada satisfactoriamente", HttpStatus.OK);
     }

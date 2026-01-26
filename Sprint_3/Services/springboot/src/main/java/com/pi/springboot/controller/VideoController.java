@@ -5,6 +5,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,7 +18,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.pi.springboot.DTO.SerieDTO;
 import com.pi.springboot.DTO.VideoDTO;
 import com.pi.springboot.services.VideoService;
 
@@ -82,8 +84,9 @@ public class VideoController {
 
     @PostMapping("/api/cataleg")
     @CrossOrigin(origins = "*")
+    @PreAuthorize("#jwt.getClaimAsString('role') == 'admin'")
     @ResponseBody
-    public ResponseEntity<VideoDTO> addVideo(@RequestBody VideoDTO newVideo) {
+    public ResponseEntity<VideoDTO> addVideo(@RequestBody VideoDTO newVideo, @AuthenticationPrincipal Jwt jwt) {
         try {
             videoService.saveVideo(newVideo);
             return new ResponseEntity<>(HttpStatus.OK);
@@ -94,7 +97,8 @@ public class VideoController {
 
     @PutMapping("api/cataleg")
     @CrossOrigin(origins = "*")
-    public ResponseEntity<VideoDTO> updVideo(@RequestBody VideoDTO updVideo) {
+    @PreAuthorize("#jwt.getClaimAsString('role') == 'admin'")
+    public ResponseEntity<VideoDTO> updVideo(@RequestBody VideoDTO updVideo, @AuthenticationPrincipal Jwt jwt) {
         try {
             VideoDTO laVideo = videoService.getVideoById(updVideo.getId());
             if (laVideo == null) {
@@ -109,9 +113,11 @@ public class VideoController {
         }
     }
 
-    @DeleteMapping("/api/videos/{id}")
-    public ResponseEntity<String> deleteCliente(@PathVariable Long id) {
+    @DeleteMapping("/api/cataleg/{id}")
+    @CrossOrigin(origins = "*")
+    @PreAuthorize("#jwt.getClaimAsString('role') == 'admin'")
+    public ResponseEntity<String> deleteVideo(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
         videoService.deleteVideo(id);
-        return new ResponseEntity<>("Cliente borrado satisfactoriamente", HttpStatus.OK);
+        return new ResponseEntity<>("Video borrado satisfactoriamente", HttpStatus.OK);
     }
 }

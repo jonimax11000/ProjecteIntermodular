@@ -5,6 +5,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,7 +18,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.pi.springboot.DTO.CategoriaDTO;
 import com.pi.springboot.DTO.SerieDTO;
 import com.pi.springboot.services.SerieService;
 
@@ -42,6 +44,7 @@ public class SerieController {
 
     @GetMapping("/api/seriesByName/{name}")
     @CrossOrigin(origins = "*")
+    @PreAuthorize("#jwt.role == 'admin'")
     @ResponseBody
     public List<SerieDTO> getSeriesByName(@PathVariable String name) {
         List<SerieDTO> series = serieService.getSeriesByName(name);
@@ -50,6 +53,7 @@ public class SerieController {
 
     @GetMapping("/api/seriesByVideo/{id}")
     @CrossOrigin(origins = "*")
+    @PreAuthorize("#jwt.role == 'admin'")
     @ResponseBody
     public SerieDTO getSeriesByVideo(@PathVariable Long id) {
         SerieDTO serie = serieService.getSeriesByVideo(id);
@@ -58,8 +62,9 @@ public class SerieController {
 
     @PostMapping("/api/series")
     @CrossOrigin(origins = "*")
+    @PreAuthorize("#jwt.getClaimAsString('role') == 'admin'")
     @ResponseBody
-    public ResponseEntity<?> addSerie(@RequestBody SerieDTO newSerie) {
+    public ResponseEntity<?> addSerie(@RequestBody SerieDTO newSerie, @AuthenticationPrincipal Jwt jwt) {
         System.out.println("=== RECIBIENDO SERIE ===");
         System.out.println("Nombre: " + newSerie.getNom());
         System.out.println("Temporada: " + newSerie.getTemporada());
@@ -77,7 +82,8 @@ public class SerieController {
 
     @PutMapping("api/series")
     @CrossOrigin(origins = "*")
-    public ResponseEntity<SerieDTO> updEdat(@RequestBody SerieDTO updSerie) {
+    @PreAuthorize("#jwt.getClaimAsString('role') == 'admin'")
+    public ResponseEntity<SerieDTO> updEdat(@RequestBody SerieDTO updSerie, @AuthenticationPrincipal Jwt jwt) {
         try {
             SerieDTO laSerie = serieService.getSerieById(updSerie.getId());
             if (laSerie == null) {
@@ -94,7 +100,8 @@ public class SerieController {
 
     @DeleteMapping("/api/series/{id}")
     @CrossOrigin(origins = "*")
-    public ResponseEntity<String> deleteSerie(@PathVariable Long id) {
+    @PreAuthorize("#jwt.getClaimAsString('role') == 'admin'")
+    public ResponseEntity<String> deleteSerie(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
         serieService.deleteSerie(id);
         return new ResponseEntity<>("Serie borrada satisfactoriamente", HttpStatus.OK);
     }
