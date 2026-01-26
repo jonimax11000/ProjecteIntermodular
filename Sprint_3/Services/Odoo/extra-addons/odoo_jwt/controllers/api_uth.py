@@ -46,6 +46,7 @@ class ApiAuth(http.Controller):
                 'active': user.active,
                 'has_subscription': user_info['has_subscription'],
                 'subscription_level': user_info['subscription_level'],
+                'name': user.name,
                 'role': user_info['role']
             })
             refresh_token = JwtToken.create_refresh_token(request, uid)
@@ -56,11 +57,7 @@ class ApiAuth(http.Controller):
                 'token': access_token,
                 'user_id': uid,
                 'long_term_token_span': JwtToken.REFRESH_TOKEN_SECONDS,
-                'short_term_token_span': JwtToken.ACCESS_TOKEN_SECONDS,
-                'user': {
-                    'id': uid,
-                    'nom': user.name,
-                }
+                'short_term_token_span': JwtToken.ACCESS_TOKEN_SECONDS
             }
 
             # Verificar si es navegador
@@ -151,7 +148,8 @@ class ApiAuth(http.Controller):
                 'active': user.active,
                 'has_subscription': user_info['has_subscription'],
                 'subscription_level': user_info['subscription_level'],
-                'role': user_info['role']
+                'role': user_info['role'],
+                'name': user.name
             })
             
             return {'access_token': new_token}
