@@ -9,4 +9,8 @@ class GetSeries {
   Future<List<Series>> call() async {
     return await repository.getSeries();
   }
+
+  Future<List<Series>> callByName(String name) async {
+    return await repository.getSeriesByName(name);
+  }
 }

@@ -5,6 +5,7 @@ import 'package:exercici_disseny_responsiu_stateful/features/domain/usecases/get
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/widgets/grid_all_videos.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/widgets/submenu.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/perfil/perfil_screen.dart';
+import 'package:exercici_disseny_responsiu_stateful/features/presentation/search/search_screen.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/videoList/videoList_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -250,14 +251,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final listaScreens = [
       _buildHomeScreen(),
+      _buildSearchScreen(),
       _buildVideoListScreen(),
-      _perfilScreen()
+      //_perfilScreen()
     ];
 
     return Scaffold(
         backgroundColor: const Color(0xFF121212),
         appBar: AppBar(
-          backgroundColor: const Color(0xFF1E1E1E),
+          backgroundColor: const Color(0xFF121212),
           elevation: 0,
           centerTitle: true,
           title: SafeArea(
@@ -296,10 +298,15 @@ class _HomeScreenState extends State<HomeScreen> {
           items: [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inicio'),
             BottomNavigationBarItem(
+                icon: Icon(Icons.search), label: 'Búsqueda'),
+            BottomNavigationBarItem(
                 icon: Icon(Icons.video_library), label: 'Mi lista'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
           ],
         ));
+  }
+
+  Widget _buildSearchScreen() {
+    return const SearchScreen();
   }
 
   Widget _buildVideoListScreen() {

@@ -8,7 +8,7 @@ class VideolistScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: const Color(0xFF121212),
         title: const Text(
           'Lista de Videos',
           style: TextStyle(color: Colors.white),

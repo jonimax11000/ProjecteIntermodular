@@ -17,10 +17,14 @@ class ServiceLocator {
       ApiConfig.urls["cataleg"] ?? "http://localhost:8081/api/cataleg";
   String remoteCatalegBySeriesUrl = ApiConfig.urls["catalegBySeries"] ??
       "http://localhost:8081/api/catalegBySeries/:id";
+  String remoteCatalegByNameUrl = ApiConfig.urls["catalegByName"] ??
+      "http://localhost:8081/api/catalegByName/:name";
   String remoteVideoUrl =
       ApiConfig.urls["video"] ?? "http://localhost:3000/api";
   String remoteSeriesUrl =
       ApiConfig.urls["series"] ?? "http://localhost:8081/api/series";
+  String remoteSeriesByNameUrl = ApiConfig.urls["series"] ??
+      "http://localhost:8081/api/seriesByName/:name";
   String remoteCategoriasUrl =
       ApiConfig.urls["categorias"] ?? "http://localhost:8081/api/categories";
 
@@ -45,10 +49,8 @@ class ServiceLocator {
 
   ServiceLocator._() {
     _api = VideosApi(
-      remoteCatalegUrl,
-      remoteCatalegBySeriesUrl,
-    );
-    _seriesApi = SeriesApi(remoteSeriesUrl);
+        remoteCatalegUrl, remoteCatalegBySeriesUrl, remoteCatalegByNameUrl);
+    _seriesApi = SeriesApi(remoteSeriesUrl, remoteSeriesByNameUrl);
     _categoriasApi = CategoriasApi(remoteCategoriasUrl);
 
     _videosRepository = VideosRepositoryImpl(_api);
@@ -64,4 +66,6 @@ class ServiceLocator {
   String getVideoUrl() => remoteVideoUrl;
   String getSeriesUrl() => remoteSeriesUrl;
   String getCategoriasUrl() => remoteCategoriasUrl;
+  String getVideosByNameUrl() => remoteCatalegByNameUrl;
+  String getSeriesByNameUrl() => remoteSeriesByNameUrl;
 }

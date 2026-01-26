@@ -19,4 +19,10 @@ class VideosRepositoryImpl implements VideosRepository {
     final models = await api.fetchVideosBySerie(serieId);
     return models.map((m) => VideoMapper.fromJson(m)).toList();
   }
+
+  @override
+  Future<List<Video>> getVideosByName(String name) async {
+    final models = await api.fetchVideosByName(name);
+    return models.map((m) => VideoMapper.fromJson(m)).toList();
+  }
 }
