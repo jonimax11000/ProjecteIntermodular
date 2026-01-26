@@ -28,6 +28,7 @@ public class VideoDTO {
 	private Long edat;
 	private Long nivell;
 	private Set<Long> categories = new HashSet<>();
+	private MetadadesDTO metadades;
 
 	public static VideoDTO convertToDTO(Video video) {
 		if (video == null)
@@ -63,6 +64,12 @@ public class VideoDTO {
 			}
 		}
 		videoDTO.setCategories(categoriesIds);
+
+		if (video.getMetadades() != null) {
+			videoDTO.setMetadades(MetadadesDTO.convertToDTO(video.getMetadades()));
+		} else {
+			videoDTO.setMetadades(null);
+		}
 
 		return videoDTO;
 	}
@@ -102,6 +109,12 @@ public class VideoDTO {
 			video.setCategories(categories);
 		} else {
 			video.setCategories(new HashSet<>());
+		}
+
+		if (videoDTO.getMetadades() != null) {
+			video.setMetadades(MetadadesDTO.convertToEntity(videoDTO.getMetadades(), video));
+		} else {
+			video.setMetadades(null);
 		}
 
 		return video;
