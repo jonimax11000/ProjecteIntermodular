@@ -4,7 +4,9 @@ import path from "path";
 import { fileURLToPath } from "url";
 import cors from "cors";
 import { WebSocketServer } from "ws";
-import http from "http";
+import https from "https"; // Cambiado de http a https
+import http from "http"; // Mantenemos http para redireccionar HTTP a HTTPS
+import fs from "fs"; // Necesario para leer el certificado
 import { WebSocketManager } from "./websocket/WebSocketManager";
 import { setupWebSocketHandler } from "./websocket/WebSocketHandler";
 import { jwtMiddleware, jwtMiddlewareUser } from "./middlewares/jwtMiddleware";
@@ -17,7 +19,7 @@ export function buildServer() {
   app.use(express.json());
 
   const corsOptions = {
-    origin: (origin, callback) => {
+    origin: (origin: string | undefined, callback: any) => {
       if (!origin) {
         callback(null, '*');
       } else {
@@ -30,9 +32,16 @@ export function buildServer() {
   };
   app.use(cors(corsOptions));
 
-  //Websocket
-  const wsManager = new WebSocketManager();
+  // Redirección de HTTP a HTTPS (opcional, pero recomendado)
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    if (!req.secure && req.protocol !== 'https') {
+      return res.redirect(`https://${req.headers.host}${req.url}`);
+    }
+    next();
+  });
 
+  // Websocket
+  const wsManager = new WebSocketManager();
   const wss = new WebSocketServer({ noServer: true });
   setupWebSocketHandler(wss, wsManager);
 
@@ -62,9 +71,17 @@ export function buildServer() {
     });
   });
 
-  const server = http.createServer(app);
+  // Configuración HTTPS
+  const httpsOptions = {
+    pfx: fs.readFileSync(path.join(__dirname, '../../../justflix.p12')), // Ajusta la ruta
+    passphrase: '0709200025042009@Jdsf', // La que usaste al crear el certificado
+  };
 
-  server.on('upgrade', (request, socket, head) => {
+  // Crear servidor HTTPS
+  const httpsServer = https.createServer(httpsOptions, app);
+
+  // Configurar WebSocket en el servidor HTTPS
+  httpsServer.on('upgrade', (request, socket, head) => {
     const { url } = request;
 
     if (url === '/ws') {
@@ -76,5 +93,8 @@ export function buildServer() {
     }
   });
 
-  return server;
+  // Retornar ambos servidores si necesitas ambos
+  return {
+    https: httpsServer
+  };
 }
