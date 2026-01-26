@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/home_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+
+import 'dart:io';
+import 'package:http/io_client.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -142,29 +144,59 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _login(String email, String password) async {
-    final params = {"email": email, "password": password, "db": "Justflix"};
-    print(params);
+    final params = {
+      "params": {"login": email, "password": password, "db": "Justflix"}
+    };
 
     try {
-      final response = await http.post(
+      final ioc = HttpClient();
+      ioc.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+      final client = IOClient(ioc);
+
+      final response = await client.post(
         Uri.parse('https://10.0.2.2:8069/api/authenticate'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(params),
       );
 
+      print("Response status: ${response.statusCode}");
+      print("Response body: ${response.body}");
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final token = data['token'];
 
-        await storage.write(key: 'jwt', value: token);
-        print("TOKEN:" + token);
+        // Handle Odoo JSON-RPC response wrapper
+        final result = data['result'] ?? data;
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-        );
+        if (result['error'] != null) {
+          debugPrint("Login error from API: ${result['error']}");
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(result['error'].toString())),
+          );
+          return;
+        }
+
+        final token = result['token'];
+
+        if (token != null) {
+          await storage.write(key: 'jwt', value: token);
+          print("TOKEN: $token");
+
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const HomeScreen()),
+            );
+          }
+        } else {
+          debugPrint("Token is null in response");
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Error: No token received")),
+          );
+        }
       } else {
-        debugPrint("Login incorrecto");
+        debugPrint("Login failed with status: ${response.statusCode}");
       }
     } catch (err) {
       debugPrint("Error de red: $err");
