@@ -78,7 +78,11 @@ public class CategoriaController {
     @CrossOrigin(origins = "*")
     @PreAuthorize("#jwt.getClaimAsString('role') == 'admin'")
     public ResponseEntity<String> deleteCategoria(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
-        categoriaService.deleteCategoria(id);
-        return new ResponseEntity<>("Categoria borrada satisfactoriamente", HttpStatus.OK);
+        try {
+            categoriaService.deleteCategoria(id);
+            return new ResponseEntity<>("Categoria borrada satisfactoriamente", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 }
