@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'dart:io';
 import 'package:http/io_client.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -79,7 +80,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       icon: Icons.lock,
                     ),
                   ),
-
                   const SizedBox(height: 24),
 
                   /// BOTÓN LOGIN
@@ -88,14 +88,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 48,
                     child: ElevatedButton(
                       onPressed: () {
-                        _login(
+                        /*_login(
                           _emailController.text,
                           _passwordController.text,
-                        );
-                        /*Navigator.pushReplacement(
+                        );*/
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(builder: (_) => const HomeScreen()),
-                        );*/
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
@@ -112,6 +112,38 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
+                  Padding(
+                    padding: const EdgeInsets.all(6),
+                    child: Column(
+                      children: [
+                        // Aquí puedes agregar más widgets dentro de la columna si quieres
+                        const SizedBox(height: 10), // ejemplo de espacio
+                        SizedBox(
+                          width: double.infinity,
+                          height: 48,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              openBrowser("https://localhost:8069/web/signup");
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF1E1E1E),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: const Text(
+                              "REGISTRARSE",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
                 ],
               ),
             ),
@@ -155,7 +187,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final client = IOClient(ioc);
 
       final response = await client.post(
-        Uri.parse('https://10.0.2.2:8069/api/authenticate'),
+        Uri.parse('https://localhost:8069/api/authenticate'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(params),
       );
@@ -200,6 +232,19 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } catch (err) {
       debugPrint("Error de red: $err");
+    }
+  }
+
+  Future<void> openBrowser(String url) async {
+    final uri = Uri.parse(url);
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+    } else {
+      throw 'No se pudo abrir la URL: $url';
     }
   }
 }

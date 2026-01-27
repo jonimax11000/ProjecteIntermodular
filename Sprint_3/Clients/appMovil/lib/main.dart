@@ -14,7 +14,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Justflix',
-
       theme: ThemeData(
         brightness: Brightness.dark,
         scaffoldBackgroundColor: const Color(0xFF121212),
@@ -28,7 +27,6 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-
       home: const LoginScreen(),
     );
   }

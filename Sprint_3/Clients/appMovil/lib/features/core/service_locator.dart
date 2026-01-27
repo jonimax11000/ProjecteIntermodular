@@ -14,19 +14,19 @@ import 'package:exercici_disseny_responsiu_stateful/features/domain/usecases/get
 
 class ServiceLocator {
   String remoteCatalegUrl =
-      ApiConfig.urls["cataleg"] ?? "http://localhost:8081/api/cataleg";
+      ApiConfig.urls["cataleg"] ?? "https://localhost:8081/api/cataleg";
   String remoteCatalegBySeriesUrl = ApiConfig.urls["catalegBySeries"] ??
-      "http://localhost:8081/api/catalegBySeries/:id";
+      "https://localhost:8081/api/catalegBySeries/:id";
   String remoteCatalegByNameUrl = ApiConfig.urls["catalegByName"] ??
-      "http://localhost:8081/api/catalegByName/:name";
+      "https://localhost:8081/api/catalegByName/:name";
   String remoteVideoUrl =
-      ApiConfig.urls["video"] ?? "http://localhost:3000/api";
+      ApiConfig.urls["video"] ?? "https://localhost:3000/api";
   String remoteSeriesUrl =
-      ApiConfig.urls["series"] ?? "http://localhost:8081/api/series";
+      ApiConfig.urls["series"] ?? "https://localhost:8081/api/series";
   String remoteSeriesByNameUrl = ApiConfig.urls["series"] ??
-      "http://localhost:8081/api/seriesByName/:name";
+      "https://localhost:8081/api/seriesByName/:name";
   String remoteCategoriasUrl =
-      ApiConfig.urls["categorias"] ?? "http://localhost:8081/api/categories";
+      ApiConfig.urls["categorias"] ?? "https://localhost:8081/api/categories";
 
   static ServiceLocator? _instancia;
 
