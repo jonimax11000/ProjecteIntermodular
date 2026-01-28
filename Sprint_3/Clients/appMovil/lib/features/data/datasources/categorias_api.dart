@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:http/http.dart' as http;
+import 'package:exercici_disseny_responsiu_stateful/features/core/api_client.dart';
 
 class CategoriasApi {
   String baseUrl;
@@ -10,7 +10,7 @@ class CategoriasApi {
   Future<List<Map<String, dynamic>>> fetchCategorias() async {
     final uri = Uri.parse(baseUrl);
     try {
-      final res = await http.get(uri);
+      final res = await ApiClient.client.get(uri);
       if (res.statusCode == 200) {
         String body = utf8.decode(res.bodyBytes);
         final decoded = json.decode(res.body);

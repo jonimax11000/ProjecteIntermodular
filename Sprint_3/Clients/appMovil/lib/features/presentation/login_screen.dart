@@ -1,10 +1,8 @@
 import 'dart:convert';
+import '../core/api_client.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/home_screen.dart';
 import 'package:flutter/material.dart';
-
-import 'dart:io';
-import 'package:http/io_client.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -88,14 +86,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 48,
                     child: ElevatedButton(
                       onPressed: () {
-                        /*_login(
+                        _login(
                           _emailController.text,
                           _passwordController.text,
-                        );*/
+                        );
+                        /*
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(builder: (_) => const HomeScreen()),
-                        );
+                        );*/
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
@@ -123,7 +122,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           height: 48,
                           child: ElevatedButton(
                             onPressed: () {
-                              openBrowser("https://localhost:8069/web/signup");
+                              openBrowser("https://10.0.2.2:8069/web/signup");
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF1E1E1E),
@@ -181,13 +180,8 @@ class _LoginScreenState extends State<LoginScreen> {
     };
 
     try {
-      final ioc = HttpClient();
-      ioc.badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
-      final client = IOClient(ioc);
-
-      final response = await client.post(
-        Uri.parse('https://localhost:8069/api/authenticate'),
+      final response = await ApiClient.client.post(
+        Uri.parse('https://10.0.2.2:8069/api/authenticate'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(params),
       );

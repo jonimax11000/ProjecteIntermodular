@@ -1,8 +1,11 @@
+import 'dart:io';
+import 'package:exercici_disseny_responsiu_stateful/features/core/my_http_overrides';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/login_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  HttpOverrides.global = MyHttpOverrides();
   runApp(const MyApp());
 }
 
