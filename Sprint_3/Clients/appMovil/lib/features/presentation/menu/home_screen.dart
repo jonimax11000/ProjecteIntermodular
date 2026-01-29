@@ -2,17 +2,16 @@ import 'package:exercici_disseny_responsiu_stateful/features/core/service_locato
 import 'package:exercici_disseny_responsiu_stateful/features/core/session_service.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/entities/video.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/usecases/get_videos.dart';
-import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/widgets/grid_all_videos.dart';
+import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/widgets/videos_layout.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/widgets/submenu.dart';
+import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/widgets/video_carousel.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/perfil/perfil_screen.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/search/search_screen.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/videoList/videoList_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:video_player/video_player.dart';
-import 'widgets/my_list_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -99,11 +98,13 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _onVideoTap(Video video) async {
+  Future<void> _onVideoTap(Video video) async {
     final sessionService = SessionService(FlutterSecureStorage());
     final tokenData = await sessionService.getTokenData();
+    final userLevel =
+        int.tryParse(tokenData!['subscription_level'].toString()) ?? 0;
 
-    if (tokenData!['nivell'] != video.nivell) {
+    if (userLevel < (video.nivell ?? 0)) {
       print("Video is not available for your level");
       return;
     }
@@ -341,19 +342,31 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildPortraitLayout() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0), // ajusta el valor según necesites
-      child: Column(
-        children: [
-          if (_selectedVideo != null) ...[
-            _buildVideoPlayerCard(),
-            const SizedBox(height: 2),
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            // Reproductor de video seleccionado
+            if (_selectedVideo != null) ...[
+              _buildVideoPlayerCard(),
+              const SizedBox(height: 8),
+            ],
+
+            // Carrusel de videos recomendados
+            SizedBox(
+              height: 450,
+              child: VideoCarousel(onTap: _onVideoTap, videos: videos ?? []),
+            ),
+
+            const SizedBox(height: 16),
+            // Grid de videos adicionales
+            VideosLayout(
+              videos: videos ?? [],
+              onVideoTap: _onVideoTap,
+            ),
           ],
-          SizedBox(
-            height: 300, // 🔥 altura fija del carrusel
-            child: GridAllVideos(),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -371,7 +384,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         SizedBox(
           width: 360, // ancho controlado
-          child: GridAllVideos(),
+          child: VideoCarousel(onTap: _onVideoTap, videos: videos ?? []),
         ),
         /*Flexible(
           flex: 3,

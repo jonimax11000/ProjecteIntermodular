@@ -2,7 +2,7 @@ import 'package:exercici_disseny_responsiu_stateful/features/core/service_locato
 import 'package:exercici_disseny_responsiu_stateful/features/domain/entities/series.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/entities/video.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/screens/series_screen.dart';
-import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/widgets/grid_all_videos.dart';
+import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/widgets/video_carousel.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/search/widgets/search_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -40,6 +40,10 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
+  void _onVideoTap(Video video) {
+    debugPrint('Video tapped: ${video.titol}');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -55,7 +59,16 @@ class _SearchScreenState extends State<SearchScreen> {
             children: [
               if (_videos.isNotEmpty) ...[
                 const Text('Vídeos', style: TextStyle(fontSize: 18)),
-                ..._videos.map((v) => VideoCard(video: v)),
+                ..._videos.map((v) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: AspectRatio(
+                        aspectRatio: 16 / 9,
+                        child: VideoCard(
+                          video: v,
+                          onTap: () => _onVideoTap(v),
+                        ),
+                      ),
+                    )),
               ],
               if (_series.isNotEmpty) ...[
                 const Text('Series', style: TextStyle(fontSize: 18)),

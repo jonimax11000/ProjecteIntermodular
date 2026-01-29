@@ -3,36 +3,32 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/core/service_locator.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/entities/video.dart';
-import 'package:exercici_disseny_responsiu_stateful/features/domain/repositories/videos_repository.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/usecases/get_videos.dart';
 
-class GridAllVideos extends StatefulWidget {
-  const GridAllVideos({super.key});
+class VideoCarousel extends StatefulWidget {
+  final Future<void> Function(Video) onTap;
+  final List<Video> videos;
+  const VideoCarousel({super.key, required this.onTap, required this.videos});
 
   @override
-  State<GridAllVideos> createState() => _GridAllVideosState();
+  State<VideoCarousel> createState() => _VideoCarouselState();
 }
 
-class _GridAllVideosState extends State<GridAllVideos> {
-  List<Video>? listaVideos;
-  late final GetVideos getVideos;
+class _VideoCarouselState extends State<VideoCarousel> {
   bool isLoading = true;
   String? errorMessage;
 
-  PageController pageController = PageController(viewportFraction: 0.6);
+  PageController pageController = PageController(viewportFraction: 0.75);
 
   @override
   void initState() {
     super.initState();
-    getVideos = ServiceLocator().getVideos;
     _loadVideos();
   }
 
   Future<void> _loadVideos() async {
     try {
-      final result = await getVideos();
       setState(() {
-        listaVideos = result;
         isLoading = false;
       });
     } catch (e) {
@@ -65,28 +61,49 @@ class _GridAllVideosState extends State<GridAllVideos> {
     }
 
     return SizedBox(
-      height: 600,
-      child: PageView.builder(
-        controller: pageController,
-        itemCount: listaVideos!.length,
-        itemBuilder: (context, index) {
-          return AnimatedBuilder(
-            animation: pageController,
-            builder: (context, child) {
-              double value = 1.0;
-              if (pageController.position.haveDimensions) {
-                value = pageController.page! - index;
-                value = (1 - (value.abs() * 0.3)).clamp(0.0, 1.0);
-              }
-              return Center(
-                child: Transform.scale(
-                  scale: value,
-                  child: VideoCard(video: listaVideos![index]),
-                ),
-              );
-            },
-          );
-        },
+      height: 450, // Updated height to match home_screen or just let it fill
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+            child: Text(
+              'Novedades',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Expanded(
+            child: PageView.builder(
+              controller: pageController,
+              itemCount: widget.videos.length,
+              itemBuilder: (context, index) {
+                return AnimatedBuilder(
+                  animation: pageController,
+                  builder: (context, child) {
+                    double value = 1.0;
+                    if (pageController.position.haveDimensions) {
+                      value = pageController.page! - index;
+                      value = (1 - (value.abs() * 0.25)).clamp(0.0, 1.0);
+                    }
+                    return Center(
+                      child: Transform.scale(
+                        scale: value,
+                        child: VideoCard(
+                          video: widget.videos[index],
+                          onTap: () => widget.onTap(widget.videos[index]),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -94,10 +111,12 @@ class _GridAllVideosState extends State<GridAllVideos> {
 
 class VideoCard extends StatefulWidget {
   final Video video;
+  final VoidCallback onTap;
 
   const VideoCard({
     Key? key,
     required this.video,
+    required this.onTap,
   }) : super(key: key);
 
   @override
@@ -112,22 +131,20 @@ class _VideoCardState extends State<VideoCard> {
     final String videoURL = ServiceLocator().getVideoUrl();
 
     return SizedBox(
-      width: 250,
+      // width: 300, // Removed fixed width to allow filling viewport
       child: AnimatedScale(
         scale: _pressed ? 0.97 : 1.0,
         duration: const Duration(milliseconds: 120),
         curve: Curves.easeOut,
         child: Card(
-          elevation: 8, // 🌑 sombra suave
+          elevation: 8,
           color: const Color.fromARGB(255, 81, 81, 81),
           clipBehavior: Clip.hardEdge,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4), // 🔘 bordes grandes
+            borderRadius: BorderRadius.circular(4),
           ),
           child: InkWell(
-            onTap: () {
-              // navegación o acción
-            },
+            onTap: widget.onTap,
             onTapDown: (_) => setState(() => _pressed = true),
             onTapUp: (_) => setState(() => _pressed = false),
             onTapCancel: () => setState(() => _pressed = false),

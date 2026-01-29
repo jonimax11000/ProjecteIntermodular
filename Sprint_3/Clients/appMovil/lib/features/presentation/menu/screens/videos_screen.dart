@@ -1,9 +1,8 @@
-import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/widgets/categories_widget.dart';
-import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/widgets/grid_all_videos.dart';
-import 'package:flutter/material.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/core/service_locator.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/entities/video.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/usecases/get_videos.dart';
+import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/widgets/categories_widget.dart';
+import 'package:flutter/material.dart';
 
 class VideosScreen extends StatefulWidget {
   final categoriaId;

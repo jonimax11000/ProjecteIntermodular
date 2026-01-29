@@ -25,10 +25,9 @@ class MyApp extends StatelessWidget {
           elevation: 0,
         ),
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.red,
+          seedColor: const Color.fromARGB(255, 0, 0, 0),
           brightness: Brightness.dark,
         ),
-        useMaterial3: true,
       ),
       home: const LoginScreen(),
     );
