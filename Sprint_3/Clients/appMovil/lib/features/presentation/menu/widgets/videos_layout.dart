@@ -60,7 +60,10 @@ class _VideoLayoutCard extends StatefulWidget {
   final Video video;
   final VoidCallback onTap;
 
-  const _VideoLayoutCard({required this.video, required this.onTap});
+  const _VideoLayoutCard({
+    required this.video,
+    required this.onTap,
+  });
 
   @override
   State<_VideoLayoutCard> createState() => _VideoLayoutCardState();
@@ -68,9 +71,11 @@ class _VideoLayoutCard extends StatefulWidget {
 
 class _VideoLayoutCardState extends State<_VideoLayoutCard> {
   bool _pressed = false;
+  bool _isFavorite = false;
 
   @override
   Widget build(BuildContext context) {
+    final wishlistProvider = ref.watch(wishlistProvider);
     final String videoURL = ServiceLocator().getVideoUrl();
 
     return GestureDetector(
@@ -79,131 +84,164 @@ class _VideoLayoutCardState extends State<_VideoLayoutCard> {
       onTapUp: (_) => setState(() => _pressed = false),
       onTapCancel: () => setState(() => _pressed = false),
       child: AnimatedScale(
-        scale: _pressed ? 0.95 : 1.0,
-        duration: const Duration(milliseconds: 100),
-        curve: Curves.easeInOut,
-        child: Container(
-          width: 140, // Ancho fijo para las tarjetas
-          decoration: BoxDecoration(
+        scale: _pressed ? 0.96 : 1.0,
+        duration: const Duration(milliseconds: 120),
+        curve: Curves.easeOut,
+        child: SizedBox(
+          width: 160, // ancho cómodo para filas
+          child: Card(
+            elevation: 6,
             color: const Color(0xFF1E1E1E),
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.3),
-                blurRadius: 6,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          clipBehavior: Clip.hardEdge,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    widget.video.thumbnailURL.isNotEmpty
-                        ? Image.network(
-                            "$videoURL${widget.video.thumbnailURL}",
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => _thumbnailFallback(),
-                          )
-                        : _thumbnailFallback(),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /// 🎬 THUMBNAIL
+                AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      widget.video.thumbnailURL.isNotEmpty
+                          ? Image.network(
+                              "$videoURL${widget.video.thumbnailURL}",
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) =>
+                                  _thumbnailFallback(),
+                            )
+                          : _thumbnailFallback(),
 
-                    // Gradiente sutil en la parte inferior de la imagen
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      height: 40,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              Colors.black.withOpacity(0.7),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // Badge de duración
-                    if (widget.video.duracio.isNotEmpty)
+                      /// Gradiente
                       Positioned(
-                        bottom: 6,
-                        right: 6,
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        height: 40,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.8),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            widget.video.duracio,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.transparent,
+                                Colors.black.withOpacity(0.75),
+                              ],
                             ),
                           ),
                         ),
                       ),
-                  ],
-                ),
-              ),
 
-              // Información del video
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.video.titol,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        height: 1.2,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (widget.video.descripcio != null)
-                      Text(
-                        widget.video.descripcio!,
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.5),
-                          fontSize: 11,
+                      /// Duración
+                      if (widget.video.duracio.isNotEmpty)
+                        Positioned(
+                          bottom: 6,
+                          right: 6,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black87,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              widget.video.duracio,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+
+                /// 📝 INFO
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      /// TÍTULO
+                      Expanded(
+                        child: Text(
+                          widget.video.titol,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            height: 1.25,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+
+                      /// ❤️ FAVORITO
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _isFavorite = !_isFavorite;
+                          });
+                          final notifier = ref.read(wishlistProvider.notifier);
+                          if (_isFavorite) {
+                            notifier.add(widget.video);
+                          } else {
+                            notifier.remove(widget.video);
+                          }
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 4),
+                          child: Icon(
+
+                            /*_isFavorite
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            color: _isFavorite
+                                ? Colors.redAccent
+                                : Colors.white38,*/
+
+                            wishlistProvider.contains(widget.video)
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            color: wishlistProvider.contains(widget.video)
+                                ? Colors.redAccent
+                                : Colors.white38,
+                            size: 18,
+                          ),
+                          
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _thumbnailFallback() {
+Widget _thumbnailFallback() { 
     return Container(
       color: const Color(0xFF2A2A2A),
       child: const Center(
         child: Icon(
           Icons.play_circle_outline,
           color: Colors.white38,
-          size: 32,
+          size: 42,
         ),
       ),
     );
   }
 }
+
