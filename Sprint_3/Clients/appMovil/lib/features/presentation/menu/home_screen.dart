@@ -65,14 +65,23 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _initializeVideo(String video) async {
     final String videoURL = ServiceLocator().getVideoUrl();
 
+    final sessionService = SessionService(FlutterSecureStorage());
+    final token = await sessionService.getToken();
+
     await _videoController?.dispose();
     setState(() {
       _isVideoInitialized = false;
       _isScrubbing = false;
     });
 
+    print("DEBUG: Loading video from URL: $videoURL$video");
     _videoController = VideoPlayerController.networkUrl(
       Uri.parse("$videoURL$video"),
+      httpHeaders: token != null
+          ? {
+              'Authorization': 'Bearer $token',
+            }
+          : {},
     );
 
     try {
@@ -101,8 +110,15 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _onVideoTap(Video video) async {
     final sessionService = SessionService(FlutterSecureStorage());
     final tokenData = await sessionService.getTokenData();
+    if (tokenData == null) {
+      print("Token data not found");
+      return;
+    }
+    print(tokenData);
     final userLevel =
-        int.tryParse(tokenData!['subscription_level'].toString()) ?? 0;
+        int.tryParse(tokenData['subscription_level'].toString()) ?? 0;
+    print(userLevel);
+    print(video.nivell);
 
     if (userLevel < (video.nivell ?? 0)) {
       print("Video is not available for your level");

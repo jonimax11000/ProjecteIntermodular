@@ -89,15 +89,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 48,
                     child: ElevatedButton(
                       onPressed: () {
-                        /*_login(
+                        _login(
                           _emailController.text,
                           _passwordController.text,
-                        );*/
+                        );
 
-                        Navigator.pushReplacement(
+                        /*Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(builder: (_) => const HomeScreen()),
-                        );
+                        );*/
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
@@ -190,7 +190,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
       final response = await client.post(
         Uri.parse(ApiConfig.urls["login"]!),
-        headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest',},
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
         body: jsonEncode(params),
       );
 

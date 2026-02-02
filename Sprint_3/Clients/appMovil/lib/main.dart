@@ -1,11 +1,20 @@
 import 'dart:io';
-import 'package:exercici_disseny_responsiu_stateful/features/core/my_http_overrides';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/login_screen.dart';
 import 'package:flutter/material.dart';
 
+// He añadido esto para que no nos de problemas el certificado HTTPS al conectar con la api que si no me pasaba como con el del proyecto :)
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+  }
+}
+
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 

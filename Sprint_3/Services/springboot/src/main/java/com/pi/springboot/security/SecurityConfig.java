@@ -30,6 +30,8 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
+import javax.crypto.spec.SecretKeySpec;
+
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
