@@ -3,6 +3,9 @@ import '../core/api_client.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/home_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:exercici_disseny_responsiu_stateful/config/api_config.dart';
+import 'dart:io';
+import 'package:http/io_client.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -180,9 +183,14 @@ class _LoginScreenState extends State<LoginScreen> {
     };
 
     try {
-      final response = await ApiClient.client.post(
-        Uri.parse('https://10.0.2.2:8069/api/authenticate'),
-        headers: {'Content-Type': 'application/json'},
+      final ioc = HttpClient();
+      ioc.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+      final client = IOClient(ioc);
+
+      final response = await client.post(
+        Uri.parse(ApiConfig.urls["login"]!),
+        headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest',},
         body: jsonEncode(params),
       );
 
