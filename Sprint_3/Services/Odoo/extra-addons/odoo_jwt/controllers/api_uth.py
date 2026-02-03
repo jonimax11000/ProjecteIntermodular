@@ -41,7 +41,7 @@ class ApiAuth(http.Controller):
 
             # Generar tokens
             access_token = JwtToken.generate_token(uid, extra_payload={
-                'user_id': uid,
+                'uid': uid,
                 'email': user.login,
                 'active': user.active,
                 'has_subscription': user_info['has_subscription'],
@@ -55,15 +55,10 @@ class ApiAuth(http.Controller):
             res_data = {
                 'rotation_period': rotation_period,
                 'token': access_token,
+                'refreshToken': refresh_token,
                 'long_term_token_span': JwtToken.REFRESH_TOKEN_SECONDS,
                 'short_term_token_span': JwtToken.ACCESS_TOKEN_SECONDS
             }
-
-            # Verificar si es navegador
-            user_agent = request.httprequest.user_agent
-            is_browser = user_agent.browser if user_agent else False
-            if not is_browser:
-                res_data['refreshToken'] = refresh_token
 
             return res_data
 
@@ -121,11 +116,11 @@ class ApiAuth(http.Controller):
         if not params:
             params = kwargs
         
-        user_id = params.get('user_id')
-        if not user_id:
+        uid = params.get('uid')
+        if not uid:
             return {'error': 'User id not given'}
         
-        user_id = int(user_id)
+        uid = int(uid)
 
         # Obtener refresh token desde cookies, headers o body
         long_term_token = self.get_refresh_token(request)
@@ -135,14 +130,15 @@ class ApiAuth(http.Controller):
 
         try:
             # Verificar el refresh token
-            JwtToken.verify_refresh_token(request, user_id, long_term_token)
+            JwtToken.verify_refresh_token(request, uid, long_term_token)
             
             # Obtener datos del usuario para incluir en el nuevo token
-            user = request.env['res.users'].sudo().browse(user_id)
-            user_info = self._get_user_info(user_id)
+            user = request.env['res.users'].sudo().browse(uid)
+            user_info = self._get_user_info(uid)
             
             # Generar nuevo access token con los mismos datos extra
-            new_token = JwtToken.generate_token(user_id, extra_payload={
+            new_token = JwtToken.generate_token(uid, extra_payload={
+                'uid': uid,
                 'email': user.login,
                 'active': user.active,
                 'has_subscription': user_info['has_subscription'],
@@ -151,8 +147,16 @@ class ApiAuth(http.Controller):
                 'name': user.name
             })
             
-            return {'access_token': new_token}
+            rotation_period = JwtToken.REFRESH_TOKEN_SECONDS * 3/4
+
+            return {
+                'token': new_token,
+                'rotation_period': rotation_period,
+                'long_term_token_span': JwtToken.REFRESH_TOKEN_SECONDS,
+                'short_term_token_span': JwtToken.ACCESS_TOKEN_SECONDS
+            }
         except Exception as e:
+            _logger.error("Error updating access token: %s", str(e))
             return {'error': str(e)}
 
     @http.route('/api/update/refresh-token', type='json', auth='jwt', methods=['POST'], csrf=False, cors="*")
@@ -164,12 +168,12 @@ class ApiAuth(http.Controller):
         if not params:
             params = kwargs
         
-        user_id = params.get('user_id')
-        if not user_id:
-            # Si no viene user_id, usar el del usuario autenticado
-            user_id = request.env.user.id
+        uid = params.get('uid')
+        if not uid:
+            # Si no viene uid, usar el del usuario autenticado
+            uid = request.env.user.id
         else:
-            user_id = int(user_id)
+            uid = int(uid)
 
         old_token = self.get_refresh_token(request)
         
@@ -177,8 +181,8 @@ class ApiAuth(http.Controller):
             return {'error': 'Refresh token not provided'}
 
         try:
-            JwtToken.verify_refresh_token(request, user_id, old_token)
-            new_token = JwtToken.create_refresh_token(request, user_id)
+            JwtToken.verify_refresh_token(request, uid, old_token)
+            new_token = JwtToken.create_refresh_token(request, uid)
 
             res_data = {'status': 'done'}
             user_agent = request.httprequest.user_agent
@@ -210,11 +214,11 @@ class ApiAuth(http.Controller):
         if not params:
             params = kwargs
         
-        user_id = params.get('user_id')
-        if not user_id:
-            user_id = request.env.user.id
+        uid = params.get('uid')
+        if not uid:
+            uid = request.env.user.id
         else:
-            user_id = int(user_id)
+            uid = int(uid)
 
         long_term_token = self.get_refresh_token(request)
         
@@ -222,8 +226,8 @@ class ApiAuth(http.Controller):
             return {'error': 'Refresh token not provided'}
 
         try:
-            JwtToken.verify_refresh_token(request, user_id, long_term_token)
-            tok_ob = request.env['jwt.refresh_token'].sudo().search([('user_id', '=', user_id)])
+            JwtToken.verify_refresh_token(request, uid, long_term_token)
+            tok_ob = request.env['jwt.refresh_token'].sudo().search([('uid', '=', uid)])
             if tok_ob:
                 tok_ob.is_revoked = True
             return {'status': 'success', 'logged_out': 1}
