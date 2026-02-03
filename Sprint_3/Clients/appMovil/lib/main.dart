@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/login_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // He añadido esto para que no nos de problemas el certificado HTTPS al conectar con la api que si no me pasaba como con el del proyecto :)
 class MyHttpOverrides extends HttpOverrides {
@@ -15,7 +16,12 @@ class MyHttpOverrides extends HttpOverrides {
 void main() {
   HttpOverrides.global = MyHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
+
+  runApp(
+    const ProviderScope(
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

@@ -1,6 +1,8 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/core/service_locator.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/entities/video.dart';
-import 'package:flutter/material.dart';
+import 'package:exercici_disseny_responsiu_stateful/features/presentation/provider/wishlist_notifier.dart';
 
 class VideosLayout extends StatelessWidget {
   const VideosLayout({
@@ -47,7 +49,9 @@ class VideosLayout extends StatelessWidget {
             itemBuilder: (context, index) {
               final video = videos[index];
               return _VideoLayoutCard(
-                  video: video, onTap: () => onVideoTap(video));
+                video: video,
+                onTap: () => onVideoTap(video),
+              );
             },
           ),
         ),
@@ -56,7 +60,7 @@ class VideosLayout extends StatelessWidget {
   }
 }
 
-class _VideoLayoutCard extends StatefulWidget {
+class _VideoLayoutCard extends ConsumerStatefulWidget {
   final Video video;
   final VoidCallback onTap;
 
@@ -66,17 +70,19 @@ class _VideoLayoutCard extends StatefulWidget {
   });
 
   @override
-  State<_VideoLayoutCard> createState() => _VideoLayoutCardState();
+  ConsumerState<_VideoLayoutCard> createState() => _VideoLayoutCardState();
 }
 
-class _VideoLayoutCardState extends State<_VideoLayoutCard> {
+class _VideoLayoutCardState extends ConsumerState<_VideoLayoutCard> {
   bool _pressed = false;
-  bool _isFavorite = false;
 
   @override
   Widget build(BuildContext context) {
-    final wishlistProvider = ref.watch(wishlistProvider);
+    final wishlist = ref.watch(wishlistProvider);
+    final notifier = ref.read(wishlistProvider.notifier);
     final String videoURL = ServiceLocator().getVideoUrl();
+
+    final isFavorite = wishlist.any((v) => v.id == widget.video.id);
 
     return GestureDetector(
       onTap: widget.onTap,
@@ -88,7 +94,7 @@ class _VideoLayoutCardState extends State<_VideoLayoutCard> {
         duration: const Duration(milliseconds: 120),
         curve: Curves.easeOut,
         child: SizedBox(
-          width: 160, // ancho cómodo para filas
+          width: 160,
           child: Card(
             elevation: 6,
             color: const Color(0xFF1E1E1E),
@@ -97,7 +103,6 @@ class _VideoLayoutCardState extends State<_VideoLayoutCard> {
             ),
             clipBehavior: Clip.antiAlias,
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 /// 🎬 THUMBNAIL
@@ -114,8 +119,6 @@ class _VideoLayoutCardState extends State<_VideoLayoutCard> {
                                   _thumbnailFallback(),
                             )
                           : _thumbnailFallback(),
-
-                      /// Gradiente
                       Positioned(
                         bottom: 0,
                         left: 0,
@@ -134,8 +137,6 @@ class _VideoLayoutCardState extends State<_VideoLayoutCard> {
                           ),
                         ),
                       ),
-
-                      /// Duración
                       if (widget.video.duracio.isNotEmpty)
                         Positioned(
                           bottom: 6,
@@ -170,7 +171,6 @@ class _VideoLayoutCardState extends State<_VideoLayoutCard> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      /// TÍTULO
                       Expanded(
                         child: Text(
                           widget.video.titol,
@@ -178,7 +178,6 @@ class _VideoLayoutCardState extends State<_VideoLayoutCard> {
                             color: Colors.white,
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
-                            height: 1.25,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -188,36 +187,20 @@ class _VideoLayoutCardState extends State<_VideoLayoutCard> {
                       /// ❤️ FAVORITO
                       GestureDetector(
                         onTap: () {
-                          setState(() {
-                            _isFavorite = !_isFavorite;
-                          });
-                          final notifier = ref.read(wishlistProvider.notifier);
-                          if (_isFavorite) {
-                            notifier.add(widget.video);
-                          } else {
+                          if (isFavorite) {
                             notifier.remove(widget.video);
+                          } else {
+                            notifier.add(widget.video);
                           }
                         },
                         child: Padding(
                           padding: const EdgeInsets.only(left: 4),
                           child: Icon(
-
-                            /*_isFavorite
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            color: _isFavorite
-                                ? Colors.redAccent
-                                : Colors.white38,*/
-
-                            wishlistProvider.contains(widget.video)
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            color: wishlistProvider.contains(widget.video)
-                                ? Colors.redAccent
-                                : Colors.white38,
+                            isFavorite ? Icons.favorite : Icons.favorite_border,
+                            color:
+                                isFavorite ? Colors.redAccent : Colors.white38,
                             size: 18,
                           ),
-                          
                         ),
                       ),
                     ],
@@ -231,7 +214,7 @@ class _VideoLayoutCardState extends State<_VideoLayoutCard> {
     );
   }
 
-Widget _thumbnailFallback() { 
+  Widget _thumbnailFallback() {
     return Container(
       color: const Color(0xFF2A2A2A),
       child: const Center(
@@ -244,4 +227,3 @@ Widget _thumbnailFallback() {
     );
   }
 }
-
