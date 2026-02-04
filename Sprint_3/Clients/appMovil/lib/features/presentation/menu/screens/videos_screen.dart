@@ -1,6 +1,7 @@
 import 'package:exercici_disseny_responsiu_stateful/features/core/service_locator.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/entities/video.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/usecases/get_videos.dart';
+import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/screens/video_player_screen.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/widgets/categories_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -57,6 +58,15 @@ class _VideosScreenState extends State<VideosScreen> {
     });
   }
 
+  void _onVideoTap(BuildContext context, Video video) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => VideoPlayerScreen(video: video),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,7 +83,7 @@ class _VideosScreenState extends State<VideosScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
             child: CategoriesWidget(
               onCategoriaSelected: _filteredByCategoria,
               selectedCategoriaId: selectedCategoriaId,
@@ -121,17 +131,19 @@ class _VideosScreenState extends State<VideosScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: GridView.builder(
-        itemCount: filteredVideos!.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 9,
-          mainAxisSpacing: 0,
-          childAspectRatio: 1.20,
-        ),
-        itemBuilder: (context, index) {
-          return VideoGridCard(video: filteredVideos![index]);
-        },
-      ),
+          itemCount: filteredVideos!.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 9,
+            mainAxisSpacing: 0,
+            childAspectRatio: 1.20,
+          ),
+          itemBuilder: (context, index) {
+            return GestureDetector(
+              onTap: () => _onVideoTap(context, filteredVideos![index]),
+              child: VideoGridCard(video: filteredVideos![index]),
+            );
+          }),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:exercici_disseny_responsiu_stateful/features/core/service_locato
 import 'package:exercici_disseny_responsiu_stateful/features/domain/entities/series.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/entities/video.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/usecases/get_videos.dart';
+import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/screens/video_player_screen.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/screens/videos_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -40,12 +41,21 @@ class _SeriesDetallScreenState extends State<SeriesDetallScreen> {
     }
   }
 
+  void _onVideoTap(BuildContext context, Video video) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => VideoPlayerScreen(video: video),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: const Color(0xFF121212),
         elevation: 0,
         centerTitle: true,
         title: Image.asset(
@@ -104,7 +114,10 @@ class _SeriesDetallScreenState extends State<SeriesDetallScreen> {
           childAspectRatio: 0.65,
         ),
         itemBuilder: (context, index) {
-          return VideoGridCard(video: videosBySerie![index]);
+          return GestureDetector(
+            onTap: () => _onVideoTap(context, videosBySerie![index]),
+            child: VideoGridCard(video: videosBySerie![index]),
+          );
         },
       ),
     );

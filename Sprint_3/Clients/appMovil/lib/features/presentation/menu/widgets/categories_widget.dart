@@ -48,7 +48,7 @@ class CategoriesWidget extends StatelessWidget {
 
               final categoria = categories[index - 1];
               final isSelected = categoria.id == selectedCategoriaId;
-              
+
               return ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF2A2A2A),

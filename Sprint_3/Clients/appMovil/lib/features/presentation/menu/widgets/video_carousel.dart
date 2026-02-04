@@ -1,9 +1,6 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/core/service_locator.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/entities/video.dart';
-import 'package:exercici_disseny_responsiu_stateful/features/domain/usecases/get_videos.dart';
 
 class VideoCarousel extends StatefulWidget {
   final Future<void> Function(Video) onTap;
@@ -18,7 +15,9 @@ class _VideoCarouselState extends State<VideoCarousel> {
   bool isLoading = true;
   String? errorMessage;
 
-  PageController pageController = PageController(viewportFraction: 0.75);
+  PageController pageController = PageController(
+    viewportFraction: 0.92, // Aumentado para usar más espacio
+  );
 
   @override
   void initState() {
@@ -43,14 +42,14 @@ class _VideoCarouselState extends State<VideoCarousel> {
   Widget build(BuildContext context) {
     if (isLoading) {
       return const SizedBox(
-        height: 300,
+        height: 320,
         child: Center(child: CircularProgressIndicator()),
       );
     }
 
     if (errorMessage != null) {
       return SizedBox(
-        height: 300,
+        height: 320,
         child: Center(
           child: Text(
             errorMessage!,
@@ -61,17 +60,17 @@ class _VideoCarouselState extends State<VideoCarousel> {
     }
 
     return SizedBox(
-      height: 450, // Updated height to match home_screen or just let it fill
+      height: 420, // Reducido un poco para mejor proporción
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+            padding: EdgeInsets.only(left: 16.0, top: 8, bottom: 12),
             child: Text(
               'Novedades',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 22,
+                fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -87,7 +86,8 @@ class _VideoCarouselState extends State<VideoCarousel> {
                     double value = 1.0;
                     if (pageController.position.haveDimensions) {
                       value = pageController.page! - index;
-                      value = (1 - (value.abs() * 0.25)).clamp(0.0, 1.0);
+                      value = (1 - (value.abs() * 0.15))
+                          .clamp(0.0, 1.0); // Menor efecto 3D
                     }
                     return Center(
                       child: Transform.scale(
@@ -130,72 +130,149 @@ class _VideoCardState extends State<VideoCard> {
   Widget build(BuildContext context) {
     final String videoURL = ServiceLocator().getVideoUrl();
 
-    return SizedBox(
-      // width: 300, // Removed fixed width to allow filling viewport
-      child: AnimatedScale(
-        scale: _pressed ? 0.97 : 1.0,
-        duration: const Duration(milliseconds: 120),
-        curve: Curves.easeOut,
-        child: Card(
-          elevation: 8,
-          color: const Color.fromARGB(255, 81, 81, 81),
-          clipBehavior: Clip.hardEdge,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: InkWell(
-            onTap: widget.onTap,
-            onTapDown: (_) => setState(() => _pressed = true),
-            onTapUp: (_) => setState(() => _pressed = false),
-            onTapCancel: () => setState(() => _pressed = false),
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: widget.video.thumbnailURL.isNotEmpty
-                      ? Image.network(
-                          "$videoURL${widget.video.thumbnailURL}",
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _thumbnailFallback(),
-                        )
-                      : _thumbnailFallback(),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2.0),
+      child: AspectRatio(
+        aspectRatio: 16 / 9,
+        child: AnimatedScale(
+          scale: _pressed ? 0.98 : 1.0,
+          duration: const Duration(milliseconds: 120),
+          curve: Curves.easeOut,
+          child: Card(
+            elevation: 6,
+            color: Colors
+                .transparent, // Fondo transparente para mostrar solo la imagen
+            clipBehavior: Clip.hardEdge,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16), // Bordes más redondeados
+            ),
+            child: InkWell(
+              onTap: widget.onTap,
+              onTapDown: (_) => setState(() => _pressed = true),
+              onTapUp: (_) => setState(() => _pressed = false),
+              onTapCancel: () => setState(() => _pressed = false),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.4),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Stack(
+                    fit: StackFit.expand, // Ocupa todo el espacio
+                    children: [
+                      // IMAGEN DE FONDO
+                      widget.video.thumbnailURL.isNotEmpty
+                          ? Image.network(
+                              "$videoURL${widget.video.thumbnailURL}",
+                              fit: BoxFit.cover,
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Container(
+                                  color: const Color(0xFF1E1E1E),
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      value:
+                                          loadingProgress.expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                              : null,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                );
+                              },
+                              errorBuilder: (_, __, ___) =>
+                                  _thumbnailFallback(),
+                            )
+                          : _thumbnailFallback(),
 
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  height: 70,
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          Colors.black87,
-                        ],
+                      // GRADIENTE OSCURO
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              Colors.black.withOpacity(0.1),
+                              Colors.black.withOpacity(0.5),
+                              Colors.black.withOpacity(0.8),
+                            ],
+                            stops: const [0.0, 0.5, 0.8, 1.0],
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                ),
 
-                /// 📝 TÍTULO
-                Positioned(
-                  left: 10,
-                  right: 10,
-                  bottom: 10,
-                  child: Text(
-                    widget.video.titol,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                      // CONTENIDO DE LA TARJETA
+                      Positioned(
+                        left: 16,
+                        right: 16,
+                        bottom: 16,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // TÍTULO PRINCIPAL
+                            Text(
+                              widget.video.titol,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                height: 1.2,
+                                shadows: [
+                                  Shadow(
+                                    color: Colors.black,
+                                    blurRadius: 8,
+                                    offset: Offset(1, 1),
+                                  ),
+                                ],
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+
+                            // DESCRIPCIÓN O INFORMACIÓN ADICIONAL
+                            if (widget.video.descripcio != null &&
+                                widget.video.descripcio!.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4),
+                                child: Text(
+                                  widget.video.descripcio!,
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.8),
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w400,
+                                    shadows: [
+                                      const Shadow(
+                                        color: Colors.black,
+                                        blurRadius: 4,
+                                        offset: Offset(1, 1),
+                                      ),
+                                    ],
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
           ),
         ),
@@ -205,136 +282,39 @@ class _VideoCardState extends State<VideoCard> {
 
   Widget _thumbnailFallback() {
     return Container(
-      color: const Color(0xFF2A2A2A),
-      child: const Center(
-        child: Icon(
-          Icons.play_circle_outline,
-          color: Colors.white38,
-          size: 48,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            const Color(0xFF424242),
+            Colors.grey[800]!,
+            const Color(0xFF1A1A1A),
+          ],
         ),
       ),
-    );
-  }
-}
-
-/*
-class GridAllVideos extends StatefulWidget {
-  const GridAllVideos({super.key});
-
-  @override
-  State<GridAllVideos> createState() => _GridAllVideosState();
-}
-
-class _GridAllVideosState extends State<GridAllVideos> {
-  List<Video> listaVideos = [];
-  late final GetVideos getVideos;
-  bool isLoading = true;
-  String? errorMessage;
-
-  @override
-  void initState() {
-    super.initState();
-    getVideos = ServiceLocator().getVideos;
-    _loadVideos();
-  }
-
-  Future<void> _loadVideos() async {
-    try {
-      final result = await getVideos();
-      setState(() {
-        listaVideos = result;
-        isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        errorMessage = e.toString();
-        isLoading = false;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (errorMessage != null) {
-      return Center(
-        child: Text(
-          errorMessage!,
-          style: const TextStyle(color: Colors.red),
-        ),
-      );
-    }
-
-    return GridView.builder(
-      padding: const EdgeInsets.all(12),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 0.72,
-      ),
-      itemCount: listaVideos.length,
-      itemBuilder: (context, index) {
-        return VideoCard(video: listaVideos[index]);
-      },
-    );
-  }
-}
-
-class VideoCard extends StatelessWidget {
-  final Video video;
-
-  const VideoCard({
-    Key? key,
-    required this.video,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final String videoURL = ServiceLocator().getVideoUrl();
-
-    return Card(
-      color: const Color(0xFF1E1E1E),
-      clipBehavior: Clip.hardEdge,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: InkWell(
-        onTap: () {
-          // Navegación a detalle / reproductor
-        },
+      child: Center(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AspectRatio(
-              aspectRatio: 16 / 9,
-              child: video.thumbnailURL.isNotEmpty
-                  ? Image.network(
-                      "$videoURL${video.thumbnailURL}",
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _thumbnailFallback(),
-                    )
-                  : _thumbnailFallback(),
+            Icon(
+              Icons.play_circle_filled,
+              color: Colors.white.withOpacity(0.8),
+              size: 52,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'JUSTFLIX',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.8),
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.5,
+              ),
             ),
           ],
         ),
       ),
     );
   }
-
-  Widget _thumbnailFallback() {
-    return Container(
-      color: const Color(0xFF2A2A2A),
-      child: const Center(
-        child: Icon(
-          Icons.play_circle_outline,
-          color: Colors.white38,
-          size: 48,
-        ),
-      ),
-    );
-  }
-}*/
+}
