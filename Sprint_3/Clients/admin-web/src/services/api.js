@@ -132,14 +132,14 @@ export default {
 
   // --- NODE (Archivos MP4/JPG) ---
 
-  async uploadVideoNode(file, forcedName, nivel) {
+  async uploadVideoNode(file, forcedName, nivel, clientId) {
     const fd = new FormData();
     fd.append("video", file, forcedName);
     fd.append("nivel", nivel);
 
     const config = {
       headers: {
-        "X-Client-ID": "test-123",
+        "X-Client-ID": clientId || "unknown-client",
       },
     };
 

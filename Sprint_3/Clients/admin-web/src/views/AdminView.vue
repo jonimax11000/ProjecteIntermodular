@@ -18,7 +18,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import api from '@/services/api';
 import FileUploader from '@/components/admin/FileUploader.vue';
@@ -31,6 +31,9 @@ const route = useRoute();
 const isUploading = ref(false);
 const uploadStatus = ref('');
 const selectedFileRaw = ref(null);
+const clientId = ref(null);
+const socket = ref(null);
+const processingResolvers = new Map(); // jobId -> {resolve, reject}
 
 // Estados de edición
 const isEditing = ref(false);
@@ -53,6 +56,67 @@ const formData = ref({
 
 // --- CARGA DE DATOS ---
 
+const setupWebSocket = () => {
+    // Generate a simple client ID if not exists
+    clientId.value = "client_" + Math.random().toString(36).substr(2, 9);
+    console.log("WebSocket: Connecting with ID", clientId.value);
+
+    // Connect to WebSocket server through Vite proxy
+    const wsUrl = `ws://${window.location.host}/ws`;
+    console.log("WebSocket URL:", wsUrl);
+    socket.value = new WebSocket(wsUrl);
+
+    socket.value.onopen = () => {
+        console.log("WebSocket connected");
+        // Register client
+        socket.value.send(JSON.stringify({
+            type: 'register',
+            clientId: clientId.value
+        }));
+    };
+
+    socket.value.onmessage = (event) => {
+        try {
+            const data = JSON.parse(event.data);
+            console.log("WebSocket received:", data);
+
+            switch (data.type) {
+                case 'processing_started':
+                    uploadStatus.value = `Procesando: ${data.message}`;
+                    break;
+                case 'processing_completed':
+                    uploadStatus.value = `¡Completado! ${data.message}`;
+                    if (data.jobId && processingResolvers.has(data.jobId)) {
+                        processingResolvers.get(data.jobId).resolve(data);
+                        processingResolvers.delete(data.jobId);
+                    }
+                    break;
+                case 'processing_error':
+                    uploadStatus.value = `Error: ${data.message}`;
+                    if (data.jobId && processingResolvers.has(data.jobId)) {
+                        processingResolvers.get(data.jobId).reject(new Error(data.message));
+                        processingResolvers.delete(data.jobId);
+                    }
+                    alert(`Error en el procesamiento: ${data.message}`);
+                    break;
+                case 'registered':
+                    console.log("Client registered successfully");
+                    break;
+            }
+        } catch (e) {
+            console.error("Error parsing WebSocket message", e);
+        }
+    };
+
+    socket.value.onerror = (error) => {
+        console.error("WebSocket error:", error);
+    };
+
+    socket.value.onclose = () => {
+        console.log("WebSocket connection closed");
+    };
+};
+
 const refreshLists = async () => {
   try {
     const data = await api.getListas();
@@ -62,15 +126,24 @@ const refreshLists = async () => {
   }
 };
 
-onMounted(async () => {
-  try {
-    await refreshLists();
-    // Si hay ?edit=123 en la URL, cargamos modo edición
-    if (route.query.edit) {
-      await loadVideoForEdit(route.query.edit);
+  onMounted(async () => {
+    try {
+      await refreshLists();
+      // Si hay ?edit=123 en la URL, cargamos modo edición
+      if (route.query.edit) {
+        await loadVideoForEdit(route.query.edit);
+      }
+      setupWebSocket();
+    } catch (e) {
+      console.error(e);
     }
-  } catch (e) { console.error(e); }
-});
+  });
+
+  onUnmounted(() => {
+    if (socket.value) {
+      socket.value.close();
+    }
+  });
 
 // --- FUNCIONES PARA CREAR NUEVOS ELEMENTOS (MODALES/PROMPTS) ---
 
@@ -127,7 +200,7 @@ const handleAddEdat = async () => {
 };
 
 const handleAddNivell = async () => {
-  const valor = prompt("Escribe el nuevo nivel (ej: Experto):");
+  const valor = prompt("Escribe el nuevo nivel (ej: 1):");
   if (!valor) return;
   try {
     await api.createNivell(valor);
@@ -196,11 +269,34 @@ const submitVideo = async () => {
       const nivelParaNode = formData.value.nivellDummy;
 
       fileSize = selectedFileRaw.value.size;
-      const nodeRes = await api.uploadVideoNode(selectedFileRaw.value, forcedName, nivelParaNode);
+      // Pass clientId to API
+      const nodeRes = await api.uploadVideoNode(selectedFileRaw.value, forcedName, nivelParaNode, clientId.value);
 
-      finalUrl = forcedName;
-      finalThumb = forcedThumb;
-      finalDur = Number(nodeRes.duracio) || 0;
+
+      console.log(nodeRes);
+
+
+      if (nodeRes.jobId) {
+          uploadStatus.value = "Esperando procesamiento del servidor (FFmpeg)...";
+          // Esperar a que el WebSocket nos confirme que terminó
+          const processResult = await new Promise((resolve, reject) => {
+              processingResolvers.set(nodeRes.jobId, { resolve, reject });
+          });
+
+          console.log("Procesamiento finalizado, datos recibidos:", processResult);
+          
+          if (processResult.videoData) {
+            finalUrl = processResult.videoData.videoUrl || forcedName;
+            finalThumb = processResult.videoData.thumbnail || forcedThumb;
+            finalDur = processResult.videoData.duracio || 0;
+            fileSize = processResult.videoData.fileSize || fileSize;
+          }
+      } else {
+        // Fallback si no hay jobId
+        finalUrl = forcedName;
+        finalThumb = forcedThumb;
+        finalDur = Number(nodeRes.duracio) || 0;
+      }
     }
 
     // 2. DATOS PARA JAVA (BASE DE DATOS)

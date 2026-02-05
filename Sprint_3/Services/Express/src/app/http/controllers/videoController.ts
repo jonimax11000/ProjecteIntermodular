@@ -13,13 +13,14 @@ export class VideoController {
 
   create = async (req: Request, res: Response, next: NextFunction) => {
     let jobId: string | undefined;
+    console.log("VideoController.create called");
 
     try {
       const file = (req as any).file;
       const { nivel } = req.body;
-      console.log("req", req.body);
-      console.log("nivel controller:", nivel);
+      
       if (!file) {
+        console.error("No video file uploaded (manual check)");
         throw new Error('No video file uploaded');
       }
 
@@ -54,7 +55,6 @@ export class VideoController {
             jobId,
             clientId,
           );
-          console.log(`Video procesado: ${file.filename}`);
 
           this.eliminarVideoTemporal(file.filename);
 

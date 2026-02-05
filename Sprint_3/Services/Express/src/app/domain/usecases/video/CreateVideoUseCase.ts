@@ -18,11 +18,10 @@ export class CreateVideoUseCase {
 
   async execute(filename: string, nivel: string, jobId?: string, clientId?: string): Promise<Video> {
     try {
-      console.log(`Nivel Create Video Use Case: ${nivel}`);
       console.log(`Iniciando procesamiento de: ${filename}`);
       await this.videoProcessor.processVideo(filename, nivel);
 
-      const videoData = await this.obtenerDatosVideo(filename);
+      const videoData = await this.obtenerDatosVideo(filename,nivel);
 
       const savedVideo = await this.videoRepository.create(videoData);
 
@@ -54,7 +53,7 @@ export class CreateVideoUseCase {
     return extensionsVideo.includes(path.extname(nomArxiu).toLowerCase());
   }
 
-  private obtenirMetadadesVideo(nomArxiu: string, carpetaPath: string): Promise<Video> {
+  private obtenirMetadadesVideo(nomArxiu: string, carpetaPath: string,nivel: string): Promise<Video> {
     return new Promise((resolve, reject) => {
       const pathComplet = path.join(carpetaPath, nomArxiu);
 
@@ -76,8 +75,8 @@ export class CreateVideoUseCase {
 
         const video: Video = {
           duracio: Math.floor(metadades.format.duration || 0),
-          thumbnail: `/thumbnails/${nomSenseEspais}.jpg`,
-          videoUrl: `/videos/${nomSenseEspais}/index.m3u8`,
+          thumbnail: `/thumbnails/${nivel}/${nomSenseEspais}.jpg`,
+          videoUrl: `/videos/${nivel}/${nomSenseEspais}/index.m3u8`,
           width: streamVideo?.width || 0,
           height: streamVideo?.height || 0,
           fps: fps,
@@ -92,15 +91,15 @@ export class CreateVideoUseCase {
     });
   }
 
-  private crearInfoVideoBasica(nomArxiu: string, carpetaPath: string): Video {
+  private crearInfoVideoBasica(nomArxiu: string, carpetaPath: string,nivel: string): Video {
     const nomVideo = path.parse(nomArxiu).name.toLowerCase();
     const nomSenseEspais = nomVideo.replace(/\s+/g, '');
     const pathComplet = path.join(carpetaPath, nomArxiu);
 
     return {
       duracio: 0,
-      thumbnail: `/thumbnails/${nomSenseEspais}.jpg`,
-      videoUrl: `/videos/${nomSenseEspais}/index.m3u8`,
+      thumbnail: `/thumbnails/${nivel}/${nomSenseEspais}.jpg`,
+      videoUrl: `/videos/${nivel}/${nomSenseEspais}/index.m3u8`,
       width: 0,
       height: 0,
       fps: 0,
@@ -111,7 +110,7 @@ export class CreateVideoUseCase {
     };
   }
 
-  private async obtenerDatosVideo(filename: string, carpetaPath: string = "./src/app/data/videos"): Promise<Video> {
+  private async obtenerDatosVideo(filename: string,nivel: string, carpetaPath: string = "./src/app/data/videos"): Promise<Video> {
     const cwd = process.cwd();
     const pathAbsolutCarpeta = path.join(cwd, carpetaPath);
 
@@ -120,10 +119,10 @@ export class CreateVideoUseCase {
     }
 
     try {
-      return await this.obtenirMetadadesVideo(filename, pathAbsolutCarpeta);
+      return await this.obtenirMetadadesVideo(filename, pathAbsolutCarpeta,nivel);
     } catch (error) {
       console.error(`Error obteniendo metadatos para ${filename}:`, error);
-      return this.crearInfoVideoBasica(filename, pathAbsolutCarpeta);
+      return this.crearInfoVideoBasica(filename, pathAbsolutCarpeta,nivel);
     }
   }
 }

@@ -7,7 +7,7 @@ import path from 'path';
 export let videos: Array<Video> = [];
 
 // Funció per carregar videos des d'una carpeta amb metadades reals
-export const carregarVideosDesDeCarpeta = async (carpetaPath: string): Promise<Video[]> => {
+export const carregarVideosDesDeCarpeta = async (carpetaPath: string,nivel: string): Promise<Video[]> => {
   const videosTrobats: Video[] = [];
 
   try {
@@ -16,7 +16,7 @@ export const carregarVideosDesDeCarpeta = async (carpetaPath: string): Promise<V
     for (const arxiu of arxius) {
       if (esArxiuVideo(arxiu)) {
         try {
-          const video = await obtenirMetadadesVideo(arxiu, carpetaPath);
+          const video = await obtenirMetadadesVideo(arxiu, carpetaPath,nivel);
           videosTrobats.push(video);
         } catch (error) {
           console.error(`Error llegint metadades per ${arxiu}:`, error);
@@ -41,7 +41,7 @@ function esArxiuVideo(nomArxiu: string): boolean {
   return extensionsVideo.includes(path.extname(nomArxiu).toLowerCase());
 }
 
-function obtenirMetadadesVideo(nomArxiu: string, carpetaPath: string): Promise<Video> {
+function obtenirMetadadesVideo(nomArxiu: string, carpetaPath: string,nivel: string): Promise<Video> {
   return new Promise((resolve, reject) => {
     const pathComplet = path.join(carpetaPath, nomArxiu);
 
@@ -63,8 +63,8 @@ function obtenirMetadadesVideo(nomArxiu: string, carpetaPath: string): Promise<V
 
       const video: Video = {
         duracio: Math.floor(metadades.format.duration || 0),
-        thumbnail: `/thumbnails/${nomSenseEspais}.jpg`,
-        videoUrl: `/videos/${nomSenseEspais}/index.m3u8`,
+        thumbnail: `/thumbnails/${nivel}/${nomSenseEspais}.jpg`,
+        videoUrl: `/videos/${nivel}/${nomSenseEspais}/index.m3u8`,
         width: streamVideo?.width || 0,
         height: streamVideo?.height || 0,
         fps: fps,

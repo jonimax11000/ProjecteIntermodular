@@ -6,21 +6,29 @@ import path from 'path';
 
 
 export const jwtMiddleware = (req: Request, res: Response, next: NextFunction) => {
-    const token = req.headers.authorization?.split(' ')[1];
+    // Intentar obtener token del header Authorization o del query parameter
+    let token = req.headers.authorization?.split(' ')[1];
+    console.log("token: "+token);
+    
     if (!token) {
         return res.status(401).json({ message: 'Unauthorized' });
     }
     try {
         const publicKeyPath = process.env.JWT_PUBLIC_KEY_PATH;
+        console.log("publicKeyPath: "+publicKeyPath);
         if (!publicKeyPath) {
             throw new Error('Public key not found');
         }
         const publicKey = readFileSync(publicKeyPath);
+        console.log("publicKey: "+publicKey);
         const decoded = jwt.verify(token, publicKey);
+        console.log("decoded: "+decoded);
         req.body = req.body || {};
         req.body.decoded = decoded;
+        console.log("req.body: "+req.body);
         next();
     } catch (error) {
+        console.log("error: "+error);
         return res.status(401).json({ message: 'Unauthorized' });
     }
 }
