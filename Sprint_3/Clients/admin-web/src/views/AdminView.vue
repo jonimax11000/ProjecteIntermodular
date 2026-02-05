@@ -1,442 +1,292 @@
 <template>
+
   <div class="admin-container">
-    <header>
-      <h1>Panel de Administración JUSTFLIX</h1>
-      <button @click="logout" class="logout-btn">Cerrar Sesión</button>
-    </header>
 
     <div class="main-content">
-      <div class="upload-card">
-        <h2>1. Seleccionar Archivo</h2>
-        <div class="upload-area">
-          <label class="custom-file-upload">
-            <input type="file" @change="onFileSelected" accept="video/*" />
-            <span v-if="!fileDetails.name">📂 Elegir Video MP4/MKV</span>
-            <span v-else>✅ {{ fileDetails.name }}</span>
-          </label>
-          
-          <div v-if="fileDetails.name" class="file-details">
-            <p><strong>Original:</strong> {{ fileDetails.name }}</p>
-            <p v-if="formData.titol"><strong>Guardar como:</strong> {{ formData.titol }}.{{ fileExtension }}</p>
-            <p><strong>Tamaño:</strong> {{ (fileDetails.size / (1024*1024)).toFixed(2) }} MB</p>
-          </div>
-        </div>
-      </div>
+      <FileUploader :isEditing="isEditing" :originalTitle="originalTitle" :currentThumbnail="currentUrls.thumbnail"
+        @file-selected="(f) => selectedFileRaw = f" />
 
-      <div class="form-card" :class="{ disabled: !fileDetails.name }">
-        <h2>2. Datos del Video</h2>
-        
-        <div class="form-grid">
-          <div class="form-group full-width">
-            <label>Título (Nombre del archivo):</label>
-            <input v-model="formData.titol" type="text" placeholder="Ej: Matrix" />
-          </div>
-
-          <div class="form-group full-width">
-            <label>Descripción:</label>
-            <textarea v-model="formData.descripcion" placeholder="Descripción del contenido..."></textarea>
-          </div>
-
-          <div class="form-group">
-            <div class="label-action">
-              <label>Clasificación Edad <span style="color:red">*</span>:</label>
-              <button @click="isCreatingEdat = !isCreatingEdat" class="mini-btn">
-                {{ isCreatingEdat ? '✖ Cancelar' : '✚ Crear Edad' }}
-              </button>
-            </div>
-            
-            <select v-if="!isCreatingEdat" v-model="formData.edat">
-              <option :value="null" disabled>Selecciona edad...</option>
-              <option v-for="e in dbEdats" :key="e.id" :value="e.id">
-                +{{ e.edat }} años (ID: {{ e.id }})
-              </option>
-            </select>
-
-            <div v-else class="mini-form">
-              <input v-model="newEdatValue" type="number" placeholder="Ej: 13" />
-              <button @click="createEdat" class="save-mini-btn">Guardar</button>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <div class="label-action">
-              <label>Nivel Requerido <span style="color:red">*</span>:</label>
-              <button @click="isCreatingNivell = !isCreatingNivell" class="mini-btn">
-                {{ isCreatingNivell ? '✖ Cancelar' : '✚ Crear Nivel' }}
-              </button>
-            </div>
-
-            <select v-if="!isCreatingNivell" v-model="formData.nivellDummy">
-              <option :value="null" disabled>Selecciona nivel...</option>
-              <option v-for="n in dbNivells" :key="n.id" :value="n.id">
-                Nivel {{ n.nivell }} (ID: {{ n.id }})
-              </option>
-            </select>
-
-            <div v-else class="mini-form">
-              <input v-model="newNivellValue" type="number" placeholder="Ej: 4" />
-              <button @click="createNivell" class="save-mini-btn">Guardar</button>
-            </div>
-          </div>
-
-          <div class="form-group full-width serie-box">
-            <div class="toggle-header">
-              <label>Serie:</label>
-              <div class="toggle-btns">
-                <span @click="isNewSerie = false" :class="{active: !isNewSerie}">Existente</span>
-                <span @click="isNewSerie = true" :class="{active: isNewSerie}">Crear Nueva</span>
-              </div>
-            </div>
-
-            <div v-if="!isNewSerie" class="mt-2">
-              <select v-model="formData.serie">
-                <option :value="null">-- Ninguna (Video suelto / Película) --</option>
-                <option v-for="s in dbSeries" :key="s.id" :value="s.id">
-                  {{ s.nom }} (Temp: {{ s.temporada }})
-                </option>
-              </select>
-            </div>
-
-            <div v-else class="new-serie-form mt-2">
-              <input v-model="newSerieData.nom" type="text" placeholder="Nombre de la nueva serie" />
-              <input v-model="newSerieData.temporada" type="number" placeholder="Temporada (ej: 1)" />
-            </div>
-          </div>
-
-          <div class="form-group full-width">
-             <div class="label-action">
-              <label>Categorías <span style="color:red">*</span>:</label>
-              <button @click="isCreatingCat = !isCreatingCat" class="mini-btn">
-                {{ isCreatingCat ? '✖ Cancelar' : '✚ Crear Categoría' }}
-              </button>
-            </div>
-
-            <div v-if="!isCreatingCat">
-              <div class="checkbox-container">
-                <label v-for="c in dbCategorias" :key="c.id" class="checkbox-pill">
-                  <input type="checkbox" :value="c.id" v-model="formData.categories">
-                  {{ c.categoria }}
-                </label>
-              </div>
-              <small v-if="formData.categories.length === 0" style="color: #999;">Selecciona al menos una categoría</small>
-            </div>
-
-            <div v-else class="mini-form">
-              <input v-model="newCatValue" type="text" placeholder="Ej: Anime, Terror..." />
-              <button @click="createCategoria" class="save-mini-btn">Guardar</button>
-            </div>
-          </div>
-        </div>
-
-        <button 
-          @click="submitVideo" 
-          :disabled="isUploading || !formData.titol"
-          class="submit-btn"
-        >
-          {{ isUploading ? uploadStatus : '🚀 Guardar en Catálogo' }}
-        </button>
-
-        <div v-if="message" :class="['status-msg', isSuccess ? 'success' : 'error']">
-          {{ message }}
-        </div>
-      </div>
+      <VideoForm v-if="formData" :form-data="formData" :listas="listasDB" :isUploading="isUploading"
+        :statusText="uploadStatus" :isEditing="isEditing" @update:formData="(newData) => formData = newData"
+        @submit="submitVideo" @add-serie="handleAddSerie" @add-edat="handleAddEdat" @add-nivell="handleAddNivell"
+        @add-categoria="handleAddCategoria" />
+    </div>
+    <div class="header-actions">
+      <router-link to="/lista" class="cta-upload">Lista de vídeos</router-link>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
-import axios from 'axios'
-import { useRouter } from 'vue-router'
+import { ref, reactive, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import api from '@/services/api';
+import FileUploader from '@/components/admin/FileUploader.vue';
+import VideoForm from '@/components/admin/VideoForm.vue';
 
-const router = useRouter()
+const router = useRouter();
+const route = useRoute();
 
-// Estados
-const isUploading = ref(false)
-const uploadStatus = ref('') 
-const message = ref('')
-const isSuccess = ref(false)
-const selectedFileRaw = ref(null) 
+// Estados de carga
+const isUploading = ref(false);
+const uploadStatus = ref('');
+const selectedFileRaw = ref(null);
 
-// Listas BD
-const dbEdats = ref([])
-const dbNivells = ref([]) 
-const dbSeries = ref([])
-const dbCategorias = ref([])
+// Estados de edición
+const isEditing = ref(false);
+const currentVideoId = ref(null);
+const originalTitle = ref('');
+const currentUrls = reactive({ video: '', thumbnail: '', duracio: 0 });
 
-// Archivo
-const fileDetails = reactive({ name: '', size: 0 })
-const fileExtension = computed(() => fileDetails.name ? fileDetails.name.split('.').pop() : '')
+// Listas para los desplegables
+const listasDB = reactive({ edats: [], nivells: [], series: [], categorias: [] });
 
-// Toggles
-const isNewSerie = ref(false)
-const isCreatingEdat = ref(false)   
-const isCreatingNivell = ref(false) 
-const isCreatingCat = ref(false) // NUEVO
-
-// Temporales
-const newSerieData = reactive({ nom: '', temporada: 1 })
-const newEdatValue = ref('')
-const newNivellValue = ref('')
-const newCatValue = ref('') // NUEVO
-
-// Formulario Principal
-const formData = reactive({
+// Datos del formulario
+const formData = ref({
   titol: '',
-  descripcion: '', 
-  edat: null,       
-  nivellDummy: null, 
+  descripcio: '',
+  edat: null,
+  nivellDummy: null, // "nivellDummy" para mapearlo luego a "nivell"
   serie: null,
-  categories: [] 
-})
+  categories: []
+});
 
-// 1. CARGAR DATOS (PROXY)
-const loadAllData = async () => {
+// --- CARGA DE DATOS ---
+
+const refreshLists = async () => {
   try {
-    const [resEdat, resNivell, resSeries, resCat] = await Promise.all([
-      axios.get('/api/edats'),       
-      axios.get('/api/nivells'),     
-      axios.get('/api/series'),      
-      axios.get('/api/categories')   
-    ])
-    dbEdats.value = resEdat.data
-    dbNivells.value = resNivell.data
-    dbSeries.value = resSeries.data
-    dbCategorias.value = resCat.data
+    const data = await api.getListas();
+    Object.assign(listasDB, data);
   } catch (e) {
-    console.error("Error conectando con SpringBoot:", e)
-    message.value = "Error: No se conecta con el Backend Java."
+    console.error("Error cargando listas:", e);
   }
-}
+};
 
-onMounted(() => {
-  loadAllData()
-})
-
-// 2. CREAR EDAD
-const createEdat = async () => {
-  if (!newEdatValue.value) return alert("Escribe una edad")
-  const valor = parseInt(newEdatValue.value)
-  const existeLocal = dbEdats.value.find(e => e.edat === valor)
-  if (existeLocal) {
-    formData.edat = existeLocal.id
-    isCreatingEdat.value = false
-    newEdatValue.value = ''
-    return 
-  }
+onMounted(async () => {
   try {
-    await axios.post('/api/edats', { edat: valor })
-    const res = await axios.get('/api/edats')
-    dbEdats.value = res.data
-    const creada = dbEdats.value.find(e => e.edat === valor)
-    if (creada) formData.edat = creada.id
-    isCreatingEdat.value = false; newEdatValue.value = ''
-  } catch (error) { console.error(error); alert("Error al guardar la edad.") }
-}
-
-// 3. CREAR NIVEL
-const createNivell = async () => {
-  if (!newNivellValue.value) return alert("Escribe un nivel")
-  const valor = parseInt(newNivellValue.value)
-  const existeLocal = dbNivells.value.find(n => n.nivell === valor)
-  if (existeLocal) {
-    formData.nivellDummy = existeLocal.id
-    isCreatingNivell.value = false
-    newNivellValue.value = ''
-    return 
-  }
-  try {
-    await axios.post('/api/nivells', { nivell: valor })
-    const res = await axios.get('/api/nivells')
-    dbNivells.value = res.data
-    const creado = dbNivells.value.find(n => n.nivell === valor)
-    if (creado) formData.nivellDummy = creado.id
-    isCreatingNivell.value = false; newNivellValue.value = ''
-  } catch (error) { console.error(error); alert("Error al guardar el nivel.") }
-}
-
-// 4. CREAR CATEGORÍA (NUEVO)
-const createCategoria = async () => {
-  if (!newCatValue.value) return alert("Escribe el nombre de la categoría")
-  const nombre = newCatValue.value
-
-  // Comprobar si ya existe (ignorando mayúsculas)
-  const existeLocal = dbCategorias.value.find(c => c.categoria.toLowerCase() === nombre.toLowerCase())
-  if (existeLocal) {
-    // Si ya existe, la marcamos automáticamente
-    if (!formData.categories.includes(existeLocal.id)) {
-      formData.categories.push(existeLocal.id)
+    await refreshLists();
+    // Si hay ?edit=123 en la URL, cargamos modo edición
+    if (route.query.edit) {
+      await loadVideoForEdit(route.query.edit);
     }
-    isCreatingCat.value = false
-    newCatValue.value = ''
-    return
+  } catch (e) { console.error(e); }
+});
+
+// --- FUNCIONES PARA CREAR NUEVOS ELEMENTOS (MODALES/PROMPTS) ---
+
+const handleAddCategoria = async () => {
+  const nombre = prompt("Escribe el nombre de la nueva categoría (ej: Acción):");
+  if (!nombre) return;
+  try {
+    await api.createCategoria(nombre);
+    await refreshLists();
+    alert(`Categoría "${nombre}" creada.`);
+  } catch (e) {
+    alert("Error creando categoría: " + e.message);
+  }
+};
+
+const handleAddSerie = async () => {
+  let nombre = prompt("Escribe el nombre de la nueva serie:");
+  if (!nombre) return;
+  nombre = nombre.trim();
+
+  const temp = prompt(`¿Qué temporada es "${nombre}"?`, "1");
+  if (!temp) return;
+  const tempNum = parseInt(temp);
+
+  const existe = listasDB.series.some(s =>
+    s.nom.toLowerCase() === nombre.toLowerCase() &&
+    s.temporada === tempNum
+  );
+
+  if (existe) {
+    alert(`⚠️ ¡Error! La serie "${nombre}" (Temporada ${tempNum}) YA EXISTE.`);
+    return;
   }
 
   try {
-    // IMPORTANTE: Si tu backend tenía el typo, esto fallará y tendrás que poner '/api/ategories'
-    // Asumo que está corregido o usamos el estándar '/api/categories'
-    await axios.post('/api/categories', { categoria: nombre })
-    
-    const res = await axios.get('/api/categories')
-    dbCategorias.value = res.data
-    
-    // Buscar la nueva y seleccionarla
-    const creada = dbCategorias.value.find(c => c.categoria === nombre)
-    if (creada) {
-       formData.categories.push(creada.id)
-    }
-    
-    isCreatingCat.value = false
-    newCatValue.value = ''
-  } catch (error) {
-    console.error(error)
-    alert("Error al crear categoría. (Si falla 404, revisa si tu backend tiene el typo '/api/ategories')")
+    await api.createSerie(nombre, temp);
+    await refreshLists();
+    alert(`✅ Serie "${nombre}" (T${temp}) creada.`);
+  } catch (e) {
+    alert("Error creando serie: " + e.message);
   }
-}
+};
 
-// 5. SELECCIÓN ARCHIVO
-const onFileSelected = (event) => {
-  const file = event.target.files[0]
-  if (file) {
-    selectedFileRaw.value = file
-    fileDetails.name = file.name
-    fileDetails.size = file.size
-    if (!formData.titol) {
-        formData.titol = file.name.replace(/\.[^/.]+$/, "")
-    }
+const handleAddEdat = async () => {
+  const valor = prompt("Escribe la nueva edad (ej: 18):");
+  if (!valor) return;
+  try {
+    await api.createEdat(valor);
+    await refreshLists();
+    alert(`Edad "+${valor}" creada.`);
+  } catch (e) {
+    alert("Error creando edad: " + e.message);
   }
-}
+};
 
-// 6. SUBIR VIDEO Y CREAR RELACIONES
+const handleAddNivell = async () => {
+  const valor = prompt("Escribe el nuevo nivel (ej: Experto):");
+  if (!valor) return;
+  try {
+    await api.createNivell(valor);
+    await refreshLists();
+    alert(`Nivel "${valor}" creado.`);
+  } catch (e) {
+    alert("Error creando nivel: " + e.message);
+  }
+};
+
+
+// --- LOGICA DE EDICIÓN EN AdminView.vue ---
+
+const loadVideoForEdit = async (id) => {
+  const v = await api.getVideo(id);
+  if (!v) return;
+
+  isEditing.value = true;
+  currentVideoId.value = v.id;
+  originalTitle.value = v.titol;
+
+
+  formData.value = {
+    titol: v.titol,
+    descripcio: v.descripcio || '',
+    edat: v.edat?.id || v.edat,
+    nivellDummy: v.nivell?.id || v.nivell,
+    serie: v.serie?.id || v.serie,
+    categories: v.categories?.[0]?.id ? v.categories.map(c => c.id) : (v.categories || [])
+  };
+
+  currentUrls.video = v.videoURL || v.url;
+  currentUrls.duracio = v.duracio;
+
+  const thumbName = v.thumbnailURL || v.thumbnail;
+  const nivel = v.nivell?.id || v.nivell;
+
+  currentUrls.thumbnail = api.getThumbnailUrl(thumbName, nivel);
+};
+
+// --- ENVÍO DEL FORMULARIO (SUBMIT) ---
+
 const submitVideo = async () => {
-  if (!selectedFileRaw.value) return alert("Por favor, selecciona un archivo de vídeo.")
-  if (!formData.edat) return alert("⚠️ Clasificación de Edad obligatoria.")
-  if (!formData.nivellDummy) return alert("⚠️ Nivel Requerido obligatorio.")
-  if (!formData.titol) return alert("⚠️ Título obligatorio.")
-  if (formData.categories.length === 0) return alert("⚠️ Selecciona al menos una Categoría.")
+  if (!formData.value.titol) return alert('Pon un título');
 
-  isUploading.value = true
-  message.value = ''
-  isSuccess.value = false
-  
+  isUploading.value = true;
   try {
-    // A) SUBIR VIDEO (3000)
-    uploadStatus.value = '1/3 Renombrando y subiendo...'
-    const uploadData = new FormData()
-    const nuevoNombreArchivo = `${formData.titol}.${fileExtension.value}`
-    uploadData.append('video', selectedFileRaw.value, nuevoNombreArchivo) 
-    
-    const resUpload = await axios.post('http://localhost:3000/api/video', uploadData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    })
-    const videoMetadata = resUpload.data
+    let finalUrl = currentUrls.video;
+    let finalThumb = currentUrls.thumbnail;
+    let finalDur = currentUrls.duracio;
+    let fileSize = 1024000; // Valor por defecto ~1MB si no se sube archivo nuevo
 
-    // B) GESTIONAR SERIE
-    uploadStatus.value = '2/3 Verificando serie...'
-    let serieIdFinal = formData.serie 
+    // 1. SUBIDA A NODE (Si el usuario seleccionó un archivo)
+    if (selectedFileRaw.value) {
+      if (isEditing.value && finalUrl) {
+        api.deleteFileNode(finalUrl, finalThumb).catch(() => { });
+      }
 
-    if (isNewSerie.value && newSerieData.nom) {
-      try {
-        await axios.post('/api/series', {
-            nom: newSerieData.nom,
-            temporada: newSerieData.temporada,
-            videos: [] 
-        })
-      } catch (err) { }
-      
-      const resSeries = await axios.get('/api/series')
-      dbSeries.value = resSeries.data
-      const serieEncontrada = dbSeries.value.find(s => s.nom === newSerieData.nom)
-      if (serieEncontrada) serieIdFinal = serieEncontrada.id
+      uploadStatus.value = 'Subiendo video a Node...';
+
+      const cleanTitle = formData.value.titol.trim();
+      const ext = selectedFileRaw.value.name.split('.').pop();
+      const forcedName = `${cleanTitle}.${ext}`;
+      const forcedThumb = `${cleanTitle}.jpg`.toLowerCase();
+
+      const nivelParaNode = formData.value.nivellDummy;
+
+      fileSize = selectedFileRaw.value.size;
+      const nodeRes = await api.uploadVideoNode(selectedFileRaw.value, forcedName, nivelParaNode);
+
+      finalUrl = forcedName;
+      finalThumb = forcedThumb;
+      finalDur = Number(nodeRes.duracio) || 0;
     }
 
-    // C) GUARDAR EN JAVA
-    uploadStatus.value = '3/3 Guardando datos y relaciones...'
-    const categoriasIds = formData.categories.map(id => parseInt(id))
+    // 2. DATOS PARA JAVA (BASE DE DATOS)
+    // Fecha de hoy para createdAt
+    const today = new Date().toISOString().split('T')[0];
 
-    const videoDTO = {
-      titol: formData.titol, 
-      videoURL: videoMetadata.videoUrl, 
-      thumbnailURL: videoMetadata.thumbnail, 
-      duracio: parseInt(videoMetadata.duracio || 0), 
-      serie: serieIdFinal, 
-      edat: formData.edat, 
-      nivell: formData.nivellDummy, 
-      categories: categoriasIds 
+    const payload = {
+      titol: formData.value.titol,
+      videoURL: finalUrl,
+      thumbnailURL: finalThumb,
+      descripcio: formData.value.descripcio,
+      duracio: parseInt(finalDur),
+
+      // IDs SIMPLES (Enteros), tal como pide el JSON de tu compañero
+      serie: formData.value.serie ? parseInt(formData.value.serie) : null,
+      edat: parseInt(formData.value.edat),
+      nivell: parseInt(formData.value.nivellDummy),
+
+      // Array de enteros
+      categories: formData.value.categories.map(id => parseInt(id)),
+
+      // METADATOS (Objeto obligatorio nuevo)
+      metadades: {
+        width: 1920,
+        height: 1080,
+        fps: 30,
+        bitrate: 5000,
+        codec: "H.264",
+        fileSize: fileSize,
+        createdAt: today
+      }
+    };
+
+    uploadStatus.value = 'Guardando datos en Spring Boot...';
+
+    // Enviamos a Java
+    await api.saveVideoJava(payload);
+
+    // Borrado lógico antiguo si editamos (Create-Delete pattern)
+    if (isEditing.value) {
+      await api.deleteVideoJava(currentVideoId.value).catch(() => { });
     }
 
-    await axios.post('/api/cataleg', videoDTO)
+    alert('¡Video guardado correctamente!');
+    router.push('/lista');
 
-    isSuccess.value = true
-    message.value = `¡Éxito! Video guardado y vinculado correctamente.`
-    
-    formData.titol = ''
-    formData.categories = [] 
-    fileDetails.name = ''
-    selectedFileRaw.value = null
-
-  } catch (error) {
-    console.error("❌ ERROR:", error)
-    isSuccess.value = false
-    
-    if (error.response) {
-       message.value = `Error Backend (${error.response.status}): ${JSON.stringify(error.response.data)}`
+  } catch (e) {
+    console.error("Error al guardar:", e);
+    // Mostrar detalles si es error del servidor
+    if (e.response && e.response.data) {
+      alert('Error del servidor: ' + JSON.stringify(e.response.data));
     } else {
-      message.value = 'Error de conexión.'
+      alert('Error al guardar: ' + e.message);
     }
   } finally {
-    isUploading.value = false
-    uploadStatus.value = ''
+    isUploading.value = false;
   }
-}
-
-const logout = () => {
-  localStorage.removeItem('user') 
-  router.push('/')
-}
+};
 </script>
 
 <style scoped>
-/* ESTILOS IDENTICOS */
-.admin-container { max-width: 900px; margin: 0 auto; padding: 20px; font-family: 'Segoe UI', sans-serif; color: #333; }
-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
-h1 { font-size: 1.5rem; margin: 0; }
-.main-content { display: grid; grid-template-columns: 1fr 1.5fr; gap: 30px; }
-@media (max-width: 768px) { .main-content { grid-template-columns: 1fr; } }
-.upload-card, .form-card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; }
-.form-card.disabled { opacity: 0.6; pointer-events: none; }
-h2 { color: #555; margin-bottom: 20px; border-left: 4px solid #E50914; padding-left: 10px; font-size: 1.2rem; }
-.upload-area { border: 2px dashed #E50914; border-radius: 8px; padding: 20px; text-align: center; background: #fffcfc; transition: 0.3s; }
-.upload-area:hover { background: #fff5f5; }
-input[type="file"] { display: none; }
-.custom-file-upload { display: block; font-weight: bold; color: #E50914; cursor: pointer; padding: 10px;}
-.file-details { margin-top: 10px; background: #f9f9f9; padding: 10px; border-radius: 5px; font-size: 0.9rem; border: 1px solid #eee; }
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-.full-width { grid-column: span 2; }
-.label-action { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-label { font-weight: 600; font-size: 0.9rem; }
-.mini-btn { background: none; border: none; color: #E50914; font-size: 0.8rem; cursor: pointer; font-weight: bold; }
-.mini-btn:hover { text-decoration: underline; }
-.mini-form { display: flex; gap: 5px; }
-.save-mini-btn { background: #333; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
-input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-textarea { height: 80px; resize: vertical; }
-.serie-box { background: #fafafa; padding: 15px; border-radius: 8px; border: 1px solid #eee; }
-.toggle-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-.toggle-btns span { font-size: 0.85rem; padding: 6px 12px; cursor: pointer; border: 1px solid #ddd; background: white; }
-.toggle-btns span:first-child { border-radius: 4px 0 0 4px; }
-.toggle-btns span:last-child { border-radius: 0 4px 4px 0; border-left: none; }
-.toggle-btns span.active { background: #333; color: white; border-color: #333; }
-.new-serie-form input { margin-bottom: 8px; }
-.mt-2 { margin-top: 10px; }
-.checkbox-container { display: flex; flex-wrap: wrap; gap: 8px; }
-.checkbox-pill { background: #f5f5f5; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; border: 1px solid #ddd; display: flex; align-items: center; gap: 5px; }
-.checkbox-pill:has(input:checked) { background: #E50914; color: white; border-color: #E50914; }
-.submit-btn { background: #E50914; color: white; width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 20px; transition: 0.3s; }
-.submit-btn:hover:not(:disabled) { background: #b2070f; }
-.submit-btn:disabled { background: #ccc; cursor: not-allowed; }
-.logout-btn { background: #333; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
-.status-msg { margin-top: 15px; padding: 10px; text-align: center; border-radius: 6px; font-weight: bold; }
-.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+.admin-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.main-content {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 30px;
+}
+
+.cta-upload {
+  background: #ff0000;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    grid-template-columns: 1fr;
+  }
+}
 </style>
