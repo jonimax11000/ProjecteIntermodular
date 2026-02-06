@@ -159,7 +159,7 @@ class ApiAuth(http.Controller):
             _logger.error("Error updating access token: %s", str(e))
             return {'error': str(e)}
 
-    @http.route('/api/update/refresh-token', type='json', auth='jwt', methods=['POST'], csrf=False, cors="*")
+    @http.route('/api/update/refresh-token', type='json', auth='none', methods=['POST'], csrf=False, cors="*")
     def updated_long_term_token(self, **kwargs):
         # Extraer parámetros - compatible con múltiples formatos
         params = {}
