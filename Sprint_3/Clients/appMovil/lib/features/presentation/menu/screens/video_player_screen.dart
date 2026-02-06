@@ -8,16 +8,15 @@ import 'package:video_player/video_player.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/core/service_locator.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/core/session_service.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/entities/video.dart';
+import 'package:exercici_disseny_responsiu_stateful/features/domain/usecases/get_videos.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/widgets/video_controls.dart';
 
 class VideoPlayerScreen extends StatefulWidget {
   final Video video;
-  final List<Video> allVideos;
 
   const VideoPlayerScreen({
     super.key,
     required this.video,
-    required this.allVideos,
   });
 
   @override
@@ -29,11 +28,36 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   bool _isVideoInitialized = false;
   bool _isPlaying = false;
   bool _showFullScreen = false;
+  
+  List<Video> _allVideos = [];
+  bool _isLoadingMoreVideos = true;
 
   @override
   void initState() {
     super.initState();
     _initializeVideo();
+    _loadMoreVideos();
+  }
+
+  Future<void> _loadMoreVideos() async {
+    try {
+      final getVideos = ServiceLocator().getVideos;
+      final videos = await getVideos();
+      if (mounted) {
+        setState(() {
+          _allVideos = videos;
+          _isLoadingMoreVideos = false;
+        });
+      }
+    } catch (e) {
+      // Manejar error silenciosamente o mostrar
+      if (mounted) {
+        setState(() {
+          _isLoadingMoreVideos = false;
+        });
+      }
+      print("Error loading more videos: $e");
+    }
   }
 
   Future<void> _initializeVideo() async {
@@ -41,6 +65,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     final sessionService = SessionService(const FlutterSecureStorage());
     final token = await sessionService.ensureValidAccessToken();
 
+    print("DEBUG: Initializing video: $baseUrl${widget.video.videoURL}");
+    print("DEBUG: Token available: ${token != null}");
+    
     _videoController = VideoPlayerController.networkUrl(
       Uri.parse("$baseUrl${widget.video.videoURL}"),
       httpHeaders: token != null ? {'Authorization': 'Bearer $token'} : {},
@@ -170,7 +197,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             _buildDescription(),
 
           // ESPACIO PARA FUTURA LISTA DE VIDEOS
-          _buildFutureVideosPlaceholder(videos: widget.allVideos),
+          _buildFutureVideosPlaceholder(videos: _allVideos),
         ],
       ),
     );
@@ -308,6 +335,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   Widget _buildFutureVideosPlaceholder({required List<Video> videos}) {
     // Filtramos videos que no sean el actual
+    if (_isLoadingMoreVideos) {
+       return const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Center(child: CircularProgressIndicator(color: Colors.white)),
+      );
+    }
+
     final otherVideos = videos.where((v) => v.id != widget.video.id).toList();
 
     if (otherVideos.isEmpty) {
@@ -352,7 +386,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (_) => VideoPlayerScreen(
-                              video: video, allVideos: widget.allVideos),
+                              video: video),
                         ),
                       );
                     },
@@ -367,10 +401,18 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                               bottomLeft: Radius.circular(8),
                             ),
                             child: Image.network(
-                              video.thumbnailURL,
+                              "${ServiceLocator().getVideoUrl()}${video.thumbnailURL}",
                               width: 120,
                               height: 80,
                               fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  width: 120,
+                                  height: 80,
+                                  color: Colors.grey[800],
+                                  child: const Icon(Icons.broken_image, color: Colors.white),
+                                );
+                              },
                             ),
                           ),
                           const SizedBox(width: 12),

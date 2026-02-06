@@ -46,7 +46,7 @@ class _SeriesDetallScreenState extends State<SeriesDetallScreen> {
       context,
       MaterialPageRoute(
         builder: (context) =>
-            VideoPlayerScreen(video: video, allVideos: videosBySerie!),
+            VideoPlayerScreen(video: video),
       ),
     );
   }

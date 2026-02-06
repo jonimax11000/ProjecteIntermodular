@@ -63,7 +63,7 @@ class _VideosScreenState extends State<VideosScreen> {
       context,
       MaterialPageRoute(
         builder: (context) =>
-            VideoPlayerScreen(video: video, allVideos: videos!),
+            VideoPlayerScreen(video: video),
       ),
     );
   }

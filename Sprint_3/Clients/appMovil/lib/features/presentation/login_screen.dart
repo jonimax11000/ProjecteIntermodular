@@ -93,15 +93,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 48,
                     child: ElevatedButton(
                       onPressed: () {
-                        /*_login(
+                        _login(
                           _emailController.text,
                           _passwordController.text,
-                        );*/
-
+                        );
+                        /*
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(builder: (_) => const HomeScreen()),
                         );
+                        */
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,

@@ -127,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
       context,
       MaterialPageRoute(
         builder: (context) =>
-            VideoPlayerScreen(video: video, allVideos: videos!),
+            VideoPlayerScreen(video: video),
       ),
     );
   }
