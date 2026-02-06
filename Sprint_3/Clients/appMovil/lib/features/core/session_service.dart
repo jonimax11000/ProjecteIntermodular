@@ -65,48 +65,26 @@ class SessionService {
   }
 
   Future<void> refreshAccessToken() async {
-    final refreshToken = await getRefreshToken();
-    final userId = await getUserId();
-    if (refreshToken == null || userId == null) {
-      throw Exception("Session expired");
-    }
-
-    final response = await http.post(
-      Uri.parse(ApiConfig.urls["refreshAccess"]!),
-      headers: {
-        'Content-Type': 'application/json',
-        'refreshToken': refreshToken,
-      },
-      body: jsonEncode({'user_id': userId}),
-    );
-
-    if (response.statusCode != 200) throw Exception("Refresh failed");
-
-    final data = jsonDecode(response.body);
-    final newAccessToken = data['access_token'];
-
-    await saveSession(
-      accessToken: newAccessToken,
-      refreshToken: refreshToken,
-      userId: userId,
-    );
-  }
-
-  Future<void> rotateRefreshToken() async {
+    final accessToken = await getAccessToken();
     final refreshToken = await getRefreshToken();
     final userId = await getUserId();
 
-    if (refreshToken == null || userId == null) {
-      throw Exception("No refresh token or user ID available");
+    if (accessToken == null || refreshToken == null || userId == null) {
+      throw Exception("No tokens or user ID available");
     }
 
     final response = await http.post(
       Uri.parse(ApiConfig.urls["rotateRefresh"]!),
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
         'refreshToken': refreshToken,
       },
-      body: jsonEncode({'user_id': userId}),
+      body: jsonEncode({
+        'params': {
+          'uid': userId,
+        }
+      }),
     );
 
     if (response.statusCode != 200) {
@@ -115,7 +93,43 @@ class SessionService {
 
     final data = jsonDecode(response.body);
 
-    if (data['status'] != 'done') {
+    if (data['result']?['status'] != 'done') {
+      throw Exception("Refresh token rotation not completed");
+    }
+
+    print("Refresh token rotated successfully");
+  }
+
+  Future<void> rotateRefreshToken() async {
+    final accessToken = await getAccessToken();
+    final refreshToken = await getRefreshToken();
+    final userId = await getUserId();
+
+    if (accessToken == null || refreshToken == null || userId == null) {
+      throw Exception("No tokens or user ID available");
+    }
+
+    final response = await http.post(
+      Uri.parse(ApiConfig.urls["rotateRefresh"]!),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+        'refreshToken': refreshToken,
+      },
+      body: jsonEncode({
+        'params': {
+          'uid': userId, // ⚡ UID en params
+        }
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception("Failed to rotate refresh token");
+    }
+
+    final data = jsonDecode(response.body);
+
+    if (data['result']?['status'] != 'done') {
       throw Exception("Refresh token rotation not completed");
     }
 
