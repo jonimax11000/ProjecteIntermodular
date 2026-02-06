@@ -13,7 +13,7 @@ class VideolistScreen extends ConsumerWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => VideoPlayerScreen(video: video),
+        builder: (context) => VideoPlayerScreen(video: video, allVideos: []),
       ),
     );
   }

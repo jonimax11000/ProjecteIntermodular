@@ -2,21 +2,15 @@ import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/s
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:video_player/video_player.dart';
-
 import 'package:exercici_disseny_responsiu_stateful/features/core/service_locator.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/core/session_service.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/entities/video.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/usecases/get_videos.dart';
-
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/widgets/submenu.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/widgets/video_carousel.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/widgets/videos_layout.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/search/search_screen.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/videoList/videoList_screen.dart';
-
-import 'widgets/video_player_card.dart';
-import 'widgets/video_controls.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -27,10 +21,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
-
   Video? _selectedVideo;
   List<Video>? videos;
-
   late final GetVideos getVideos;
 
   bool isLoading = true;
@@ -134,7 +126,8 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => VideoPlayerScreen(video: video),
+        builder: (context) =>
+            VideoPlayerScreen(video: video, allVideos: videos!),
       ),
     );
   }

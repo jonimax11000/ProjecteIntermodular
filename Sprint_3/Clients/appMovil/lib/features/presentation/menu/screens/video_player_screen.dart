@@ -12,8 +12,13 @@ import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/w
 
 class VideoPlayerScreen extends StatefulWidget {
   final Video video;
+  final List<Video> allVideos;
 
-  const VideoPlayerScreen({super.key, required this.video});
+  const VideoPlayerScreen({
+    super.key,
+    required this.video,
+    required this.allVideos,
+  });
 
   @override
   State<VideoPlayerScreen> createState() => _VideoPlayerScreenState();
@@ -165,7 +170,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             _buildDescription(),
 
           // ESPACIO PARA FUTURA LISTA DE VIDEOS
-          _buildFutureVideosPlaceholder(),
+          _buildFutureVideosPlaceholder(videos: widget.allVideos),
         ],
       ),
     );
@@ -301,15 +306,25 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     );
   }
 
-  Widget _buildFutureVideosPlaceholder() {
+  Widget _buildFutureVideosPlaceholder({required List<Video> videos}) {
+    // Filtramos videos que no sean el actual
+    final otherVideos = videos.where((v) => v.id != widget.video.id).toList();
+
+    if (otherVideos.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: const Text(
+          'No hay otros videos disponibles',
+          style: TextStyle(color: Colors.white70),
+        ),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 24),
-
-          // TÍTULO PARA FUTURA SECCIÓN
           const Text(
             'Más videos',
             style: TextStyle(
@@ -318,38 +333,68 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-
           const SizedBox(height: 16),
-
-          // PLACEHOLDER PARA LISTA FUTURA
-          Container(
-            height: 120,
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E1E1E),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.1),
-              ),
-            ),
-            child: const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.video_library,
-                    color: Colors.white30,
-                    size: 40,
+          Column(
+            children: otherVideos.map((video) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12.0),
+                child: Card(
+                  elevation: 4,
+                  color: const Color(0xFF1E1E1E),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Lista de videos próximamente',
-                    style: TextStyle(
-                      color: Colors.white30,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(8),
+                    onTap: () {
+                      // Navegar al nuevo video
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => VideoPlayerScreen(
+                              video: video, allVideos: widget.allVideos),
+                        ),
+                      );
+                    },
+                    child: SizedBox(
+                      height: 80,
+                      child: Row(
+                        children: [
+                          // THUMBNAIL
+                          ClipRRect(
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(8),
+                              bottomLeft: Radius.circular(8),
+                            ),
+                            child: Image.network(
+                              video.thumbnailURL,
+                              width: 120,
+                              height: 80,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          // TÍTULO
+                          Expanded(
+                            child: Text(
+                              video.titol,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                        ],
+                      ),
                     ),
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            }).toList(),
           ),
         ],
       ),
