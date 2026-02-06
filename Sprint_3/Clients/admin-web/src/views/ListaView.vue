@@ -49,7 +49,17 @@ onMounted(async () => {
 // Helpers de visualización
 const getThumb = (name, nivel) => api.getThumbnailUrl(name, nivel);
 const handleErr = (e) => e.target.src = 'https://via.placeholder.com/300x169?text=Error';
-const formatTime = (m) => m ? `${m} min` : '0 min';
+const formatTime = (s) => {
+  const totalSeconds = Math.floor(Number(s) || 0);
+  const hrs = Math.floor(totalSeconds / 3600);
+  const mins = Math.floor((totalSeconds % 3600) / 60);
+  const secs = totalSeconds % 60;
+
+  if (hrs > 0) {
+    return `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  }
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+};
 
 // Navegación a edición
 const editVideo = (id) => router.push({ path: '/admin', query: { edit: id } });
