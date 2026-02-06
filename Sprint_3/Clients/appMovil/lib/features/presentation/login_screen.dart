@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'package:exercici_disseny_responsiu_stateful/features/core/session_service.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
+
 import '../core/api_client.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/home_screen.dart';
@@ -18,6 +21,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final registerURL = ApiConfig.urls["register"]!;
 
   final FlutterSecureStorage storage = const FlutterSecureStorage();
 
@@ -89,15 +93,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 48,
                     child: ElevatedButton(
                       onPressed: () {
-                        /*_login(
+                        _login(
                           _emailController.text,
                           _passwordController.text,
-                        );*/
-
+                        );
+                        /*
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(builder: (_) => const HomeScreen()),
-                        );
+                        );*/
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
@@ -125,7 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           height: 48,
                           child: ElevatedButton(
                             onPressed: () {
-                              openBrowser("https://10.0.2.2:8069/web/signup");
+                              openBrowser(registerURL);
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF1E1E1E),
@@ -201,43 +205,67 @@ class _LoginScreenState extends State<LoginScreen> {
       print("Response status: ${response.statusCode}");
       print("Response body: ${response.body}");
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        // Handle Odoo JSON-RPC response wrapper
-        final result = data['result'] ?? data;
-
-        if (result['error'] != null) {
-          debugPrint("Login error from API: ${result['error']}");
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(result['error'].toString())),
-          );
-          return;
-        }
-
-        final token = result['token'];
-
-        if (token != null) {
-          await storage.write(key: 'jwt', value: token);
-          print("TOKEN: $token");
-
-          if (mounted) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => const HomeScreen()),
-            );
-          }
-        } else {
-          debugPrint("Token is null in response");
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Error: No token received")),
-          );
-        }
-      } else {
+      if (response.statusCode != 200) {
         debugPrint("Login failed with status: ${response.statusCode}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Login error")),
+        );
+        return;
       }
+
+      final data = jsonDecode(response.body);
+      final result = data['result'] ?? data;
+
+      // error backend
+      if (result['error'] != null) {
+        debugPrint("Login error from API: ${result['error']}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result['error'].toString())),
+        );
+        return;
+      }
+
+      // tokens nuevos
+      final String? accessToken = result['token'];
+      final String? refreshToken = result['refreshToken'];
+      final decodedToken = JwtDecoder.decode(accessToken!);
+      final userId = decodedToken['user_id'];
+
+      if (accessToken == null || refreshToken == null || userId == null) {
+        debugPrint("Invalid login response structure");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Invalid login response")),
+        );
+        return;
+      }
+
+      // guardar sesión completa
+      final sessionService = SessionService(const FlutterSecureStorage());
+
+      await sessionService.saveSession(
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        userId: userId,
+      );
+
+      await sessionService.rotateRefreshToken();
+
+      print("SESSION SAVED");
+      print("AccessToken: $accessToken");
+      print("RefreshToken: $refreshToken");
+      print("UserId: $userId");
+
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
     } catch (err) {
-      debugPrint("Error de red: $err");
+      debugPrint("Network error: $err");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Network error")),
+      );
     }
   }
 

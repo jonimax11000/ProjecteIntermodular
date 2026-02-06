@@ -113,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _onVideoTap(Video video) async {
     final sessionService = SessionService(const FlutterSecureStorage());
-    final tokenData = await sessionService.getTokenData();
+    final tokenData = await sessionService.getAccessTokenData();
 
     if (tokenData == null) return;
 

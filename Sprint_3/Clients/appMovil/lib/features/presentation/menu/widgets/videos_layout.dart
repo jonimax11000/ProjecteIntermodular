@@ -164,7 +164,6 @@ class _VideoLayoutCardState extends ConsumerState<_VideoLayoutCard> {
                   ),
                 ),
 
-                /// 📝 INFO
                 Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
@@ -183,8 +182,6 @@ class _VideoLayoutCardState extends ConsumerState<_VideoLayoutCard> {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-
-                      /// ❤️ FAVORITO
                       GestureDetector(
                         onTap: () {
                           if (isFavorite) {

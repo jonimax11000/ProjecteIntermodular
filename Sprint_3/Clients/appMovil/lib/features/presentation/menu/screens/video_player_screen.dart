@@ -34,7 +34,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   Future<void> _initializeVideo() async {
     final String baseUrl = ServiceLocator().getVideoUrl();
     final sessionService = SessionService(const FlutterSecureStorage());
-    final token = await sessionService.getToken();
+    final token = await sessionService.ensureValidAccessToken();
 
     _videoController = VideoPlayerController.networkUrl(
       Uri.parse("$baseUrl${widget.video.videoURL}"),
