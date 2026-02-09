@@ -12,7 +12,7 @@ file_public_key = os.path.join(os.path.dirname(__file__), "public_key.pem")
 
 class JwtToken:
     JWT_ALGORITHM = "RS256"
-    ACCESS_TOKEN_SECONDS = 3600  # Aumentado para pruebas, ajustar según necesidad
+    ACCESS_TOKEN_SECONDS = 6000  # Aumentado para pruebas, ajustar según necesidad
     REFRESH_TOKEN_SECONDS = 86400
 
     @classmethod
