@@ -1,0 +1,75 @@
+package com.pi.springboot.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+import com.pi.springboot.DTO.EdatDTO;
+import com.pi.springboot.services.EdatService;
+
+@Controller
+public class EdatController {
+    @Autowired
+    private EdatService edatService;
+
+    @GetMapping("/api/edats")
+    @CrossOrigin(origins = "*")
+    @ResponseBody
+    public List<EdatDTO> getEdats() {
+        List<EdatDTO> edats = edatService.getAllEdats();
+        return edats;
+    }
+
+    @GetMapping("/api/edats/{id}")
+    @CrossOrigin(origins = "*")
+    @ResponseBody
+    public EdatDTO getEdatById(@PathVariable Long id) {
+        EdatDTO edat = edatService.getEdatById(id);
+        return edat;
+    }
+
+    @PostMapping("/api/edats")
+    @CrossOrigin(origins = "*")
+    @PreAuthorize("#jwt.getClaimAsString('role') == 'admin'")
+    public ResponseEntity<EdatDTO> addEdat(@RequestBody EdatDTO newEdat, @AuthenticationPrincipal Jwt jwt) {
+        try {
+            edatService.saveEdat(newEdat);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/api/edats")
+    @CrossOrigin(origins = "*")
+    @PreAuthorize("#jwt.getClaimAsString('role') == 'admin'")
+    public ResponseEntity<EdatDTO> updateEdat(@RequestBody EdatDTO updEdat, @AuthenticationPrincipal Jwt jwt) {
+        try {
+            EdatDTO laEdat = edatService.getEdatById(updEdat.getId());
+            if (laEdat == null) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            } else {
+                // com ja sabem que existeix, save actualitza
+                edatService.changeEdat(laEdat, updEdat);
+                return new ResponseEntity<>(updEdat, HttpStatus.OK);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("/api/edats/{id}")
+    @CrossOrigin(origins = "*")
+    @PreAuthorize("#jwt.getClaimAsString('role') == 'admin'")
+    public ResponseEntity<String> deleteEdat(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
+        edatService.deleteEdat(id);
+        return new ResponseEntity<>("Edat borrada satisfactoriamente", HttpStatus.OK);
+    }
+}

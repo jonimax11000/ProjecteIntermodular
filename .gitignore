@@ -137,3 +137,34 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+
+**/public/thumbnails/*
+**/public/videos/*
+!**/public/thumbnails/.gitkeep
+!**/public/videos/.gitkeep
+
+# Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+pubspec.lock
+build/
+.pub-cache/
+.pub/
+*.iml
+*.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+
+# Odoo / proyecto
+datos_db/
+filestore/

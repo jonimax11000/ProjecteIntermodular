@@ -1,0 +1,74 @@
+{
+    "categories": [
+        {
+            "id": 1,
+            "name": "Infantil"
+        },
+        {
+            "id": 2,
+            "name": "Educatiu"
+        },
+        {
+            "id": 3,
+            "name": "Tecnologia"
+        }
+    ],
+    "ages": [
+        {
+            "id": 1,
+            "label": "3+"
+        },
+        {
+            "id": 2,
+            "label": "7+"
+        },
+        {
+            "id": 3,
+            "label": "12+"
+        }
+    ],
+    "series": [
+        {
+            "id": 1,
+            "name": "Aprèn Flutter",
+            "season": 1
+        },
+        {
+            "id": 2,
+            "name": "Introducció a Docker",
+            "season": 1
+        }
+    ],
+    "videos": [
+        {
+            "id": 1,
+            "title": "Widgets bàsics",
+            "description": "Introducció als widgets de Flutter",
+            "duration": "12:34",
+            "thumbnail": "https://picsum.photos/400/250?1",
+            "categoryId": 3,
+            "ageId": 3,
+            "seriesId": 1
+        },
+        {
+            "id": 2,
+            "title": "Stateful vs Stateless",
+            "description": "Gestió d'estat a Flutter",
+            "duration": "18:20",
+            "thumbnail": "https://picsum.photos/400/250?2",
+            "categoryId": 3,
+            "ageId": 3,
+            "seriesId": 1
+        },
+        {
+            "id": 3,
+            "title": "Què és Docker?",
+            "description": "Conceptes bàsics de Docker",
+            "duration": "15:10",
+            "thumbnail": "https://picsum.photos/400/250?3",
+            "categoryId": 2,
+            "ageId": 2,
+            "seriesId": 2
+        }
+    ]
+}

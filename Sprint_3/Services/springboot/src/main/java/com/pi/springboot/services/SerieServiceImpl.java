@@ -1,0 +1,116 @@
+package com.pi.springboot.services;
+
+import com.pi.springboot.DTO.NivellDTO;
+import com.pi.springboot.DTO.SerieDTO;
+import com.pi.springboot.model.Nivell;
+import com.pi.springboot.model.Serie;
+import com.pi.springboot.model.Video;
+import com.pi.springboot.repository.SerieRepository;
+
+import jakarta.persistence.EntityNotFoundException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+@Service
+public class SerieServiceImpl implements SerieService {
+    @Autowired
+    private SerieRepository seriesrepository;
+
+    @Autowired
+    @Lazy
+    private VideoService videoService;
+
+    @Override
+    public List<SerieDTO> getAllSeries() {
+        List<Serie> lista = seriesrepository.findAll();
+        List<SerieDTO> listaResultado = new ArrayList<SerieDTO>();
+
+        for (int i = 0; i < lista.size(); ++i) {
+            listaResultado.add(SerieDTO.convertToDTO(lista.get(i)));
+        }
+        return listaResultado;
+    }
+
+    @Override
+    public SerieDTO getSerieById(Long id) {
+        Optional<Serie> serie = seriesrepository.findById(id);
+        if (serie.isPresent()) {
+            return SerieDTO.convertToDTO(serie.get());
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public Serie getSerieEntityById(Long id) {
+        Optional<Serie> serie = seriesrepository.findById(id);
+        if (serie.isPresent()) {
+            return serie.get();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public List<SerieDTO> getSeriesByName(String name) {
+        List<Serie> lista = seriesrepository.findByNom(name);
+        List<SerieDTO> listaResultado = new ArrayList<SerieDTO>();
+
+        for (Serie s : lista) {
+            listaResultado.add(SerieDTO.convertToDTO(s));
+        }
+        return listaResultado;
+    }
+
+    @Override
+    public SerieDTO getSeriesByVideo(Long id) {
+        Optional<Serie> serie = seriesrepository.findByVideo(id);
+        if (serie.isPresent()) {
+            return SerieDTO.convertToDTO(serie.get());
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public void saveSerie(SerieDTO serieDTO) {
+        Set<Video> videos = new HashSet<>();
+        if (serieDTO.getVideos() != null) {
+            for (Long videoId : serieDTO.getVideos()) {
+                videos.add(videoService.getVideoEntityById(videoId));
+            }
+        }
+        Serie serie = SerieDTO.convertToEntity(serieDTO, videos);
+        seriesrepository.save(serie);
+    }
+
+    @Override
+    public void changeSerie(SerieDTO laSerie, SerieDTO updSerie) {
+        Serie serie = seriesrepository.findById(laSerie.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Edat not found with id: " + laSerie.getId()));
+
+        if ((!serie.getNom().equals(updSerie.getNom()) || !serie.getTemporada().equals(updSerie.getTemporada()))
+                && seriesrepository.existsByNomAndTemporada(updSerie.getNom(), updSerie.getTemporada())) {
+            throw new IllegalStateException("Serie with name " + updSerie.getNom() + " and temporada "
+                    + updSerie.getTemporada() + " already exists.");
+        }
+
+        serie.setNom(updSerie.getNom());
+        serie.setTemporada(updSerie.getTemporada());
+
+        seriesrepository.save(serie);
+    }
+
+    @Override
+    public void deleteSerie(Long id) {
+        seriesrepository.deleteById(id);
+    }
+}

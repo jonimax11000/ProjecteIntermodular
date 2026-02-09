@@ -1,0 +1,92 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_db_spring
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+  odoo:
+    build: .
+    restart: always
+    # Ports exposed via Nginx now
+    # ports:
+    #   - "8069:8069"
+    depends_on:
+      - db
+    environment:
+      - HOST=db
+      - USER=odoo
+      - PASSWORD=odoo
+    volumes:
+      - ./Sprint_3/Services/Odoo/extra-addons:/mnt/extra-addons
+      - ./Sprint_3/Services/Odoo/config:/etc/odoo
+      - ./Sprint_3/Services/Odoo/log:/var/log/odoo
+      - ./Sprint_3/Services/Odoo/filestore:/var/lib/odoo/
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8069:443"
+    volumes:
+      - ./Sprint_3/Services/Nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./Sprint_3/Services/Nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      - odoo
+  db:
+    image: postgres:15
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_DB=postgres
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - ./Sprint_3/Services/Odoo/datos_db:/var/lib/postgresql/data/
+  express_app:
+    build: ./Sprint_3/Services/Express
+    container_name: express_ffmpeg_service
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      JWT_PUBLIC_KEY_PATH: /app/public_key.pem
+    volumes:
+      - ./Sprint_3/Services/Express:/app
+      - /app/node_modules
+      # Montamos la clave pública en modo solo lectura
+      - ./public_key.pem:/app/public_key.pem:ro
+  spring_app:
+    build: ./Sprint_3/Services/springboot
+    container_name: spring_boot_service
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/Justflix?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      # Opcional: Variable de entorno para indicar la ruta de la clave
+      JWT_PUBLIC_KEY_PATH: /public_key.pem
+    volumes:
+      # Montamos la clave pública en modo solo lectura
+      - ./public_key.pem:/public_key.pem:ro
+
+volumes:
+  mysql_data:
