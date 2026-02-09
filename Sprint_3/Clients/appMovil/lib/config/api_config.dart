@@ -21,32 +21,32 @@ class ApiConfig {
 
     if (Platform.isAndroid) {
       return {
-        "login": "https://172.20.10.8:8069/api/authenticate",
-        "cataleg": "https://172.20.10.8:8081/api/cataleg",
-        "catalegBySeries": "https://172.20.10.8:8081/api/catalegBySerie/:id",
-        "catalegByName": "https://172.20.10.8:8081/api/catalegByName/:name",
-        "video": "https://172.20.10.8:3000/api",
-        "series": "https://172.20.10.8:8081/api/series",
-        "seriesByName": "https://172.20.10.8:8081/api/seriesByName/:name",
-        "categorias": "https://172.20.10.8:8081/api/categories",
-        "register": "https://172.20.10.8:8069/web/signup",
-        "refreshAccess": "https://172.20.10.8:8069/api/update/access-token",
-        "rotateRefresh": "https://172.20.10.8:8069/api/update/refresh-token"
+        "login": "https://10.0.2.2:8069/api/authenticate",
+        "cataleg": "https://10.0.2.2:8081/api/cataleg",
+        "catalegBySeries": "https://10.0.2.2:8081/api/catalegBySerie/:id",
+        "catalegByName": "https://10.0.2.2:8081/api/catalegByName/:name",
+        "video": "https://10.0.2.2:3000/api",
+        "series": "https://10.0.2.2:8081/api/series",
+        "seriesByName": "https://10.0.2.2:8081/api/seriesByName/:name",
+        "categorias": "https://10.0.2.2:8081/api/categories",
+        "register": "https://10.0.2.2:8069/web/signup",
+        "refreshAccess": "https://10.0.2.2:8069/api/update/access-token",
+        "rotateRefresh": "https://10.0.2.2:8069/api/update/refresh-token"
       };
     }
 
     return {
-      "login": "https://172.20.10.8:8069/api/authenticate",
-      "cataleg": "https://172.20.10.8:8081/api/cataleg",
-      "catalegBySeries": "https://172.20.10.8:8081/api/catalegBySerie/:id",
-      "catalegByName": "https://172.20.10.8:8081/api/catalegByName/:name",
-      "video": "https://172.20.10.8:3000/api",
-      "series": "https://172.20.10.8:8081/api/series",
-      "seriesByName": "https://172.20.10.8:8081/api/seriesByName/:name",
-      "categorias": "https://172.20.10.8:8081/api/categories",
-      "register": "https://172.20.10.8:8069/web/signup",
-      "refreshAccess": "https://172.20.10.8:8069/api/update/access-token",
-      "rotateRefresh": "https://172.20.10.8:8069/api/update/refresh-token"
+      "login": "https://10.0.2.2:8069/api/authenticate",
+      "cataleg": "https://10.0.2.2:8081/api/cataleg",
+      "catalegBySeries": "https://10.0.2.2:8081/api/catalegBySerie/:id",
+      "catalegByName": "https://10.0.2.2:8081/api/catalegByName/:name",
+      "video": "https://10.0.2.2:3000/api",
+      "series": "https://10.0.2.2:8081/api/series",
+      "seriesByName": "https://10.0.2.2:8081/api/seriesByName/:name",
+      "categorias": "https://10.0.2.2:8081/api/categories",
+      "register": "https://10.0.2.2:8069/web/signup",
+      "refreshAccess": "https://10.0.2.2:8069/api/update/access-token",
+      "rotateRefresh": "https://10.0.2.2:8069/api/update/refresh-token"
     };
   }
 }

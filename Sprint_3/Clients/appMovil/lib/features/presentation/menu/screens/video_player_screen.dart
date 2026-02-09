@@ -8,7 +8,6 @@ import 'package:video_player/video_player.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/core/service_locator.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/core/session_service.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/entities/video.dart';
-import 'package:exercici_disseny_responsiu_stateful/features/domain/usecases/get_videos.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/widgets/video_controls.dart';
 
 class VideoPlayerScreen extends StatefulWidget {
@@ -28,7 +27,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   bool _isVideoInitialized = false;
   bool _isPlaying = false;
   bool _showFullScreen = false;
-  
+
   List<Video> _allVideos = [];
   bool _isLoadingMoreVideos = true;
 
@@ -40,40 +39,80 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   }
 
   Future<void> _loadMoreVideos() async {
-    try {
-      final getVideos = ServiceLocator().getVideos;
-      final videos = await getVideos();
-      if (mounted) {
-        setState(() {
-          _allVideos = videos;
-          _isLoadingMoreVideos = false;
-        });
-      }
-    } catch (e) {
-      // Manejar error silenciosamente o mostrar
-      if (mounted) {
-        setState(() {
-          _isLoadingMoreVideos = false;
-        });
-      }
-      print("Error loading more videos: $e");
-    }
+    // TODO: Implement video loading logic
+    setState(() {
+      _isLoadingMoreVideos = false;
+    });
   }
 
   Future<void> _initializeVideo() async {
     final String baseUrl = ServiceLocator().getVideoUrl();
     final sessionService = SessionService(const FlutterSecureStorage());
-    final token = await sessionService.ensureValidAccessToken();
+    String? token = await sessionService.ensureValidAccessToken();
+    String? refreshToken = await sessionService.getRefreshToken();
 
-    print("DEBUG: Initializing video: $baseUrl${widget.video.videoURL}");
+    print("DEBUG: Initializing video: $baseUrl");
     print("DEBUG: Token available: ${token != null}");
-    
-    _videoController = VideoPlayerController.networkUrl(
-      Uri.parse("$baseUrl${widget.video.videoURL}"),
-      httpHeaders: token != null ? {'Authorization': 'Bearer $token'} : {},
-    );
+    print(
+        "DEBUG: Refresh Token available: ${refreshToken != null} - $refreshToken");
 
+    // 1. Hacer petición HEAD para obtener posibles nuevos tokens
     try {
+      final uri = Uri.parse("$baseUrl${widget.video.videoURL}");
+      final client = HttpClient();
+      final request = await client.openUrl('HEAD', uri);
+
+      if (token != null) {
+        request.headers.set('Authorization', 'Bearer $token');
+      }
+      if (refreshToken != null) {
+        request.headers.set('refresh-token', refreshToken);
+      }
+
+      final response = await request.close();
+
+      // Buscar cabeceras de nuevos tokens
+      final newToken = response.headers.value('x-new-token');
+      final newRefreshToken = response.headers.value('x-new-refresh-token');
+
+      if (newToken != null && newRefreshToken != null) {
+        // Guardar nuevos tokens
+        final userId = await sessionService.getUserId();
+        if (userId != null) {
+          await sessionService.saveSession(
+            accessToken: newToken,
+            refreshToken: newRefreshToken,
+            userId: userId,
+          );
+          token = newToken;
+          refreshToken = newRefreshToken;
+        }
+      } else if (newToken != null) {
+        final userId = await sessionService.getUserId();
+        if (userId != null && refreshToken != null) {
+          await sessionService.saveSession(
+            accessToken: newToken,
+            refreshToken: refreshToken,
+            userId: userId,
+          );
+          token = newToken;
+        }
+      }
+    } catch (e) {
+      print('Error en petición HEAD: $e');
+    }
+
+    // 2. Inicializar el video player
+    try {
+      final videoUrl = "$baseUrl${widget.video.videoURL}";
+      _videoController = VideoPlayerController.networkUrl(
+        Uri.parse(videoUrl),
+        httpHeaders: {
+          if (token != null) 'Authorization': 'Bearer $token',
+          if (refreshToken != null) 'refresh-token': refreshToken,
+        },
+      );
+
       await _videoController!.initialize();
       await _videoController!.setVolume(1.0);
 
@@ -158,12 +197,12 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar(context),
       body: _buildContent(),
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
       backgroundColor: const Color(0xFF121212),
       elevation: 0,
@@ -197,7 +236,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             _buildDescription(),
 
           // ESPACIO PARA FUTURA LISTA DE VIDEOS
-          _buildFutureVideosPlaceholder(videos: _allVideos),
+          _buildFutureVideosPlaceholder(),
         ],
       ),
     );
@@ -333,16 +372,17 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     );
   }
 
-  Widget _buildFutureVideosPlaceholder({required List<Video> videos}) {
+  Widget _buildFutureVideosPlaceholder() {
     // Filtramos videos que no sean el actual
     if (_isLoadingMoreVideos) {
-       return const Padding(
+      return const Padding(
         padding: EdgeInsets.all(16.0),
         child: Center(child: CircularProgressIndicator(color: Colors.white)),
       );
     }
 
-    final otherVideos = videos.where((v) => v.id != widget.video.id).toList();
+    final otherVideos =
+        _allVideos.where((v) => v.id != widget.video.id).toList();
 
     if (otherVideos.isEmpty) {
       return Padding(
@@ -385,8 +425,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => VideoPlayerScreen(
-                              video: video),
+                          builder: (_) => VideoPlayerScreen(video: video),
                         ),
                       );
                     },
@@ -410,7 +449,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                                   width: 120,
                                   height: 80,
                                   color: Colors.grey[800],
-                                  child: const Icon(Icons.broken_image, color: Colors.white),
+                                  child: const Icon(Icons.broken_image,
+                                      color: Colors.white),
                                 );
                               },
                             ),
