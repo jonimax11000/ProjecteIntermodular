@@ -1,3 +1,4 @@
+import 'package:exercici_disseny_responsiu_stateful/features/presentation/login_screen.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/screens/video_player_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -126,8 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            VideoPlayerScreen(video: video),
+        builder: (context) => VideoPlayerScreen(video: video),
       ),
     );
   }
@@ -288,6 +288,23 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // ---------------------------
+  // LOGOUT
+  // ---------------------------
+
+  Future<void> _logout() async {
+    final sessionService = SessionService(const FlutterSecureStorage());
+    await sessionService.clearSession();
+
+    if (!mounted) return;
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      (route) => false,
+    );
+  }
+
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       backgroundColor: const Color(0xFF121212),
@@ -297,6 +314,43 @@ class _HomeScreenState extends State<HomeScreen> {
         "assets/img/justflix.png",
         height: 44,
       ),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.logout, color: Colors.redAccent),
+          tooltip: 'Cerrar sesión',
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                backgroundColor: const Color(0xFF1E1E1E),
+                title: const Text(
+                  '¿Cerrar sesión?',
+                  style: TextStyle(color: Colors.white),
+                ),
+                content: const Text(
+                  'Se eliminará tu sesión y tendrás que volver a iniciar sesión.',
+                  style: TextStyle(color: Colors.white70),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: const Text('Cancelar',
+                        style: TextStyle(color: Colors.white54)),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      _logout();
+                    },
+                    child: const Text('Cerrar sesión',
+                        style: TextStyle(color: Colors.redAccent)),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 
