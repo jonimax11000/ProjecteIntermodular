@@ -99,4 +99,21 @@ Este Odoo no es uno del montón. Tiene **esteroides**:
     *   Si las suscripciones no expiran o no se renuevan, el problema está en el código de este módulo.
 
 ---
+
+## 🛠️ Explicación del Parche JWT (`__init__.py`)
+
+Si miras el código de `odoo_jwt/__init__.py`, verás que está "parcheado". Aquí te explico por qué, comparándolo con la versión original:
+
+### ¿Qué cambió y por qué?
+
+| Característica | Versión Original | Versión Modificada (Odoo 16) | ¿Por qué? |
+| :--- | :--- | :--- | :--- |
+| **Firma de la función** | `_install_jwt(env)` | `_install_jwt(cr, registry)` | Odoo 16 usa el cursor (`cr`) y el registro en el `post_init_hook`. |
+| **El "Entorno" (env)** | Venía por defecto | Se crea manualmente | Al no recibirlo, tenemos que crearlo nosotros usando `SUPERUSER_ID`. |
+| **Carpeta `setup`** | Se asume que existe | Se crea si no existe | Evita errores si la carpeta no se subió al repositorio o se borró. |
+
+### En resumen:
+La versión original fallaría en Odoo 16 porque intentaría recibir una variable (`env`) que Odoo ya no envía así. El parche asegura que el "secreto" de seguridad (JWT) se genere correctamente nada más instalar el módulo, sin que tú tengas que hacer nada.
+
+---
 *Hecho por tu asistente de IA favorito. ¡A picar código!* 🤖
