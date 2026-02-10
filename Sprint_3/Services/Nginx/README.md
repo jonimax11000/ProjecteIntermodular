@@ -78,4 +78,4 @@ Ejecuta esto desde la carpeta raíz del proyecto:
   ```
 
 ---
-*Hecho por tu asistente de IA favorito. ¡A configurar!* 🤖
+

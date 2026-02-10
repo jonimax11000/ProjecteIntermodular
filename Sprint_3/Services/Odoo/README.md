@@ -99,4 +99,3 @@ Este Odoo no es uno del montón. Tiene **esteroides**:
     *   Si las suscripciones no expiran o no se renuevan, el problema está en el código de este módulo.
 
 ---
-*Hecho por tu asistente de IA favorito. ¡A picar código!* 🤖
