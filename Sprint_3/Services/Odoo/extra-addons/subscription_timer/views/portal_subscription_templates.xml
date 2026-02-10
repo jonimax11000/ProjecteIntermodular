@@ -23,7 +23,7 @@
                                         <th>Días Restantes</th>
                                         <th class="text-center">Auto-renovar</th>
                                         <th>Progreso</th>
-                                        <th class="text-right">Acciones</th>
+                                        <th class="text-end">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -33,7 +33,7 @@
                                             <td><t t-esc="sub.start_date"/></td>
                                             <td><t t-esc="sub.end_date"/></td>
                                             <td>
-                                                <span t-attf-class="badge badge-#{sub.days_remaining > 7 and 'success' or sub.days_remaining > 3 and 'warning' or 'danger'} text-dark font-weight-bold">
+                                                <span t-attf-class="badge bg-#{sub.days_remaining > 7 and 'success' or sub.days_remaining > 3 and 'warning' or 'danger'} text-dark fw-bold">
                                                     <t t-esc="sub.days_remaining"/> días
                                                 </span>
                                             </td>
@@ -47,11 +47,11 @@
                                             <td>
                                                 <div class="progress">
                                                     <div class="progress-bar" role="progressbar" t-attf-style="width: #{sub.progress}%" t-attf-aria-valuenow="#{sub.progress}" aria-valuemin="0" aria-valuemax="100">
-                                                        <t t-esc="round(sub.progress, 1)"/>%
+                                                        <t t-esc="'%.1f' % sub.progress"/>%
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="text-right">
+                                            <td class="text-end">
                                                 <a t-attf-href="/my/subscription/cancel/#{sub.id}" class="btn btn-sm btn-danger shadow-sm" onclick="return confirm('¿Estás seguro de que deseas cancelar esta suscripción?')">
                                                     <i class="fa fa-times"/> Cancelar
                                                 </a>
@@ -87,8 +87,8 @@
                                             <td><t t-esc="sub.start_date"/></td>
                                             <td><t t-esc="sub.end_date"/></td>
                                             <td>
-                                                <span t-if="sub.state == 'expired'" class="badge badge-secondary text-dark font-weight-bold">Expirada</span>
-                                                <span t-if="sub.state == 'cancelled'" class="badge badge-danger text-dark font-weight-bold">Cancelada</span>
+                                                <span t-if="sub.state == 'expired'" class="badge bg-secondary text-dark fw-bold">Expirada</span>
+                                                <span t-if="sub.state == 'cancelled'" class="badge bg-danger text-dark fw-bold">Cancelada</span>
                                             </td>
                                         </tr>
                                     </t>

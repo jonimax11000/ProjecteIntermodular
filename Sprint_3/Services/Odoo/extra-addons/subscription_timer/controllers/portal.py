@@ -1,6 +1,9 @@
 from odoo import http
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal
+import logging
+
+_logger = logging.getLogger(__name__)
 
 class SubscriptionPortal(CustomerPortal):
     
@@ -26,6 +29,7 @@ class SubscriptionPortal(CustomerPortal):
             ('partner_id', '=', partner.id),
             ('state', '=', 'active')
         ])
+        _logger.info("SUBSCRIPTION TIMER: Portal found %s active subs for partner %s", len(active_subscriptions), partner.name)
         
         expired_subscriptions = request.env['subscription.subscription'].sudo().search([
             ('partner_id', '=', partner.id),
