@@ -59,6 +59,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     // 1. Hacer petición HEAD para obtener posibles nuevos tokens
     try {
       final uri = Uri.parse("$baseUrl${widget.video.videoURL}");
+      print("\nDEBUG: Making HEAD request to $uri\n\n\n");
       final client = HttpClient();
       final request = await client.openUrl('HEAD', uri);
 

@@ -30,19 +30,16 @@ class AuthenticatedHttpClient extends http.BaseClient {
 
     // Añadir refresh token para que el backend pueda renovar si es necesario
     final refreshToken = await _sessionService.getRefreshToken();
-    print('🔄 Refresh token: $refreshToken');
     if (refreshToken != null) {
       request.headers['refresh-token'] = refreshToken;
     }
 
-    print('🔄 Request headers: ${request.headers}');
 
     // Enviar la petición original
     var response = await _inner.send(request);
 
     // Si recibimos 401, intentar renovar el token y reintentar UNA vez
     if (response.statusCode == 401) {
-      print('🔄 Received 401, attempting token refresh...');
 
       try {
         // Renovar el token
@@ -56,7 +53,6 @@ class AuthenticatedHttpClient extends http.BaseClient {
           final newRequest = _copyRequest(request);
           newRequest.headers['Authorization'] = 'Bearer $newToken';
 
-          print('✅ Retrying request with new token...');
           response = await _inner.send(newRequest);
         }
       } catch (e) {
@@ -72,7 +68,6 @@ class AuthenticatedHttpClient extends http.BaseClient {
   Future<void> _refreshTokenIfNeeded() async {
     // Si ya hay una renovación en progreso, esperar a que termine
     if (_refreshInProgress != null) {
-      print('⏳ Token refresh already in progress, waiting...');
       await _refreshInProgress;
       return;
     }
@@ -82,7 +77,6 @@ class AuthenticatedHttpClient extends http.BaseClient {
 
     try {
       await _refreshInProgress;
-      print('✅ Token refreshed successfully');
     } finally {
       _refreshInProgress = null;
     }

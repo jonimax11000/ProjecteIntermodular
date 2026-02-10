@@ -44,7 +44,6 @@ public class SerieController {
 
     @GetMapping("/api/seriesByName/{name}")
     @CrossOrigin(origins = "*")
-    @PreAuthorize("#jwt.role == 'admin'")
     @ResponseBody
     public List<SerieDTO> getSeriesByName(@PathVariable String name) {
         List<SerieDTO> series = serieService.getSeriesByName(name);
@@ -53,7 +52,6 @@ public class SerieController {
 
     @GetMapping("/api/seriesByVideo/{id}")
     @CrossOrigin(origins = "*")
-    @PreAuthorize("#jwt.role == 'admin'")
     @ResponseBody
     public SerieDTO getSeriesByVideo(@PathVariable Long id) {
         SerieDTO serie = serieService.getSeriesByVideo(id);

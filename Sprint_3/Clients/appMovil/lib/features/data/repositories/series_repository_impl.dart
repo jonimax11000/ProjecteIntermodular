@@ -16,7 +16,7 @@ class SeriesRepositoryImpl implements SeriesRepository {
 
   @override
   Future<List<Series>> getSeriesByName(String name) async {
-    final models = await api.fetchSeries();
+    final models = await api.fetchSeriesByName(name);
     return models.map((m) => SeriesMapper.fromJson(m)).toList();
   }
 }

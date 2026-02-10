@@ -11,6 +11,7 @@ export const jwtMiddleware = async (
   let token = req.headers.authorization?.split(" ")[1];
 
   if (!token) {
+    console.log("No token provided in Authorization header");
     return res.status(401).json({ message: "Unauthorized: No token provided" });
   }
 

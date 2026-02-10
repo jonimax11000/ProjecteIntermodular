@@ -140,6 +140,16 @@ class _VideosScreenState extends State<VideosScreen> {
         children: [
           _buildSearchBar(),
           _buildFilterBar(),
+          // DEBUG: Mostrar contenido de listas de filtros
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+               
+              ],
+            ),
+          ),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 8),
             child: Text(
@@ -227,7 +237,7 @@ class _VideosScreenState extends State<VideosScreen> {
           _buildDropdownFilter<Nivell>(
             label: "Nivel",
             items: nivells,
-            getLabel: (n) => n.nivell,
+            getLabel: (n) => n.displayName,
             getValue: (n) => n.id,
             isActive: activeFilter == FilterType.nivell,
             currentValue: activeFilterValue,

@@ -16,6 +16,8 @@ class _SeriesScreenState extends State<SeriesScreen> {
   bool isLoading = true;
   String? errorMessage;
   late final GetSeries getSeries;
+  final TextEditingController _searchController = TextEditingController();
+  String? lastSearch;
 
   @override
   void initState() {
@@ -24,12 +26,19 @@ class _SeriesScreenState extends State<SeriesScreen> {
     _loadSeries();
   }
 
-  Future<void> _loadSeries() async {
+  Future<void> _loadSeries({String? name}) async {
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
     try {
-      final result = await getSeries();
+      final result = name == null || name.isEmpty
+          ? await getSeries()
+          : await getSeries.callByName(name);
       setState(() {
         series = result;
         isLoading = false;
+        lastSearch = name;
       });
     } catch (e) {
       setState(() {
@@ -54,6 +63,41 @@ class _SeriesScreenState extends State<SeriesScreen> {
       ),
       body: Column(
         children: [
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: TextField(
+              controller: _searchController,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintText: "Buscar serie por nombre...",
+                hintStyle: const TextStyle(color: Colors.white54),
+                prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                filled: true,
+                fillColor: const Color(0xFF2A2A2A),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none,
+                ),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear, color: Colors.white54),
+                        onPressed: () {
+                          _searchController.clear();
+                          _loadSeries();
+                        },
+                      )
+                    : null,
+              ),
+              onSubmitted: (val) {
+                if (val.trim().isNotEmpty) {
+                  _loadSeries(name: val.trim());
+                } else {
+                  _loadSeries();
+                }
+              },
+            ),
+          ),
           const SizedBox(height: 16),
           const Text(
             "Series",
