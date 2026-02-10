@@ -17,4 +17,16 @@ class GetVideos {
   Future<List<Video>> callByName(String name) async {
     return await repository.getVideosByName(name);
   }
+
+  Future<List<Video>> callByCategoria(int categoriaId) async {
+    return await repository.getVideosByCategoria(categoriaId);
+  }
+
+  Future<List<Video>> callByEdat(int edatId) async {
+    return await repository.getVideosByEdat(edatId);
+  }
+
+  Future<List<Video>> callByNivell(int nivellId) async {
+    return await repository.getVideosByNivell(nivellId);
+  }
 }

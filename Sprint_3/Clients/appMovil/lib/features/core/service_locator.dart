@@ -2,6 +2,8 @@ import 'package:exercici_disseny_responsiu_stateful/config/api_config.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/data/datasources/categorias_api.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/data/datasources/series_api.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/data/datasources/videos_api.dart';
+import 'package:exercici_disseny_responsiu_stateful/features/data/datasources/edats_api.dart';
+import 'package:exercici_disseny_responsiu_stateful/features/data/datasources/nivells_api.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/data/repositories/categorias_repository_impl.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/data/repositories/series_repository_impl.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/data/repositories/videos_repository_impl.dart';
@@ -11,6 +13,8 @@ import 'package:exercici_disseny_responsiu_stateful/features/domain/repositories
 import 'package:exercici_disseny_responsiu_stateful/features/domain/usecases/get_categorias.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/usecases/get_series.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/usecases/get_videos.dart';
+import 'package:exercici_disseny_responsiu_stateful/features/domain/usecases/get_edats.dart';
+import 'package:exercici_disseny_responsiu_stateful/features/domain/usecases/get_nivells.dart';
 
 class ServiceLocator {
   String remoteCatalegUrl =
@@ -19,6 +23,12 @@ class ServiceLocator {
       "https://localhost:8081/api/catalegBySeries/:id";
   String remoteCatalegByNameUrl = ApiConfig.urls["catalegByName"] ??
       "https://localhost:8081/api/catalegByName/:name";
+  String remoteCatalegByCategoriaUrl = ApiConfig.urls["catalegByCategoria"] ??
+      "https://localhost:8081/api/catalegByCategoria/:id";
+  String remoteCatalegByEdatUrl = ApiConfig.urls["catalegByEdat"] ??
+      "https://localhost:8081/api/catalegByEdat/:id";
+  String remoteCatalegByNivellUrl = ApiConfig.urls["catalegByNivell"] ??
+      "https://localhost:8081/api/catalegByNivell/:id";
   String remoteVideoUrl =
       ApiConfig.urls["video"] ?? "https://localhost:3000/api";
   String remoteSeriesUrl =
@@ -27,6 +37,10 @@ class ServiceLocator {
       "https://localhost:8081/api/seriesByName/:name";
   String remoteCategoriasUrl =
       ApiConfig.urls["categorias"] ?? "https://localhost:8081/api/categories";
+  String remoteEdatsUrl =
+      ApiConfig.urls["edats"] ?? "https://localhost:8081/api/edats";
+  String remoteNivellsUrl =
+      ApiConfig.urls["nivells"] ?? "https://localhost:8081/api/nivells";
 
   static ServiceLocator? _instancia;
 
@@ -41,6 +55,8 @@ class ServiceLocator {
   late final GetVideos getVideos;
   late final GetSeries getSeries;
   late final GetCategorias getCategorias;
+  late final GetEdats getEdats;
+  late final GetNivells getNivells;
 
   factory ServiceLocator() {
     _instancia ??= ServiceLocator._();
@@ -49,7 +65,13 @@ class ServiceLocator {
 
   ServiceLocator._() {
     _api = VideosApi(
-        remoteCatalegUrl, remoteCatalegBySeriesUrl, remoteCatalegByNameUrl);
+      remoteCatalegUrl,
+      remoteCatalegBySeriesUrl,
+      remoteCatalegByNameUrl,
+      remoteCatalegByCategoriaUrl,
+      remoteCatalegByEdatUrl,
+      remoteCatalegByNivellUrl,
+    );
     _seriesApi = SeriesApi(remoteSeriesUrl, remoteSeriesByNameUrl);
     _categoriasApi = CategoriasApi(remoteCategoriasUrl);
 
@@ -60,6 +82,8 @@ class ServiceLocator {
     getVideos = GetVideos(_videosRepository);
     getSeries = GetSeries(_seriesRepository);
     getCategorias = GetCategorias(_categoriasRepository);
+    getEdats = GetEdats(EdatsApi(remoteEdatsUrl));
+    getNivells = GetNivells(NivellsApi(remoteNivellsUrl));
   }
 
   String getCatalegUrl() => remoteCatalegUrl;

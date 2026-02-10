@@ -49,10 +49,10 @@ async function internalRefreshToken() {
       };
 
       console.log("Intentando refrescar token...");
-      
+
       const res = await ODOO_API.post("/api/update/access-token", payload, config);
       console.log("Respuesta de refresh token:", res.data);
-      
+
       if (res.data && res.data.result && res.data.result.token) {
         const newToken = res.data.result.token;
         localStorage.setItem("jwt_token", newToken);
@@ -66,7 +66,7 @@ async function internalRefreshToken() {
       console.error("Error al refrescar token:", error);
       // No lanzamos error para continuar (según petición de usuario "que no se pare la app")
       // Devolvemos el token actual por si acaso sigue funcionando
-      return localStorage.getItem("jwt_token"); 
+      return localStorage.getItem("jwt_token");
     } finally {
       refreshPromise = null;
     }
@@ -164,6 +164,31 @@ export default {
 
   async getCatalogo() {
     const res = await JAVA_API.get("/cataleg");
+    return res.data;
+  },
+
+  async getVideosByName(name) {
+    const res = await JAVA_API.get(`/catalegByName/${name}`);
+    return res.data;
+  },
+
+  async getVideosByCategoria(id) {
+    const res = await JAVA_API.get(`/catalegByCategoria/${id}`);
+    return res.data;
+  },
+
+  async getVideosByEdat(id) {
+    const res = await JAVA_API.get(`/catalegByEdat/${id}`);
+    return res.data;
+  },
+
+  async getVideosByNivell(id) {
+    const res = await JAVA_API.get(`/catalegByNivell/${id}`);
+    return res.data;
+  },
+
+  async getVideosBySerie(id) {
+    const res = await JAVA_API.get(`/catalegBySerie/${id}`);
     return res.data;
   },
 

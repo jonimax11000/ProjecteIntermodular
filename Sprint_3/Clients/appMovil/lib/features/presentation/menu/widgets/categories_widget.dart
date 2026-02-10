@@ -1,6 +1,5 @@
 import 'package:exercici_disseny_responsiu_stateful/features/core/service_locator.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/entities/categorias.dart';
-import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/screens/videos_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -47,7 +46,6 @@ class CategoriesWidget extends StatelessWidget {
               }
 
               final categoria = categories[index - 1];
-              final isSelected = categoria.id == selectedCategoriaId;
 
               return ElevatedButton(
                 style: ElevatedButton.styleFrom(

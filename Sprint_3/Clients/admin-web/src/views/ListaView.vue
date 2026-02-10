@@ -4,7 +4,56 @@
       <router-link to="/admin" class="cta-upload">✚ Subir Nuevo Video</router-link>
     </div>
 
+    <!-- Barra de Filtros -->
+    <div class="filter-bar">
+      <div class="filter-group">
+        <input v-model="filterName" @input="applyFilter('name')" placeholder="Buscar por nombre..." class="filter-input" />
+      </div>
+
+      <div class="filter-group">
+        <select v-model="selectedCategoria" @change="applyFilter('categoria')" class="filter-select">
+          <option :value="null">Todas las Categorías</option>
+          <option v-for="cat in listas.categorias" :key="cat.id" :value="cat.id">
+            {{ cat.categoria }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <select v-model="selectedEdat" @change="applyFilter('edat')" class="filter-select">
+          <option :value="null">Todas las Edades</option>
+          <option v-for="edat in listas.edats" :key="edat.id" :value="edat.id">
+            +{{ edat.edat }} años
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <select v-model="selectedNivell" @change="applyFilter('nivell')" class="filter-select">
+          <option :value="null">Todos los Niveles</option>
+          <option v-for="niv in listas.nivells" :key="niv.id" :value="niv.id">
+            {{ niv.nivell }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <select v-model="selectedSerie" @change="applyFilter('serie')" class="filter-select">
+          <option :value="null">Todas las Series</option>
+          <option v-for="serie in listas.series" :key="serie.id" :value="serie.id">
+            {{ serie.nom }}
+          </option>
+        </select>
+      </div>
+
+      <button @click="resetFilters" class="btn-reset">Limpiar</button>
+    </div>
+
     <div v-if="loading" class="loading">Cargando catálogo...</div>
+
+    <div v-else-if="videos.length === 0" class="no-videos">
+      No se encontraron vídeos con estos filtros.
+    </div>
 
     <div v-else class="video-grid">
       <div v-for="video in videos" :key="video.id" class="video-card" @click="editVideo(video.id)">
@@ -27,7 +76,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '@/services/api';
 
@@ -35,16 +84,78 @@ const router = useRouter();
 const videos = ref([]);
 const loading = ref(true);
 
+// Estados de filtros
+const filterName = ref('');
+const selectedCategoria = ref(null);
+const selectedEdat = ref(null);
+const selectedNivell = ref(null);
+const selectedSerie = ref(null);
+
+const listas = reactive({ edats: [], nivells: [], series: [], categorias: [] });
+
 onMounted(async () => {
   try {
-    // Recuerda que 'getCatalogo' debe estar en tu api.js
-    videos.value = await api.getCatalogo();
+    // Carga inicial de datos y listas
+    const [videoData, metadata] = await Promise.all([
+      api.getCatalogo(),
+      api.getListas()
+    ]);
+    videos.value = videoData;
+    Object.assign(listas, metadata);
   } catch (e) {
     console.error(e);
   } finally {
     loading.value = false;
   }
 });
+
+const applyFilter = async (type) => {
+  loading.value = true;
+  try {
+    // Resetear otros selectores para que no haya conflicto (según los endpoints del backend que filtran por uno a la vez)
+    if (type === 'name') {
+      selectedCategoria.value = selectedEdat.value = selectedNivell.value = selectedSerie.value = null;
+      if (filterName.value.trim() === '') return videos.value = await api.getCatalogo();
+      videos.value = await api.getVideosByName(filterName.value);
+    } else if (type === 'categoria') {
+      filterName.value = ''; selectedEdat.value = selectedNivell.value = selectedSerie.value = null;
+      if (!selectedCategoria.value) return videos.value = await api.getCatalogo();
+      videos.value = await api.getVideosByCategoria(selectedCategoria.value);
+    } else if (type === 'edat') {
+      filterName.value = ''; selectedCategoria.value = selectedNivell.value = selectedSerie.value = null;
+      if (!selectedEdat.value) return videos.value = await api.getCatalogo();
+      videos.value = await api.getVideosByEdat(selectedEdat.value);
+    } else if (type === 'nivell') {
+      filterName.value = ''; selectedCategoria.value = selectedEdat.value = selectedSerie.value = null;
+      if (!selectedNivell.value) return videos.value = await api.getCatalogo();
+      videos.value = await api.getVideosByNivell(selectedNivell.value);
+    } else if (type === 'serie') {
+      filterName.value = ''; selectedCategoria.value = selectedEdat.value = selectedNivell.value = null;
+      if (!selectedSerie.value) return videos.value = await api.getCatalogo();
+      videos.value = await api.getVideosBySerie(selectedSerie.value);
+    }
+  } catch (e) {
+    console.error("Error filtrando:", e);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const resetFilters = async () => {
+  filterName.value = '';
+  selectedCategoria.value = null;
+  selectedEdat.value = null;
+  selectedNivell.value = null;
+  selectedSerie.value = null;
+  loading.value = true;
+  try {
+    videos.value = await api.getCatalogo();
+  } catch (e) {
+    console.error(e);
+  } finally {
+    loading.value = false;
+  }
+};
 
 // Helpers de visualización
 const getThumb = (name, nivel) => api.getThumbnailUrl(name, nivel);
@@ -111,6 +222,63 @@ const deleteVideo = async (video) => {
   text-decoration: none;
   border-radius: 5px;
   font-weight: bold;
+}
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  border-radius: 12px;
+  align-items: center;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 150px;
+}
+
+.filter-input,
+.filter-select {
+  padding: 0.6rem;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.filter-input:focus,
+.filter-select:focus {
+  outline: none;
+  border-color: #e50914;
+}
+
+.btn-reset {
+  padding: 0.6rem 1.2rem;
+  background: #666;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  height: fit-content;
+  align-self: center;
+}
+
+.btn-reset:hover {
+  background: #444;
+}
+
+.no-videos {
+  text-align: center;
+  padding: 3rem;
+  color: #888;
+  font-size: 1.1rem;
 }
 
 .loading {
