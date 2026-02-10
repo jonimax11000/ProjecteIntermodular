@@ -17,7 +17,7 @@ class Subscription(models.Model):
     end_date = fields.Date(string='Fecha de Fin', compute='_compute_end_date', store=True)
     
     total_days = fields.Integer(string='Total de Días', required=True)
-    days_remaining = fields.Integer(string='Días Restantes', compute='_compute_days_remaining', store=True)
+    days_remaining = fields.Integer(string='Días Restantes', compute='_compute_days_remaining')
     
     state = fields.Selection([
         ('active', 'Activa'),
@@ -41,11 +41,11 @@ class Subscription(models.Model):
             else:
                 record.end_date = False
     
-    @api.depends('end_date', 'state')
+    @api.depends('end_date', 'state', 'start_date', 'total_days')
     def _compute_days_remaining(self):
         today = fields.Date.today()
         for record in self:
-            if record.state == 'expired':
+            if record.state in ('expired', 'cancelled'):
                 record.days_remaining = 0
             elif record.end_date:
                 delta = record.end_date - today
