@@ -9,9 +9,79 @@ const JAVA_API = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+// --- 2. CONFIGURACIÓN ODOO ---
+// Definimos ODOO_API antes para usarlo en el refresh
+const ODOO_API = axios.create({
+  baseURL: "/odoo-api",
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "*/*",
+  },
+  withCredentials: false,
+});
+
+// Variable para controlar la concurrencia del refresh token
+let refreshPromise = null;
+
+// Función interna para refrescar el token
+async function internalRefreshToken() {
+  if (refreshPromise) {
+    return refreshPromise;
+  }
+
+  refreshPromise = (async () => {
+    try {
+      const payload = {
+        "jsonrpc": "2.0",
+        "method": "call",
+        "id": localStorage.getItem("user_id"),
+        "params": {
+          "uid": localStorage.getItem("user_id"),
+        },
+      };
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("jwt_token")}`,
+          refreshToken: localStorage.getItem("refresh_token"),
+        },
+      };
+
+      console.log("Intentando refrescar token...");
+      
+      const res = await ODOO_API.post("/api/update/access-token", payload, config);
+      console.log("Respuesta de refresh token:", res.data);
+      
+      if (res.data && res.data.result && res.data.result.token) {
+        const newToken = res.data.result.token;
+        localStorage.setItem("jwt_token", newToken);
+        console.log("Token refrescado correctamente");
+        return newToken;
+      } else {
+        console.warn("Respuesta de refresh token inesperada:", res.data);
+        return localStorage.getItem("jwt_token");
+      }
+    } catch (error) {
+      console.error("Error al refrescar token:", error);
+      // No lanzamos error para continuar (según petición de usuario "que no se pare la app")
+      // Devolvemos el token actual por si acaso sigue funcionando
+      return localStorage.getItem("jwt_token"); 
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+
+  return refreshPromise;
+}
+
 // INTERCEPTOR: Inyecta el Token en cada petición a Java
 JAVA_API.interceptors.request.use(
-  (config) => {
+  async (config) => {
+    // LLAMADA PREVIA AL REFRESH TOKEN
+    // "necesito que antes de atacar los endpoints ... se ataque primero al endpoint de refreshTocken"
+    await internalRefreshToken();
+
     const token = localStorage.getItem("jwt_token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -23,16 +93,6 @@ JAVA_API.interceptors.request.use(
   },
 );
 
-// --- 2. CONFIGURACIÓN ODOO ---
-const ODOO_API = axios.create({
-  baseURL: "/odoo-api",
-  headers: {
-    "Content-Type": "application/json",
-    Accept: "*/*",
-  },
-  withCredentials: false,
-});
-
 // --- 3. CONFIGURACIÓN NODE (Express / Archivos) ---
 const NODE_API = axios.create({
   baseURL: "/node-api",
@@ -40,7 +100,10 @@ const NODE_API = axios.create({
 });
 
 NODE_API.interceptors.request.use(
-  (config) => {
+  async (config) => {
+    // LLAMADA PREVIA AL REFRESH TOKEN
+    await internalRefreshToken();
+
     const token = localStorage.getItem("jwt_token"); // Asegúrate que el nombre es correcto
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -222,35 +285,6 @@ export default {
   },
 
   async refreshToken() {
-    try {
-      const payload = {
-        jsonrpc: "2.0",
-        method: "call",
-        id: Math.floor(Math.random() * 1000),
-        params: {
-          login: email,
-          password: password,
-          db: "Justflix",
-        },
-      };
-
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("jwt_token")}`,
-          refreshToken: localStorage.getItem("refresh_token"),
-        },
-      };
-      const res = await ODOO_API.post("/api/update/access-token");
-      const newToken = res.data.token;
-      localStorage.setItem("jwt_token", newToken);
-      return newToken;
-    }
-    catch (error) {
-      console.error("Error al refrescar token:", error);
-      throw error;
-    }
+    return await internalRefreshToken();
   },
 };
-
-

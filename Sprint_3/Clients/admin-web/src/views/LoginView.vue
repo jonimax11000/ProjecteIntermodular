@@ -46,26 +46,22 @@ const handleLogin = async () => {
   try {
     const dataOdoo = await api.login(username.value, password.value);
 
-    console.log("Datos recibidos en LoginView:", dataOdoo);
-
     const token = dataOdoo.token;
     const refreshToken = dataOdoo.refreshToken;
 
     if (token) {
       localStorage.setItem('jwt_token', token);
-      localStorage.setItem('refresh_token', refreshToken);
       localStorage.setItem('user', username.value);
 
-      if (dataOdoo.refreshToken) {
+      if (refreshToken) {
         console.log("✅ ¡Refresh Token recibido y guardado!");
-        localStorage.setItem('refresh_token', dataOdoo.refreshToken);
+        localStorage.setItem('refresh_token', refreshToken);
       } else {
         console.log("❌ ¡Refresh Token no ha sido recibido y guardado!");
       }
 
       // Decodificar el JWT
       const payload = JSON.parse(atob(token.split('.')[1]));
-      console.log("Payload decodificado:", payload);
 
       const userId = payload.user_id;
       const role = payload.role;
