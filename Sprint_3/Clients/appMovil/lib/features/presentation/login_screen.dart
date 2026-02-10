@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:exercici_disseny_responsiu_stateful/features/core/session_service.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
-import '../core/api_client.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/home_screen.dart';
 import 'package:flutter/material.dart';
@@ -249,7 +248,7 @@ class _LoginScreenState extends State<LoginScreen> {
         userId: userId,
       );
 
-      await sessionService.rotateRefreshToken();
+      // await sessionService.rotateRefreshToken();
 
       print("SESSION SAVED");
       print("AccessToken: $accessToken");

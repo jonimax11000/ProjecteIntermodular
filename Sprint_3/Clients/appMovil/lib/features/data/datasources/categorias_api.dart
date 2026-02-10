@@ -12,8 +12,7 @@ class CategoriasApi {
     try {
       final res = await ApiClient.client.get(uri);
       if (res.statusCode == 200) {
-        String body = utf8.decode(res.bodyBytes);
-        final decoded = json.decode(res.body);
+        final decoded = json.decode(utf8.decode(res.bodyBytes));
         if (decoded is List) {
           return decoded.map<Map<String, dynamic>>((e) {
             return {

@@ -106,40 +106,4 @@ class SessionService {
       print("❌ Refresh exception: $e");
     }
   }
-
-  Future<void> rotateRefreshToken() async {
-    final accessToken = await getAccessToken();
-    final refreshToken = await getRefreshToken();
-    final userId = await getUserId();
-
-    if (accessToken == null || refreshToken == null || userId == null) {
-      throw Exception("No tokens or user ID available");
-    }
-
-    final response = await http.post(
-      Uri.parse(ApiConfig.urls["rotateRefresh"]!),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-        'refreshToken': refreshToken,
-      },
-      body: jsonEncode({
-        'params': {
-          'uid': userId, // ⚡ UID en params
-        }
-      }),
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception("Failed to rotate refresh token");
-    }
-
-    final data = jsonDecode(response.body);
-
-    if (data['result']?['status'] != 'done') {
-      throw Exception("Refresh token rotation not completed");
-    }
-
-    print("Refresh token rotated successfully");
-  }
 }
