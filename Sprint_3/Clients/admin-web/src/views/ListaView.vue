@@ -75,7 +75,9 @@ const deleteVideo = async (video) => {
       // Usamos el nombre del archivo de video y la miniatura
       const videoName = video.videoURL || video.url;
       const thumbName = video.thumbnailURL || video.thumbnail;
+      console.log("thumbName", thumbName);
       if (videoName) {
+        console.log(videoName, thumbName);
         await api.deleteFileNode(videoName, thumbName).catch(() => { });
       }
 

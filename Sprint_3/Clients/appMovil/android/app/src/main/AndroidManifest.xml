@@ -2,6 +2,51 @@
     package="com.example.exercici_disseny_responsiu_stateful">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    
+    <!-- QUERIES SECTION - ESENCIAL para Android 11+ -->
+    <queries>
+        <!-- Para URLs HTTPS estándar -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+        
+        <!-- Para URLs HTTP estándar -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="http" />
+        </intent>
+        
+        <!-- Específico para localhost/10.0.2.2 -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data 
+                android:scheme="https"
+                android:host="10.0.2.2" />
+        </intent>
+        
+        <!-- Para cualquier host con HTTPS -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" android:host="*" />
+        </intent>
+        
+        <!-- Para Chrome específicamente (útil para Custom Tabs) -->
+        <package android:name="com.android.chrome" />
+        <package android:name="com.chrome.beta" />
+        <package android:name="com.chrome.dev" />
+        <package android:name="com.chrome.canary" />
+        
+        <!-- Para Firefox -->
+        <package android:name="org.mozilla.firefox" />
+        
+        <!-- Para cualquier navegador -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="http" />
+        </intent>
+    </queries>
 
     <application
         android:name="${applicationName}"
@@ -23,11 +68,28 @@
                 android:name="io.flutter.embedding.android.NormalTheme"
                 android:resource="@style/NormalTheme" />
 
+            <!-- Intents que maneja tu actividad -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            
+            <!-- Para manejar deep links (opcional) -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data 
+                    android:scheme="https"
+                    android:host="tu-dominio.com" />
+            </intent-filter>
         </activity>
+
+        <!-- Actividad para WebView (alternativa) -->
+        <activity
+            android:name=".WebViewActivity"
+            android:exported="false"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
 
         <meta-data
             android:name="flutterEmbedding"

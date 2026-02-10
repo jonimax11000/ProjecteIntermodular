@@ -24,8 +24,11 @@ export class VideoProcessor {
     console.log(`Nivel Process Video: ${nivel}`);
     const videoName = path
       .parse(filename)
-      .name.toLowerCase()
-      .replace(/\s+/g, "");
+      .name.normalize("NFD") // Convierte "é" → "e" + "´"
+      .replace(/[\u0300-\u036f]/g, "") // Elimina el acento (´)
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "") // Elimina caracteres especiales
+      .replace(/\s+/g, ""); // Elimina espacios si aún quedaran
     const inputPath = path.join(this.videosSourcePath, filename);
 
     // Procesar en paralelo: thumbnail y HLS

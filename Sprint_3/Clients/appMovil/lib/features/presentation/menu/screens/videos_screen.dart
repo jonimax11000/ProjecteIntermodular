@@ -62,8 +62,7 @@ class _VideosScreenState extends State<VideosScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            VideoPlayerScreen(video: video),
+        builder: (context) => VideoPlayerScreen(video: video),
       ),
     );
   }
@@ -137,7 +136,7 @@ class _VideosScreenState extends State<VideosScreen> {
             crossAxisCount: 2,
             crossAxisSpacing: 9,
             mainAxisSpacing: 0,
-            childAspectRatio: 1.20,
+            childAspectRatio: 0.85,
           ),
           itemBuilder: (context, index) {
             return GestureDetector(

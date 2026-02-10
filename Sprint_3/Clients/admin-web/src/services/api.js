@@ -150,6 +150,10 @@ export default {
 
   async deleteFileNode(videoName, thumbName) {
     return await NODE_API.delete("/video", {
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("jwt_token")}`,
+      },
       data: { video: videoName, thumbnail: thumbName },
     });
   },
@@ -164,9 +168,14 @@ export default {
       return filename;
     }
 
-    const nivelId = nivel || 0;
+    // Usamos el proxy '/node-api' en lugar de 'https://localhost:3000/api'
+    // para evitar el error ERR_CERT_AUTHORITY_INVALID (el proxy tiene secure: false)
+    if (filename.startsWith("/")) {
+      return `/node-api${filename}`;
+    }
 
-    return `/node-api/thumbnails/${nivelId}/${encodeURIComponent(filename)}`;
+    const nivelId = nivel || 0;
+    return `/node-api/thumbnails/${nivelId}/${filename}`;
   },
 
   // --- CREACIÓN DE ENTIDADES (Java) ---
