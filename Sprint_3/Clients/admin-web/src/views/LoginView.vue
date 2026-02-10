@@ -49,9 +49,11 @@ const handleLogin = async () => {
     console.log("Datos recibidos en LoginView:", dataOdoo);
 
     const token = dataOdoo.token;
+    const refreshToken = dataOdoo.refreshToken;
 
     if (token) {
       localStorage.setItem('jwt_token', token);
+      localStorage.setItem('refresh_token', refreshToken);
       localStorage.setItem('user', username.value);
 
       if (dataOdoo.refreshToken) {
@@ -61,7 +63,20 @@ const handleLogin = async () => {
         console.log("❌ ¡Refresh Token no ha sido recibido y guardado!");
       }
 
-      router.push('/lista');
+      // Decodificar el JWT
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      console.log("Payload decodificado:", payload);
+
+      const userId = payload.user_id;
+      const role = payload.role;
+
+      localStorage.setItem('user_id', userId);
+
+      if (role === 'admin') {
+        router.push('/lista');
+      } else {
+        error.value = 'Acceso denegado: El usuario no tiene permisos de administrador.';
+      }
     } else {
       // Fallback por si cambia la respuesta
       error.value = 'Login correcto, pero Odoo no envió el token esperado.';

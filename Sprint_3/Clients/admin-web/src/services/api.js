@@ -1,4 +1,5 @@
 import axios from "axios";
+import { ref } from "vue";
 
 // --- 1. CONFIGURACIÓN JAVA (Spring Boot) ---
 const JAVA_API = axios.create({
@@ -70,8 +71,8 @@ export default {
     if (res.data.error) {
       throw new Error(
         res.data.error.data?.message ||
-          res.data.error.message ||
-          "Error en Odoo",
+        res.data.error.message ||
+        "Error en Odoo",
       );
     }
 
@@ -219,4 +220,37 @@ export default {
     const res = await JAVA_API.post("/categories", payload);
     return res.data;
   },
+
+  async refreshToken() {
+    try {
+      const payload = {
+        jsonrpc: "2.0",
+        method: "call",
+        id: Math.floor(Math.random() * 1000),
+        params: {
+          login: email,
+          password: password,
+          db: "Justflix",
+        },
+      };
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("jwt_token")}`,
+          refreshToken: localStorage.getItem("refresh_token"),
+        },
+      };
+      const res = await ODOO_API.post("/api/update/access-token");
+      const newToken = res.data.token;
+      localStorage.setItem("jwt_token", newToken);
+      return newToken;
+    }
+    catch (error) {
+      console.error("Error al refrescar token:", error);
+      throw error;
+    }
+  },
 };
+
+
