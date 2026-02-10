@@ -367,7 +367,12 @@ class VideoGridCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String videoURL = ServiceLocator().getVideoUrl();
+    String videoURL = '';
+    try {
+      videoURL = ServiceLocator().getVideoUrl();
+    } catch (e) {
+      debugPrint('Error getting video URL: $e');
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -381,15 +386,19 @@ class VideoGridCard extends StatelessWidget {
                 ? Image.network(
                     "$videoURL${video.thumbnailURL}",
                     fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        _thumbnailFallback(),
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        color: const Color(0xFF2A2A2A),
+                        child: const Center(
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      );
+                    },
                   )
-                : Container(
-                    color: const Color(0xFF2A2A2A),
-                    child: const Icon(
-                      Icons.play_circle_outline,
-                      color: Colors.white38,
-                      size: 40,
-                    ),
-                  ),
+                : _thumbnailFallback(),
           ),
         ),
         const SizedBox(height: 6),
@@ -398,9 +407,9 @@ class VideoGridCard extends StatelessWidget {
           video.titol,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 14,
-            fontWeight: FontWeight.w600, // SemiBold
+            fontWeight: FontWeight.w600,
             color: Colors.white,
           ),
         ),
@@ -408,16 +417,29 @@ class VideoGridCard extends StatelessWidget {
         const SizedBox(height: 2),
 
         // Categorías / metadatos
-        if (video.categories!.isNotEmpty)
+        if (video.categories != null && video.categories!.isNotEmpty)
           Text(
-            "Categoría: ${video.categories?.join(', ')}",
-            style: TextStyle(
+            "Categorías: ${video.categories!.join(', ')}",
+            style: const TextStyle(
               fontSize: 11,
-              fontWeight: FontWeight.w400, // Regular
+              fontWeight: FontWeight.w400,
               color: Colors.white70,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
       ],
+    );
+  }
+
+  Widget _thumbnailFallback() {
+    return Container(
+      color: const Color(0xFF2A2A2A),
+      child: const Icon(
+        Icons.play_circle_outline,
+        color: Colors.white38,
+        size: 40,
+      ),
     );
   }
 }

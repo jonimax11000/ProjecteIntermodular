@@ -33,7 +33,7 @@ class ServiceLocator {
       ApiConfig.urls["video"] ?? "https://localhost:3000/api";
   String remoteSeriesUrl =
       ApiConfig.urls["series"] ?? "https://localhost:8081/api/series";
-  String remoteSeriesByNameUrl = ApiConfig.urls["series"] ??
+  String remoteSeriesByNameUrl = ApiConfig.urls["seriesByName"] ??
       "https://localhost:8081/api/seriesByName/:name";
   String remoteCategoriasUrl =
       ApiConfig.urls["categorias"] ?? "https://localhost:8081/api/categories";

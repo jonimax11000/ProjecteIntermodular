@@ -3,6 +3,7 @@ import 'package:exercici_disseny_responsiu_stateful/features/domain/entities/ser
 import 'package:exercici_disseny_responsiu_stateful/features/domain/entities/video.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/screens/series_screen.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/widgets/video_carousel.dart';
+import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/screens/video_player_screen.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/presentation/search/widgets/search_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -41,7 +42,12 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   void _onVideoTap(Video video) {
-    debugPrint('Video tapped: ${video.titol}');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => VideoPlayerScreen(video: video),
+      ),
+    );
   }
 
   @override

@@ -70,34 +70,41 @@ class SessionService {
     final userId = await getUserId();
 
     if (accessToken == null || refreshToken == null || userId == null) {
-      throw Exception("No tokens or user ID available");
+      print("❌ Refresh failed: Missing tokens or user ID");
+      return;
     }
 
-    final response = await http.post(
-      Uri.parse(ApiConfig.urls["rotateRefresh"]!),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-        'refreshToken': refreshToken,
-      },
-      body: jsonEncode({
-        'params': {
-          'uid': userId,
+    try {
+      final response = await http.post(
+        Uri.parse(ApiConfig.urls["refreshAccess"]!),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+          'refreshToken': refreshToken,
+        },
+        body: jsonEncode({
+          'params': {
+            'uid': userId,
+          }
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['result'] != null && data['result']['token'] != null) {
+          final newToken = data['result']['token'];
+          // El endpoint de refreshAccess suele devolver solo el nuevo accessToken
+          await _storage.write(key: _accessKey, value: newToken);
+          print("✅ Access token refreshed and saved");
+        } else {
+          print("⚠️ Unexpected refresh response format: ${response.body}");
         }
-      }),
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception("Failed to rotate refresh token");
+      } else {
+        print("❌ Refresh error: ${response.statusCode} - ${response.body}");
+      }
+    } catch (e) {
+      print("❌ Refresh exception: $e");
     }
-
-    final data = jsonDecode(response.body);
-
-    if (data['result']?['status'] != 'done') {
-      throw Exception("Refresh token rotation not completed");
-    }
-
-    print("Refresh token rotated successfully");
   }
 
   Future<void> rotateRefreshToken() async {

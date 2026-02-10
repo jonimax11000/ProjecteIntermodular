@@ -17,6 +17,8 @@ class ApiConfig {
         "series": "https://localhost:8081/api/series",
         "seriesByName": "https://localhost:8081/api/seriesByName/:name",
         "categorias": "https://localhost:8081/api/categories",
+        "edats": "https://localhost:8081/api/edats",
+        "nivells": "https://localhost:8081/api/nivells",
         "register": "https://localhost:8069/web/signup",
         "refreshAccess": "https://localhost:8069/api/update/access-token",
         "rotateRefresh": "https://localhost:8069/api/update/refresh-token"
@@ -37,6 +39,8 @@ class ApiConfig {
         "series": "https://10.0.2.2:8081/api/series",
         "seriesByName": "https://10.0.2.2:8081/api/seriesByName/:name",
         "categorias": "https://10.0.2.2:8081/api/categories",
+        "edats": "https://10.0.2.2:8081/api/edats",
+        "nivells": "https://10.0.2.2:8081/api/nivells",
         "register": "https://10.0.2.2:8069/web/signup",
         "refreshAccess": "https://10.0.2.2:8069/api/update/access-token",
         "rotateRefresh": "https://10.0.2.2:8069/api/update/refresh-token"
@@ -55,6 +59,8 @@ class ApiConfig {
       "series": "https://10.0.2.2:8081/api/series",
       "seriesByName": "https://10.0.2.2:8081/api/seriesByName/:name",
       "categorias": "https://10.0.2.2:8081/api/categories",
+      "edats": "https://10.0.2.2:8081/api/edats",
+      "nivells": "https://10.0.2.2:8081/api/nivells",
       "register": "https://10.0.2.2:8069/web/signup",
       "refreshAccess": "https://10.0.2.2:8069/api/update/access-token",
       "rotateRefresh": "https://10.0.2.2:8069/api/update/refresh-token"
