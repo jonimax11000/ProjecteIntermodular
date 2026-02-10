@@ -8,20 +8,70 @@ Bienvenido a **JustFlix**, una plataforma completa de streaming de video diseña
 
 El sistema utiliza una arquitectura de **Microservicios** orquestada con **Docker Compose**. Un servidor **Nginx** actúa como puerta de entrada (Reverse Proxy), distribuyendo el tráfico a los distintos servicios backend según la petición.
 
-```mermaid
-graph TD
-    user((Usuario)) -->|HTTPS/443| nginx[Nginx Gateway]
-    admin((Admin)) -->|HTTPS/443| nginx
+```plantuml
+@startuml
+!include <C4/C4_Container>
 
-    subgraph "Docker Host"
-        nginx -->|/api/auth| odoo["Odoo (Usuarios & Auth)"]
-        nginx -->|/api/videos| spring["Spring Boot (Datos & Lógica)"]
-        nginx -->|/api/stream| express["Express (Streaming & Uploads)"]
+title Nivel 2 - Diagrama de Contenedores - Sistema Multimedia
 
-        odoo -->|SQL| pg[("PostgreSQL")]
-        spring -->|SQL| mysql[("MySQL")]
-        express -->|File System| fs["Almacenamiento Videos"]
-    end
+Person(usuari, "Usuari", "Client que fa servir l'aplicació mòbil")
+Person(administrador, "Administrador", "Administrador de la plataforma")
+
+System_Boundary(sistema_multimedia, "Sistema Multimedia") {
+    Container(app_movil, "App Mòbil", "iOS/Android", "Reproductor multimèdia i navegació")
+    Container(aplicacio_web, "Aplicació Web", "React/Angular", "Administració de continguts")
+    Container(portal_web, "Portal Web Subscripcions", "Odoo Web", "Portal per a gestionar subscripcions")
+    
+    Container(reverse_proxy, "Reverse Proxy", "Nginx", "Balancejador de càrrega i SSL termination\nPorts: 80, 443")
+    
+    Container(api_cataleg, "API Catàleg", "Spring Boot", "Servei de catàleg i metadades\nPort: 9090")
+    Container(api_continguts, "API Continguts", "ExpressJS", "Servei de streaming HLS\nPort: 3000")
+    Container(api_subscripcions, "API Subscripcions", "Odoo", "Gestor de subscripcions i usuaris\nPort: 8069")
+    
+    ContainerDb(mysql_db, "Base de Dades Catàleg", "MySQL", "Emmagatzema el catàleg de continguts\nPort: 3306")
+    ContainerDb(postgres_db, "Base de Dades Subscripcions", "PostgreSQL", "Emmagatzema usuaris i subscripcions\nPort: 5432")
+    ContainerDb(mongodb_db, "Base de Dades Historial", "MongoDB", "Emmagatzema vídeos vists, metadades i sèries seguides\nPort: 27017")
+    
+    Container(internal_videos, "Emmagatzematge de Vídeos", "Sistema de Fitxers", "Emmagatzema els vídeos en format HLS")
+}
+
+System_Ext(sistema_pagaments, "Sistema de Pagaments", "Sistema extern de tercers")
+
+' Relaciones principales desde usuarios
+Rel(usuari, app_movil, "Fa servir", "HTTPS")
+Rel(usuari, reverse_proxy, "Accedeix al portal web", "HTTPS (443)")
+Rel(administrador, reverse_proxy, "Administra la plataforma", "HTTPS (443)")
+
+' Conexiones desde el reverse proxy a los frontends
+Rel(reverse_proxy, portal_web, "Proxy a Odoo", "HTTP (8069)")
+Rel(reverse_proxy, aplicacio_web, "Serveix aplicació web", "HTTP")
+
+' Comunicaciones entre contenedores
+Rel(app_movil, api_cataleg, "Consulta catàleg", "HTTPS/JWT (9090)")
+Rel(app_movil, api_continguts, "Reprodueix vídeo", "HLS (3000)")
+Rel(app_movil, api_subscripcions, "Inicia sessió", "HTTPS (8069)")
+
+Rel(aplicacio_web, api_cataleg, "CRUD catàleg", "HTTPS/JWT (9090)")
+Rel(aplicacio_web, api_continguts, "Puja/elimina vídeos", "HTTPS/JWT (3000)")
+Rel(aplicacio_web, api_subscripcions, "Inicia sessió", "HTTPS (8069)")
+
+Rel(portal_web, api_subscripcions, "Gestiona usuaris", "HTTP (8069)")
+
+' Comunicaciones entre APIs y bases de datos
+Rel(api_cataleg, mysql_db, "Llegeix i escriu el catàleg", "JDBC (3306)")
+Rel(api_cataleg, mongodb_db, "Registra vídeos vists i sèries seguides", "Mongo Driver (27017)")
+
+Rel(api_continguts, internal_videos, "Llegeix vídeos per streaming", "Sistema de fitxers")
+Rel(api_continguts, mongodb_db, "Actualitza metadades de reproducció", "Mongo Driver (27017)")
+
+Rel(api_subscripcions, postgres_db, "Gestiona usuaris i subscripcions", "SQL (5432)")
+Rel(api_subscripcions, sistema_pagaments, "Processa pagaments", "API HTTPS")
+
+' Conexión adicional: API de catálogo también necesita usuarios para permisos
+Rel(api_cataleg, api_subscripcions, "Verifica permisos", "HTTP (8069)")
+Rel(api_continguts, api_subscripcions, "Verifica permisos", "HTTP (8069)")
+
+@enduml
 ```
 
 ### 🧩 Componentes Principales
