@@ -14,13 +14,13 @@ graph TD
     admin((Admin)) -->|HTTPS/443| nginx
 
     subgraph "Docker Host"
-        nginx -->|/api/auth| odoo[Odoo (Usuarios & Auth)]
-        nginx -->|/api/videos| spring[Spring Boot (Datos & Lógica)]
-        nginx -->|/api/stream| express[Express (Streaming & Uploads)]
+        nginx -->|/api/auth| odoo["Odoo (Usuarios & Auth)"]
+        nginx -->|/api/videos| spring["Spring Boot (Datos & Lógica)"]
+        nginx -->|/api/stream| express["Express (Streaming & Uploads)"]
 
-        odoo -->|SQL| pg[(PostgreSQL)]
-        spring -->|SQL| mysql[(MySQL)]
-        express -->|File System| fs[Almacenamiento Videos]
+        odoo -->|SQL| pg[("PostgreSQL")]
+        spring -->|SQL| mysql[("MySQL")]
+        express -->|File System| fs["Almacenamiento Videos"]
     end
 ```
 
@@ -85,9 +85,9 @@ Modelo lógico de la base de datos de contenidos (gestionada por Spring Boot).
 ```mermaid
 erDiagram
     SERIE ||--o{ VIDEO : contiene
-    VIDEO }o--|| EDAT : clasificado_por
-    VIDEO }o--|| NIVELL : tiene
-    VIDEO }o--o{ CATEGORIA : pertenece_a
+    VIDEO }o--|| EDAT : "clasificado por"
+    VIDEO }o--|| NIVELL : "tiene nivel"
+    VIDEO }o--o{ CATEGORIA : "pertenece a"
 
     SERIE {
         long id PK
@@ -99,21 +99,35 @@ erDiagram
         long id PK
         string titol
         string url
+        string descripcio
         string thumbnail
         int duracio
         long serie_id FK
         long edat_id FK
         long nivell_id FK
+        %% Metadades Embebidas
+        int meta_width
+        int meta_height
+        int meta_fps
+        int meta_bitrate
+        string meta_codec
+        long meta_fileSize
+        date meta_createdAt
     }
 
     CATEGORIA {
         long id PK
-        string nombre
+        string categoria
     }
 
     EDAT {
         long id PK
-        string clasificacion
+        int edat "Edad mínima"
+    }
+
+    NIVELL {
+        long id PK
+        int nivell "Nivel de dificultad"
     }
 ```
 
@@ -127,8 +141,12 @@ classDiagram
         +Long id
         +String titol
         +String videoURL
+        +String descripcio
         +String thumbnailURL
+        +Integer duracio
         +Serie serie
+        +Edat edat
+        +Nivell nivell
         +Set~Categoria~ categories
         +Metadades metadades
     }
@@ -145,14 +163,31 @@ classDiagram
         +String categoria
     }
 
+    class Edat {
+        +Long id
+        +Integer edat
+    }
+
+    class Nivell {
+        +Long id
+        +Integer nivell
+    }
+
     class Metadades {
-        +String resolucio
-        +String format
+        +int width
+        +int height
+        +int fps
+        +int bitrate
+        +String codec
+        +long fileSize
+        +Date createdAt
     }
 
     Video "1" --> "0..1" Serie : pertenece
     Video "*" --> "*" Categoria : tiene
-    Video *-- Metadades : contiene
+    Video "*" --> "1" Edat : tiene
+    Video "*" --> "1" Nivell : tiene
+    Video *-- Metadades : composición
 ```
 
 ### 3. Diagrama de Secuencia: Subida de Video
