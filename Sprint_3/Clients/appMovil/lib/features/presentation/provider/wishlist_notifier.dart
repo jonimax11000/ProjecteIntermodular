@@ -1,8 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:exercici_disseny_responsiu_stateful/features/domain/entities/video.dart';
 
-class WishlistNotifier extends StateNotifier<List<Video>> {
-  WishlistNotifier() : super([]);
+class WishlistNotifier extends Notifier<List<Video>> {
+  @override
+  List<Video> build() {
+    return [];
+  }
 
   void add(Video video) {
     if (!state.any((v) => v.id == video.id)) {
@@ -21,5 +24,4 @@ class WishlistNotifier extends StateNotifier<List<Video>> {
 
 // Provider global
 final wishlistProvider =
-    StateNotifierProvider<WishlistNotifier, List<Video>>(
-        (ref) => WishlistNotifier());
+    NotifierProvider<WishlistNotifier, List<Video>>(WishlistNotifier.new);
