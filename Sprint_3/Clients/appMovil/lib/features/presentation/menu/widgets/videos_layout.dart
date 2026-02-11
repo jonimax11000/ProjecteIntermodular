@@ -64,10 +64,7 @@ class _VideoLayoutCard extends ConsumerStatefulWidget {
   final Video video;
   final VoidCallback onTap;
 
-  const _VideoLayoutCard({
-    required this.video,
-    required this.onTap,
-  });
+  const _VideoLayoutCard({required this.video, required this.onTap});
 
   @override
   ConsumerState<_VideoLayoutCard> createState() => _VideoLayoutCardState();
@@ -151,7 +148,7 @@ class _VideoLayoutCardState extends ConsumerState<_VideoLayoutCard> {
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
-                              widget.video.duracio,
+                              '${int.parse(widget.video.duracio) ~/ 3600 > 0 ? '${int.parse(widget.video.duracio) ~/ 3600}h ' : ''}${(int.parse(widget.video.duracio) % 3600) ~/ 60}min ${int.parse(widget.video.duracio) % 60}s',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 10,
@@ -165,8 +162,10 @@ class _VideoLayoutCardState extends ConsumerState<_VideoLayoutCard> {
                 ),
 
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 6,
+                  ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -194,8 +193,9 @@ class _VideoLayoutCardState extends ConsumerState<_VideoLayoutCard> {
                           padding: const EdgeInsets.only(left: 4),
                           child: Icon(
                             isFavorite ? Icons.favorite : Icons.favorite_border,
-                            color:
-                                isFavorite ? Colors.redAccent : Colors.white38,
+                            color: isFavorite
+                                ? Colors.redAccent
+                                : Colors.white38,
                             size: 18,
                           ),
                         ),
@@ -215,11 +215,7 @@ class _VideoLayoutCardState extends ConsumerState<_VideoLayoutCard> {
     return Container(
       color: const Color(0xFF2A2A2A),
       child: const Center(
-        child: Icon(
-          Icons.play_circle_outline,
-          color: Colors.white38,
-          size: 42,
-        ),
+        child: Icon(Icons.play_circle_outline, color: Colors.white38, size: 42),
       ),
     );
   }

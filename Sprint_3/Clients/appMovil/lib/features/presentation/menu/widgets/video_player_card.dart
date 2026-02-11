@@ -25,10 +25,7 @@ class VideoPlayerCard extends StatelessWidget {
     }
 
     return Container(
-      constraints: const BoxConstraints(
-        maxHeight: 600,
-        minHeight: 200,
-      ),
+      constraints: const BoxConstraints(maxHeight: 600, minHeight: 200),
       decoration: BoxDecoration(
         color: const Color(0xFF1E1E1E),
         borderRadius: BorderRadius.circular(16),
@@ -43,25 +40,17 @@ class VideoPlayerCard extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildVideoArea(),
-          _buildInfo(),
-        ],
+        children: [_buildVideoArea(), _buildInfo()],
       ),
     );
   }
 
   Widget _buildVideoArea() {
     return ClipRRect(
-      borderRadius: const BorderRadius.vertical(
-        top: Radius.circular(16),
-      ),
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
       child: Container(
         color: Colors.black,
-        constraints: const BoxConstraints(
-          minHeight: 200,
-          maxHeight: 400,
-        ),
+        constraints: const BoxConstraints(minHeight: 200, maxHeight: 400),
         child: isVideoInitialized && controller != null
             ? AspectRatio(
                 aspectRatio: controller!.value.aspectRatio,
@@ -95,12 +84,7 @@ class VideoPlayerCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: controls,
-                    ),
+                    Positioned(bottom: 0, left: 0, right: 0, child: controls),
                   ],
                 ),
               )
@@ -128,14 +112,10 @@ class VideoPlayerCard extends StatelessWidget {
                       );
                     },
                   ),
-                  const CircularProgressIndicator(
-                    color: Colors.blueAccent,
-                  ),
+                  const CircularProgressIndicator(color: Colors.blueAccent),
                 ],
               )
-            : const CircularProgressIndicator(
-                color: Colors.blueAccent,
-              ),
+            : const CircularProgressIndicator(color: Colors.blueAccent),
       ),
     );
   }
@@ -169,7 +149,7 @@ class VideoPlayerCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    selectedVideo!.duracio,
+                    '${int.parse(selectedVideo!.duracio) ~/ 3600 > 0 ? '${int.parse(selectedVideo!.duracio) ~/ 3600}h ' : ''}${(int.parse(selectedVideo!.duracio) % 3600) ~/ 60}min ${int.parse(selectedVideo!.duracio) % 60}s',
                     style: const TextStyle(
                       color: Colors.white70,
                       fontSize: 13,
