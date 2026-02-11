@@ -31,6 +31,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   @override
   void initState() {
     super.initState();
+    // Permitir todas las orientaciones para detectar rotación
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
     _initializeVideo();
     _loadMoreVideos();
   }
@@ -153,24 +160,17 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     setState(() {
       _showFullScreen = !_showFullScreen;
     });
+    _applyFullScreenMode();
+  }
 
+  void _applyFullScreenMode() {
     if (_showFullScreen) {
-      // Entrar en fullscreen
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight,
-      ]);
     } else {
-      // Salir de fullscreen
       SystemChrome.setEnabledSystemUIMode(
         SystemUiMode.manual,
         overlays: SystemUiOverlay.values,
       );
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
-      ]);
     }
   }
 
@@ -194,6 +194,28 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Detectar orientación y sincronizar fullscreen automáticamente
+    final orientation = MediaQuery.of(context).orientation;
+    final isLandscape = orientation == Orientation.landscape;
+
+    if (isLandscape && !_showFullScreen) {
+      // Giró a horizontal → entrar en fullscreen
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          _showFullScreen = true;
+        });
+        _applyFullScreenMode();
+      });
+    } else if (!isLandscape && _showFullScreen) {
+      // Giró a vertical → salir de fullscreen
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          _showFullScreen = false;
+        });
+        _applyFullScreenMode();
+      });
+    }
+
     // En fullscreen, mostrar solo el video sin AppBar
     if (_showFullScreen) {
       return Scaffold(
