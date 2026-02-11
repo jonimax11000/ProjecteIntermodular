@@ -13,10 +13,7 @@ import 'package:exercici_disseny_responsiu_stateful/features/presentation/menu/w
 class VideoPlayerScreen extends StatefulWidget {
   final Video video;
 
-  const VideoPlayerScreen({
-    super.key,
-    required this.video,
-  });
+  const VideoPlayerScreen({super.key, required this.video});
 
   @override
   State<VideoPlayerScreen> createState() => _VideoPlayerScreenState();
@@ -54,7 +51,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     print("DEBUG: Initializing video: $baseUrl");
     print("DEBUG: Token available: ${token != null}");
     print(
-        "DEBUG: Refresh Token available: ${refreshToken != null} - $refreshToken");
+      "DEBUG: Refresh Token available: ${refreshToken != null} - $refreshToken",
+    );
 
     // 1. Hacer petición HEAD para obtener posibles nuevos tokens
     try {
@@ -208,10 +206,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       backgroundColor: const Color(0xFF121212),
       elevation: 0,
       centerTitle: true,
-      title: Image.asset(
-        "assets/img/justflix.png",
-        height: 44,
-      ),
+      title: Image.asset("assets/img/justflix.png", height: 44),
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: Colors.white),
         onPressed: () => Navigator.pop(context),
@@ -323,18 +318,11 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           // DURACIÓN
           Row(
             children: [
-              const Icon(
-                Icons.access_time,
-                color: Colors.white70,
-                size: 16,
-              ),
+              const Icon(Icons.access_time, color: Colors.white70, size: 16),
               const SizedBox(width: 6),
               Text(
-                widget.video.duracio,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 14,
-                ),
+                '${int.parse(widget.video.duracio) ~/ 3600 > 0 ? '${int.parse(widget.video.duracio) ~/ 3600}h ' : ''}${(int.parse(widget.video.duracio) % 3600) ~/ 60}min ${int.parse(widget.video.duracio) % 60}s',
+                style: const TextStyle(color: Colors.white70, fontSize: 14),
               ),
             ],
           ),
@@ -382,8 +370,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       );
     }
 
-    final otherVideos =
-        _allVideos.where((v) => v.id != widget.video.id).toList();
+    final otherVideos = _allVideos
+        .where((v) => v.id != widget.video.id)
+        .toList();
 
     if (otherVideos.isEmpty) {
       return Padding(
@@ -450,8 +439,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                                   width: 120,
                                   height: 80,
                                   color: Colors.grey[800],
-                                  child: const Icon(Icons.broken_image,
-                                      color: Colors.white),
+                                  child: const Icon(
+                                    Icons.broken_image,
+                                    color: Colors.white,
+                                  ),
                                 );
                               },
                             ),
