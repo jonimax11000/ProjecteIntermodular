@@ -3,7 +3,7 @@
   <div class="admin-container">
 
     <div class="main-content">
-      <FileUploader :isEditing="isEditing" :originalTitle="originalTitle" :currentThumbnail="currentUrls.thumbnail"
+      <FileUploader :isEditing="isEditing" :originalTitle="originalTitle" :currentThumbnail="currentUrls.thumbnailDisplay"
         @file-selected="(f) => selectedFileRaw = f" />
 
       <VideoForm v-if="formData" :form-data="formData" :listas="listasDB" :isUploading="isUploading"
@@ -39,7 +39,7 @@ const processingResolvers = new Map(); // jobId -> {resolve, reject}
 const isEditing = ref(false);
 const currentVideoId = ref(null);
 const originalTitle = ref('');
-const currentUrls = reactive({ video: '', thumbnail: '', duracio: 0 });
+const currentUrls = reactive({ video: '', thumbnail: '', thumbnailDisplay: '', duracio: 0 });
 
 // Listas para los desplegables
 const listasDB = reactive({ edats: [], nivells: [], series: [], categorias: [] });
@@ -238,7 +238,10 @@ const loadVideoForEdit = async (id) => {
   const thumbName = v.thumbnailURL || v.thumbnail;
   const nivel = v.nivell?.id || v.nivell;
 
-  currentUrls.thumbnail = api.getThumbnailUrl(thumbName, nivel);
+  // Guardamos el nombre crudo para Spring Boot (sin prefijo /node-api)
+  currentUrls.thumbnail = thumbName;
+  // Y la URL con proxy solo para mostrar la preview en el navegador
+  currentUrls.thumbnailDisplay = api.getThumbnailUrl(thumbName, nivel);
 };
 
 // --- ENVÍO DEL FORMULARIO (SUBMIT) ---
@@ -253,10 +256,10 @@ const submitVideo = async () => {
     let finalDur = currentUrls.duracio;
     let fileSize = 1024000; // Valor por defecto ~1MB si no se sube archivo nuevo
 
-    // 1. SUBIDA A NODE (Si el usuario seleccionó un archivo)
-    if (selectedFileRaw.value) {
+    // 1. SUBIDA A NODE (Solo si el usuario seleccionó un archivo nuevo)
+    if (selectedFileRaw.value && selectedFileRaw.value instanceof File) {
       if (isEditing.value && finalUrl) {
-        api.deleteFileNode(finalUrl, finalThumb).catch(() => { });
+        await api.deleteFileNode(finalUrl, finalThumb).catch(() => { });
       }
 
       uploadStatus.value = 'Subiendo video a Node...';
