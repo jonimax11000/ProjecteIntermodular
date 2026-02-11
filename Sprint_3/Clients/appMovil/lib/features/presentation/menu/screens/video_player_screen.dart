@@ -194,10 +194,66 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // En fullscreen, mostrar solo el video sin AppBar
+    if (_showFullScreen) {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        body: _buildFullScreenPlayer(),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
       appBar: _buildAppBar(context),
       body: _buildContent(),
+    );
+  }
+
+  Widget _buildFullScreenPlayer() {
+    return Stack(
+      children: [
+        Center(
+          child: _isVideoInitialized && _videoController != null
+              ? AspectRatio(
+                  aspectRatio: _videoController!.value.aspectRatio,
+                  child: VideoPlayer(_videoController!),
+                )
+              : const CircularProgressIndicator(color: Colors.white),
+        ),
+        // Controles del video
+        if (_videoController != null && _isVideoInitialized)
+          Positioned.fill(
+            child: VideoControls(
+              controller: _videoController!,
+              onToggleFullscreen: _toggleFullScreen,
+            ),
+          ),
+        // Botón play/pause central
+        if (_videoController != null && _isVideoInitialized)
+          Positioned.fill(
+            child: Center(
+              child: AnimatedOpacity(
+                opacity: _isPlaying ? 0.0 : 1.0,
+                duration: const Duration(milliseconds: 200),
+                child: GestureDetector(
+                  onTap: _togglePlayPause,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.6),
+                      shape: BoxShape.circle,
+                    ),
+                    padding: const EdgeInsets.all(20),
+                    child: Icon(
+                      _isPlaying ? Icons.pause : Icons.play_arrow,
+                      color: Colors.white,
+                      size: 48,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 
