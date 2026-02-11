@@ -167,7 +167,7 @@ export const jwtMiddlewareUser = (
   }
   try {
     if (
-      (role == "user" || role == "admin") &&
+      (role == "other" || role == "admin") &&
       active &&
       subscription_level >= nivel
     ) {
